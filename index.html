@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MaktabOS — Maktabning Raqamli Operatsion Tizimi</title>
+  <style>
+    :root {
+      --primary: #0F3D3E;
+      --primary-dark: #071F20;
+      --primary-light: #185B5D;
+      --accent: #C2593F;
+      --gold: #B45309;
+      --gold-bright: #F59E0B;
+      --bg: #F6F4EF;
+      --card: #FFFFFF;
+      --border: #E3DDD2;
+      --text: #15201D;
+      --muted: #5A6964;
+      --radius: 18px;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .hidden { display: none !important; }
+    button { cursor: pointer; border: none; font-family: inherit; transition: transform 0.16s ease, background 0.2s ease, box-shadow 0.2s ease; }
+    button:active { transform: scale(0.96); }
+    input, select, textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 13px;
+      background: #FFFFFF;
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+
+    /* TOAST NOTIFICATIONS */
+    .toast-container {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      left: 14px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast-item {
+      background: var(--primary-dark);
+      color: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.24);
+      border-left: 4px solid var(--gold-bright);
+      max-width: 420px;
+      width: 100%;
+      animation: slideDownToast 0.28s ease;
+    }
+    .toast-item.error { border-left-color: #EF4444; background: #450A0A; }
+    .toast-item.success { border-left-color: #10B981; }
+    @keyframes slideDownToast {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* AUTH SCREEN */
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: linear-gradient(155deg, var(--primary-dark) 0%, var(--primary) 55%, #1B6466 100%);
+    }
+    .auth-box {
+      width: 100%;
+      max-width: 430px;
+      background: var(--bg);
+      border-radius: 26px;
+      padding: 28px 22px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.34);
+    }
+    .brand-header { text-align: center; margin-bottom: 22px; }
+    .brand-logo-box {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #0F3D3E, #185B5D);
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      box-shadow: 0 10px 24px rgba(15,61,62,0.3);
+    }
+    .brand-header h1 { font-size: 27px; color: var(--primary); font-weight: 900; letter-spacing: -0.5px; }
+    .brand-header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #E7E2D7;
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+    }
+    .tab-btn {
+      padding: 11px;
+      border-radius: 11px;
+      font-weight: 700;
+      font-size: 14px;
+      background: transparent;
+      color: var(--muted);
+    }
+    .tab-btn.active { background: #FFFFFF; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 13px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 15px;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary:hover { background: var(--primary-light); }
+    .btn-secondary {
+      padding: 10px 14px;
+      background: #E8E3D9;
+      color: var(--text);
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-accent {
+      padding: 10px 14px;
+      background: var(--accent);
+      color: #FFFFFF;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-gold {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #B45309, #D97706);
+      color: #FFFFFF;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* APP SHELL */
+    .app-container { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 274px;
+      background: var(--primary-dark);
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 14px;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      z-index: 60;
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sidebar-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.52); z-index: 55; display: none;
+    }
+    .sidebar-overlay.show { display: block; }
+    .sidebar-brand {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 6px 16px; border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .sidebar-brand-left { display: flex; align-items: center; gap: 10px; }
+    .sidebar-brand span { font-size: 20px; font-weight: 900; }
+    .nav-list { flex: 1; overflow-y: auto; margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .nav-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 13px; border-radius: 13px;
+      color: rgba(255,255,255,0.82); background: transparent;
+      text-align: left; font-size: 14px; font-weight: 600;
+    }
+    .nav-item-left { display: flex; align-items: center; gap: 10px; }
+    .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.16); color: #FFFFFF; font-weight: 700; }
+    .nav-pill {
+      background: var(--accent); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 800;
+    }
+    .sidebar-footer { padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .logout-btn {
+      width: 100%; padding: 12px; background: rgba(194,89,63,0.26);
+      color: #FFD7CE; border-radius: 13px; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .logout-btn:hover { background: var(--accent); color: #FFFFFF; }
+
+    .main-area {
+      flex: 1;
+      margin-left: 274px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding-bottom: 80px;
+    }
+    .topbar {
+      height: 64px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .mobile-menu-btn {
+      display: none;
+      background: #EFECE6;
+      color: var(--primary);
+      padding: 9px 11px;
+      border-radius: 11px;
+      font-weight: 800;
+      font-size: 13px;
+      align-items: center;
+      gap: 6px;
+    }
+    .user-chip { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 6px; border-radius: 14px; }
+
+    /* AVATAR & LUXURY ANIMATED FRAMES */
+    .avatar-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--primary); color: #FFFFFF;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .avatar-circle img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    @keyframes pulseGlowGold {
+      0%, 100% { box-shadow: 0 0 0 3px #F59E0B, 0 0 14px rgba(245,158,11,0.75); }
+      50% { box-shadow: 0 0 0 4.5px #FDE68A, 0 0 24px rgba(217,119,6,0.95); }
+    }
+    @keyframes pulseGlowEmerald {
+      0%, 100% { box-shadow: 0 0 0 3px #10B981, 0 0 14px rgba(16,185,129,0.75); }
+      50% { box-shadow: 0 0 0 4.5px #A7F3D0, 0 0 24px rgba(5,150,105,0.95); }
+    }
+    @keyframes pulseGlowRoyal {
+      0%, 100% { box-shadow: 0 0 0 3px #2563EB, 0 0 14px rgba(37,99,235,0.75); }
+      50% { box-shadow: 0 0 0 4.5px #93C5FD, 0 0 24px rgba(29,78,216,0.95); }
+    }
+    @keyframes pulseGlowCrimson {
+      0%, 100% { box-shadow: 0 0 0 3px #E11D48, 0 0 14px rgba(225,29,72,0.75); }
+      50% { box-shadow: 0 0 0 4.5px #FDA4AF, 0 0 24px rgba(190,18,60,0.95); }
+    }
+    @keyframes imperialRainbow {
+      0% { box-shadow: 0 0 0 3.5px #D97706, 0 0 20px rgba(217,119,6,0.95); }
+      33% { box-shadow: 0 0 0 3.5px #059669, 0 0 22px rgba(5,150,105,0.95); }
+      66% { box-shadow: 0 0 0 3.5px #2563EB, 0 0 22px rgba(37,99,235,0.95); }
+      100% { box-shadow: 0 0 0 3.5px #D97706, 0 0 20px rgba(217,119,6,0.95); }
+    }
+
+    .frame-emerald { animation: pulseGlowEmerald 2.2s infinite ease-in-out; }
+    .frame-royal { animation: pulseGlowRoyal 2.2s infinite ease-in-out; }
+    .frame-gold { animation: pulseGlowGold 2.0s infinite ease-in-out; }
+    .frame-crimson { animation: pulseGlowCrimson 2.0s infinite ease-in-out; }
+    .frame-platinum { box-shadow: 0 0 0 3.5px #94A3B8, 0 0 18px rgba(148,163,184,0.9); }
+    .frame-imperial { animation: imperialRainbow 3.2s infinite linear; }
+    .frame-celestial { animation: pulseGlowRoyal 1.7s infinite ease-in-out; }
+    .frame-phoenix { animation: pulseGlowCrimson 1.7s infinite ease-in-out; }
+
+    /* MOBILE BOTTOM NAVIGATION BAR */
+    .mobile-bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 68px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      z-index: 45;
+      grid-template-columns: repeat(5, 1fr);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    }
+    .bnav-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: transparent; color: var(--muted); font-size: 11px; font-weight: 800; gap: 4px;
+    }
+    .bnav-btn.active { color: var(--primary); }
+    .bnav-bar { width: 22px; height: 3px; border-radius: 4px; background: transparent; }
+    .bnav-btn.active .bnav-bar { background: var(--accent); }
+
+    .content { padding: 16px 14px; max-width: 1180px; width: 100%; margin: 0 auto; }
+    .page-title { font-size: 21px; font-weight: 900; color: var(--primary); margin-bottom: 4px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+    .page-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.025);
+    }
+    .stat-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; display: flex; align-items: center; gap: 6px; }
+    .stat-val { font-size: 25px; font-weight: 900; color: var(--primary); margin-top: 6px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 800; background: #EFECE6; color: var(--primary);
+    }
+    .badge-gold { background: #FEF3C7; color: #92400E; }
+    .badge-green { background: #D1FAE5; color: #065F46; }
+    .badge-red { background: #FEE2E2; color: #991B1B; }
+    .badge-blue { background: #DBEAFE; color: #1E40AF; }
+
+    /* CHAT SYSTEM */
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      height: calc(100vh - 165px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .chat-sidebar { border-right: 1px solid var(--border); display: flex; flex-direction: column; background: #FCFBF9; }
+    .chat-list { flex: 1; overflow-y: auto; }
+    .chat-room-item { padding: 13px 15px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .chat-room-item:hover, .chat-room-item.active { background: #ECE8DF; }
+    .chat-main { display: flex; flex-direction: column; height: 100%; min-width: 0; }
+    .chat-header {
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 14px;
+      display: flex; flex-direction: column; gap: 10px; background: #F7F5F0;
+    }
+    .msg-bubble {
+      max-width: 85%; padding: 11px 14px; border-radius: 16px;
+      background: #FFFFFF; border: 1px solid var(--border);
+    }
+    .msg-bubble.mine { align-self: flex-end; background: #E3F1EE; border-color: #B9D8D2; }
+    .msg-meta { font-size: 11px; font-weight: 800; color: var(--primary); margin-bottom: 4px; display: flex; justify-content: space-between; gap: 10px; }
+    .msg-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .react-btn {
+      padding: 5px 10px; border-radius: 12px; background: #F2EFE9;
+      font-size: 11px; font-weight: 700; color: var(--text);
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .react-btn:hover { background: #E4DEC9; }
+    @keyframes popAnim { 0% { transform: scale(1); } 50% { transform: scale(1.34); } 100% { transform: scale(1); } }
+    .pop { animation: popAnim 0.32s ease; }
+    .chat-input-bar {
+      padding: 10px 12px; border-top: 1px solid var(--border);
+      display: flex; gap: 6px; align-items: center; background: #FFFFFF; flex-wrap: wrap;
+    }
+
+    /* LUXURY CERTIFICATE DESIGN */
+    .cert-frame-outer {
+      background: linear-gradient(135deg, #071F20 0%, #0F3D3E 50%, #19585A 100%);
+      padding: 14px;
+      border-radius: 18px;
+      box-shadow: 0 14px 36px rgba(15,61,62,0.32);
+    }
+    .cert-frame-inner {
+      background: #FFFDF8;
+      border: 3px solid #D97706;
+      outline: 2px solid #0F3D3E;
+      outline-offset: -8px;
+      padding: 30px 18px;
+      border-radius: 12px;
+      text-align: center;
+      position: relative;
+    }
+    .cert-ribbon {
+      display: inline-block;
+      background: linear-gradient(90deg, #B45309, #F59E0B, #B45309);
+      color: #FFFFFF;
+      padding: 5px 18px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .cert-main-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #0F3D3E;
+      letter-spacing: 1.5px;
+      margin: 6px 0;
+      text-transform: uppercase;
+    }
+    .cert-recipient {
+      font-size: 24px;
+      font-weight: 900;
+      color: #B45309;
+      margin: 14px 0 4px;
+      padding: 4px 20px;
+      border-bottom: 2px solid #D97706;
+      display: inline-block;
+    }
+    .cert-gold-seal {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #FEF3C7 0%, #F59E0B 70%, #B45309 100%);
+      border: 3px double #78350F;
+      color: #78350F;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 9px;
+      line-height: 1.2;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(180,83,9,0.35);
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(10, 20, 18, 0.65);
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px; z-index: 100;
+    }
+    .modal-card {
+      background: #FFFFFF; border-radius: 22px; max-width: 560px; width: 100%;
+      padding: 22px 18px; max-height: 92vh; overflow-y: auto;
+    }
+
+    @media (max-width: 860px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-area { margin-left: 0; }
+      .mobile-menu-btn { display: inline-flex; }
+      .mobile-bottom-nav { display: grid; }
+      .chat-layout { grid-template-columns: 1fr; height: auto; min-height: 540px; }
+      .chat-sidebar { max-height: 200px; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #certPrintArea, #certPrintArea * { visibility: visible; }
+      #certPrintArea { position: fixed; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-wrapper">
+    <div class="auth-box">
+      <div class="brand-header">
+        <div class="brand-logo-box">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+            <path d="M20 4L35 12V28L20 36L5 28V12L20 4Z" stroke="#F59E0B" stroke-width="2.5" fill="rgba(255,255,255,0.08)"/>
+            <path d="M12 25V15L20 20L28 15V25" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="20" cy="11" r="2.2" fill="#F59E0B"/>
+          </svg>
+        </div>
+        <h1>MaktabOS</h1>
+        <p>Maktabning Yagona Raqamli Operatsion Tizimi</p>
+      </div>
+
+      <div class="tabs">
+        <button id="tabRegBtn" class="tab-btn active" onclick="switchAuthTab('register')">Ro'yxatdan O'tish</button>
+        <button id="tabLoginBtn" class="tab-btn" onclick="switchAuthTab('login')">Tizimga Kirish</button>
+      </div>
+
+      <!-- Register Form -->
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Ism va Familiya</label>
+          <input type="text" id="regName" placeholder="Masalan: Sardorbek Alimov" required />
+        </div>
+        <div class="form-group">
+          <label>Maqomingiz</label>
+          <select id="regRole" onchange="toggleRegFields()">
+            <option value="student">O'quvchi</option>
+            <option value="teacher">Fan O'qituvchisi</option>
+            <option value="homeroom">Sinf Rahbari</option>
+          </select>
+        </div>
+        <div class="form-group" id="regClassWrap">
+          <label>Sinfingiz</label>
+          <select id="regClass">
+            <option value="5-sinf">5-sinf</option>
+            <option value="6-sinf">6-sinf</option>
+            <option value="7-sinf">7-sinf</option>
+            <option value="8-sinf">8-sinf</option>
+            <option value="9-sinf" selected>9-sinf</option>
+            <option value="10-sinf">10-sinf</option>
+            <option value="11-sinf">11-sinf</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="regSubjectWrap">
+          <label>Mutaxassislik Faningiz</label>
+          <select id="regSubject"></select>
+        </div>
+        <div class="form-group">
+          <label>Login</label>
+          <input type="text" id="regLogin" placeholder="Login yarating" required />
+        </div>
+        <div class="form-group">
+          <label>Parol</label>
+          <input type="password" id="regPass" placeholder="Parol yarating" required />
+        </div>
+        <button type="submit" class="btn-primary">MaktabOS ga Qo'shilish</button>
+      </form>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Login</label>
+          <input type="text" id="loginUser" placeholder="Loginingizni kiriting" required />
+        </div>
+        <div class="form-group">
+          <label>Parol</label>
+          <input type="password" id="loginPass" placeholder="Parolingizni kiriting" required />
+        </div>
+        <button type="submit" class="btn-primary">Kabinetga Kirish</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP SCREEN -->
+  <div id="appScreen" class="app-container hidden">
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-left">
+          <div class="brand-logo-box" style="width:38px;height:38px;border-radius:11px;margin:0;background:#C2593F;">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+              <path d="M20 4L35 12V28L20 36L5 28V12L20 4Z" stroke="#FDE68A" stroke-width="2.5"/>
+              <path d="M12 25V15L20 20L28 15V25" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>MaktabOS</span>
+        </div>
+        <button onclick="toggleMobileSidebar()" style="background:none;color:#fff;font-size:18px;padding:4px 8px;" class="mobile-menu-btn">X</button>
+      </div>
+      <nav id="navMenu" class="nav-list"></nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Tizimdan Chiqish</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="main-area">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+              <rect width="40" height="40" rx="10" fill="#0F3D3E"/>
+              <path d="M11 26V14L20 19.5L29 14V26" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="20" cy="10" r="2.5" fill="#F59E0B"/>
+            </svg>
+            <div>
+              <strong style="color:var(--primary);font-size:16px;display:block;line-height:1.1;">MaktabOS</strong>
+              <span id="topRoleBadge" style="font-size:11px;color:var(--muted);">Raqamli Maktab</span>
+            </div>
+          </div>
+        </div>
+        <div class="user-chip" onclick="navigate('profile')">
+          <div style="text-align:right;">
+            <div id="topUserName" style="font-weight:800;font-size:13px;"></div>
+            <div id="topUserSub" style="font-size:11px;color:var(--gold);font-weight:800;"></div>
+          </div>
+          <div id="topAvatar" class="avatar-circle">U</div>
+        </div>
+      </header>
+
+      <main id="mainContent" class="content"></main>
+
+      <!-- MOBILE BOTTOM NAVIGATION -->
+      <nav id="mobileBottomNav" class="mobile-bottom-nav"></nav>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="modalBackdrop" class="modal-backdrop hidden" onclick="closeModalOnBg(event)">
+    <div id="modalCard" class="modal-card"></div>
+  </div>
+
+<script>
+const ICONS = {
+  home: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  chat: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  task: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  test: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  ai: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  rank: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+  store: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`,
+  cert: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`,
+  news: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+  user: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  admin: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  fire: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#F59E0B" stroke="#B45309" stroke-width="1.8"><path d="M12 2c0 4-4 6-4 11a4 4 0 0 0 8 0c0-2-1-4-2-5 0 2-1 3-2 3s-1-2 0-9z"/></svg>`,
+  camera: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`
+};
+
+function notify(msg, type = "info") {
+  const container = document.getElementById("toastContainer");
+  const el = document.createElement("div");
+  el.className = `toast-item ${type}`;
+  el.innerHTML = `<span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = "0";
+    el.style.transform = "translateY(-12px)";
+    setTimeout(() => el.remove(), 250);
+  }, 3000);
+}
+
+const SUBJECTS = [
+  "Matematika", "Algebra va Geometriya", "Fizika", "Kimyo", "Biologiya",
+  "Informatika va IT", "Ona tili", "Adabiyot", "Ingliz tili", "Rus tili",
+  "O'zbekiston tarixi", "Jahon tarixi", "Geografiya", "Huquqshunoslik",
+  "Iqtisodiyot asoslari", "Astronomiya"
+];
+
+const CLASSES = ["5-sinf", "6-sinf", "7-sinf", "8-sinf", "9-sinf", "10-sinf", "11-sinf"];
+
+const STORE_CATALOG = [
+  { id: "cert_gold_honor", type: "certificate", name: "Oltin Faxriy Yorliq", price: 1200, tier: "Oltin Daraja", desc: "Maktab miqyosidagi eng yuqori natija uchun rasmiy muhrlangan PDF sertifikat" },
+  { id: "cert_olympiad_master", type: "certificate", name: "Fan Olimpiadasi G'olibi Diplomi", price: 1200, tier: "Maxsus Diplom", desc: "Aniq va tabiiy fanlardan yuqori natija ko'rsatgan o'quvchi uchun rasmiy PDF diplom" },
+  { id: "cert_director_award", type: "certificate", name: "Maktab Direktori Tashakkurnomasi", price: 1200, tier: "Oliy Maqom", desc: "Maktab hayotidagi faollik uchun direktor imzosi tushirilgan rasmiy PDF hujjat" },
+  { id: "cert_grand_scholar", type: "certificate", name: "Yilning Eng Yaxshi Bilimdoni", price: 1200, tier: "Grand Sertifikat", desc: "1200+ ball to'plagan mutlaq yetakchi o'quvchi uchun maxsus PDF sertifikat" },
+
+  { id: "fr_emerald", type: "frame", frameClass: "frame-emerald", name: "Zumrad Nurli Ramka", price: 150, desc: "Jonli zumrad pulsatsiya beruvchi hashamatli ramka" },
+  { id: "fr_royal", type: "frame", frameClass: "frame-royal", name: "Qirollik Moviy Halosi", price: 250, desc: "Chuqur moviy nur taratuvchi animatsiyali ramka" },
+  { id: "fr_gold", type: "frame", frameClass: "frame-gold", name: "Oltin Yulduz Jilosi", price: 400, desc: "Tilla rangda tovlanuvchi nufuzli profil hoshiyasi" },
+  { id: "fr_crimson", type: "frame", frameClass: "frame-crimson", name: "Yoqut Chempion Ramkasi", price: 550, desc: "Qirmizi olovli pulsatsiya beruvchi g'oliblar ramkasi" },
+  { id: "fr_platinum", type: "frame", frameClass: "frame-platinum", name: "Platina Elita Qalqoni", price: 700, desc: "Kumush-platina jiloli maxsus dizayn" },
+  { id: "fr_celestial", type: "frame", frameClass: "frame-celestial", name: "Koinot Nuri Ramkasi", price: 850, desc: "Kuchli moviy impulsli tadqiqotchilar ramkasi" },
+  { id: "fr_phoenix", type: "frame", frameClass: "frame-phoenix", name: "Oltin Qanot Ramkasi", price: 950, desc: "Qirmizi va oltin uyg'unligidagi hashamatli ramka" },
+  { id: "fr_imperial", type: "frame", frameClass: "frame-imperial", name: "Imperator Toji (Kamalak Jilo)", price: 1100, desc: "Eng yuqori maqomdagi ko'p rangli animatsiyali toj ramka" },
+
+  { id: "ti_1", type: "title", name: "Yosh Tadqiqotchi", price: 120, desc: "Ismingiz yonida ko'rinadigan maxsus unvon" },
+  { id: "ti_2", type: "title", name: "Aniq Fanlar Ustasi", price: 220, desc: "Matematika va fizika bilimdonlari unvoni" },
+  { id: "ti_3", type: "title", name: "Sinf Sardori", price: 320, desc: "Guruh va sinf yetakchisi maqomi" },
+  { id: "ti_4", type: "title", name: "Maktab Faxri", price: 500, desc: "Maktab reytingi yulduzi unvoni" },
+  { id: "ti_5", type: "title", name: "MaktabOS Afsonasi", price: 900, desc: "Eng kamyob oliy darajadagi unvon" }
+];
+
+const AI_PRESETS = [
+  "Kvadrat tenglama formulasi", "Pifagor teoremasi", "Nyuton qonunlari",
+  "Kimyoviy bog'lanish turlari", "Insho rejasi tuzish", "Ingliz tili zamonlari"
+];
+
+function buildInitialTests() {
+  const bank = [];
+  let idx = 1;
+  CLASSES.forEach(cls => {
+    SUBJECTS.forEach(sub => {
+      for (let q = 1; q <= 15; q++) {
+        const a = (q * 4) + 7;
+        const b = q + 3;
+        bank.push({
+          id: "sys_t_" + idx++,
+          subject: sub,
+          grade: cls,
+          title: `${sub} — ${q}-mavzu sinov testi`,
+          authorName: null,
+          maxPoints: 60,
+          questions: [
+            {
+              q: `${sub} (${cls}) ${q}-savol: ${a} + ${b} × 3 ifodaning qiymatini toping.`,
+              options: [`${a + b * 3}`, `${(a + b) * 3}`, `${a + b}`, `${a * 3}`],
+              correct: 0
+            },
+            {
+              q: `${sub} fanida nazariy bilimlarni amaliyotda qo'llashning asosiy usuli qaysi?`,
+              options: ["Tahlil va masalalar yechish", "Faqat yodlash", "Tekshirmaslik", "Tasodifiy javob"],
+              correct: 0
+            },
+            {
+              q: `${cls} o'quv dasturi bo'yicha ${sub} fanidan yakuniy xulosa qanday asoslanadi?`,
+              options: ["Ilmiy dalil va hisob-kitoblar bilan", "Taxmin bilan", "Asossiz", "Noto'g'ri"],
+              correct: 0
+            }
+          ]
+        });
+      }
+    });
+  });
+  return bank;
+}
+
+const DEFAULT_DB = {
+  users: [
+    {
+      id: "u_admin", name: "Bosh Administrator", login: "admin", pass: "777",
+      role: "admin", points: 0, weeklyPoints: 0, streak: 1, lastLoginDate: "",
+      avatarImg: "", owned: [], activeFrame: "", activeTitle: "Tizim Boshqaruvchisi", solvedTests: [], claimedMissions: [], banned: false
+    }
+  ],
+  rooms: [
+    {
+      id: "r_general", name: "MaktabOS Rasmiy Kanali", type: "channel",
+      desc: "Barcha o'quvchi va ustozlar uchun umumiy axborot kanali",
+      creator: "Administrator", members: ["u_admin"],
+      pinned: "MaktabOS platformasiga xush kelibsiz! Kunlik missiyalar va testlar orqali ball yig'ing."
+    }
+  ],
+  messages: {
+    "r_general": [
+      {
+        id: "m_1", senderId: "u_admin", senderName: "Bosh Administrator",
+        text: "MaktabOS tizimi ishga tushirildi. Barcha o'quvchilarga omad tilaymiz!",
+        time: "09:00", reactions: { "Ajoyib": 1, "Rahmat": 1 }, replyTo: null
+      }
+    ]
+  },
+  tasks: [],
+  announcements: [
+    {
+      id: "ann_1",
+      title: "MaktabOS Raqamli Ekotizimi Ishga Tushdi",
+      body: "O'quvchilar kunlik missiyalar, fan testlari va vazifalarni bajarib maksimal 60 ballgacha to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlarni qo'lga kiritishlari mumkin.",
+      author: "Ma'muriyat", date: "2026-11-18", views: ["u_admin"]
+    }
+  ],
+  certificates: [],
+  tests: buildInitialTests()
+};
+
+let DB = JSON.parse(localStorage.getItem("maktabos_db_v3")) || DEFAULT_DB;
+let currentUser = null;
+let currentView = "dashboard";
+let activeRoomId = "r_general";
+let replyTarget = null;
+let rankingTab = "weekly";
+
+// Admin UI states
+let adminTab = "users";
+let adminSearch = "";
+let adminRoleFilter = "all";
+
+function saveDB() {
+  localStorage.setItem("maktabos_db_v3", JSON.stringify(DB));
+}
+
+function renderAvatarHTML(user, sizePx = 42, fontPx = 16) {
+  const frame = user.activeFrame || "";
+  const inner = user.avatarImg
+    ? `<img src="${user.avatarImg}" alt="${user.name}" />`
+    : `${user.name.charAt(0).toUpperCase()}`;
+  return `<div class="avatar-circle ${frame}" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px;">${inner}</div>`;
+}
+
+(function initSelects() {
+  const sel = document.getElementById("regSubject");
+  SUBJECTS.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s; opt.textContent = s;
+    sel.appendChild(opt);
+  });
+})();
+
+function switchAuthTab(tab) {
+  document.getElementById("tabRegBtn").classList.toggle("active", tab === "register");
+  document.getElementById("tabLoginBtn").classList.toggle("active", tab === "login");
+  document.getElementById("registerForm").classList.toggle("hidden", tab !== "register");
+  document.getElementById("loginForm").classList.toggle("hidden", tab !== "login");
+}
+
+function toggleRegFields() {
+  const role = document.getElementById("regRole").value;
+  document.getElementById("regClassWrap").classList.toggle("hidden", role === "teacher");
+  document.getElementById("regSubjectWrap").classList.toggle("hidden", role !== "teacher");
+}
+
+function handleRegister(e) {
+  e.preventDefault();
+  const name = document.getElementById("regName").value.trim();
+  const role = document.getElementById("regRole").value;
+  const grade = document.getElementById("regClass").value;
+  const subject = document.getElementById("regSubject").value;
+  const login = document.getElementById("regLogin").value.trim();
+  const pass = document.getElementById("regPass").value.trim();
+
+  if (DB.users.some(u => u.login.toLowerCase() === login.toLowerCase())) {
+    notify("Bu login band! Boshqa login tanlang.", "error");
+    return;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const newUser = {
+    id: "u_" + Date.now(),
+    name, login, pass, role,
+    grade: role !== "teacher" ? grade : "",
+    subject: role === "teacher" ? subject : "",
+    points: 0,
+    weeklyPoints: 0,
+    streak: 1,
+    lastLoginDate: today,
+    avatarImg: "",
+    owned: [],
+    activeFrame: "",
+    activeTitle: "",
+    solvedTests: [],
+    claimedMissions: [],
+    banned: false
+  };
+
+  DB.users.push(newUser);
+  DB.rooms[0].members.push(newUser.id);
+
+  if (role === "homeroom") {
+    const roomId = "r_class_" + grade.replace(/\W/g, "");
+    if (!DB.rooms.some(r => r.id === roomId)) {
+      const classStudents = DB.users.filter(u => u.grade === grade).map(u => u.id);
+      DB.rooms.push({
+        id: roomId,
+        name: `${grade} — Sinf Rahbari Guruhi`,
+        type: "group",
+        desc: `${grade} o'quvchilari va sinf rahbari (${name}) rasmiy guruhi`,
+        creator: name,
+        members: classStudents,
+        pinned: `${grade} rasmiy guruhi faoliyatini boshladi.`
+      });
+      DB.messages[roomId] = [];
+    }
+  } else if (role === "student") {
+    const roomId = "r_class_" + grade.replace(/\W/g, "");
+    const existingRoom = DB.rooms.find(r => r.id === roomId);
+    if (existingRoom && !existingRoom.members.includes(newUser.id)) {
+      existingRoom.members.push(newUser.id);
+    }
+  }
+
+  saveDB();
+  currentUser = newUser;
+  notify(`Xush kelibsiz, ${name}! Hisobingiz yaratildi.`, "success");
+  enterApp();
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const login = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value.trim();
+  const found = DB.users.find(u => u.login === login && u.pass === pass);
+  if (!found) {
+    notify("Login yoki parol noto'g'ri!", "error");
+    return;
+  }
+  if (found.banned) {
+    notify("Sizning hisobingiz Administrator tomonidan vaqtincha bloklangan!", "error");
+    return;
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  if (found.lastLoginDate !== today) {
+    found.streak = (found.streak || 0) + 1;
+    found.lastLoginDate = today;
+    saveDB();
+  }
+  currentUser = found;
+  notify(`Xush kelibsiz, ${found.name}!`, "success");
+  enterApp();
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById("appScreen").classList.add("hidden");
+  document.getElementById("authScreen").classList.remove("hidden");
+  notify("Tizimdan chiqildi");
+}
+
+function enterApp() {
+  document.getElementById("authScreen").classList.add("hidden");
+  document.getElementById("appScreen").classList.remove("hidden");
+  updateTopbar();
+  renderSidebarMenu();
+  renderBottomNav();
+  navigate("dashboard");
+}
+
+function toggleMobileSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sidebarOverlay").classList.toggle("show");
+}
+
+function updateTopbar() {
+  currentUser = DB.users.find(u => u.id === currentUser.id);
+  document.getElementById("topUserName").textContent = currentUser.name;
+  let sub = "";
+  let roleTxt = "";
+  if (currentUser.role === "student") {
+    sub = `${currentUser.points} ball • ${currentUser.streak || 1} kun seriya`;
+    roleTxt = currentUser.activeTitle || `${currentUser.grade} o'quvchisi`;
+  } else if (currentUser.role === "teacher") {
+    sub = `${currentUser.subject}`;
+    roleTxt = "Fan o'qituvchisi";
+  } else if (currentUser.role === "homeroom") {
+    sub = `${currentUser.grade} rahbari`;
+    roleTxt = "Sinf rahbari";
+  } else {
+    sub = "Super Admin";
+    roleTxt = "Boshqaruv markazi";
+  }
+  document.getElementById("topUserSub").textContent = sub;
+  document.getElementById("topRoleBadge").textContent = roleTxt;
+
+  const av = document.getElementById("topAvatar");
+  av.className = "avatar-circle " + (currentUser.activeFrame || "");
+  av.innerHTML = currentUser.avatarImg
+    ? `<img src="${currentUser.avatarImg}" alt="${currentUser.name}" />`
+    : currentUser.name.charAt(0).toUpperCase();
+}
+
+function renderSidebarMenu() {
+  const nav = document.getElementById("navMenu");
+  const r = currentUser.role;
+  const pendingCerts = DB.certificates.filter(c => !c.delivered).length;
+
+  const items = [
+    { id: "dashboard", label: "Bosh Sahifa", icon: ICONS.home },
+    { id: "chats", label: "Chatlar va Kanallar", icon: ICONS.chat },
+    { id: "tasks", label: "Vazifalar", icon: ICONS.task, badge: DB.tasks.length || null },
+    { id: "tests", label: "Fan Testlari", icon: ICONS.test },
+    { id: "ai", label: "AI Ustoz", icon: ICONS.ai },
+    { id: "ranking", label: "Top Reyting", icon: ICONS.rank }
+  ];
+
+  if (r === "student") {
+    items.push({ id: "store", label: "Mukofotlar Do'koni", icon: ICONS.store });
+  }
+  if (r === "teacher" || r === "homeroom" || r === "admin") {
+    items.push({ id: "student_certs", label: "O'quvchilar Sertifikatlari", icon: ICONS.cert, badge: pendingCerts || null });
+  }
+  items.push({ id: "announcements", label: "Maktab E'lonlari", icon: ICONS.news });
+  items.push({ id: "profile", label: "Profil va Mukofotlarim", icon: ICONS.user });
+  if (r === "admin") {
+    items.push({ id: "admin", label: "Super Admin Paneli", icon: ICONS.admin });
+  }
+
+  nav.innerHTML = items.map(it => `
+    <button class="nav-item ${currentView === it.id ? 'active' : ''}" onclick="navigate('${it.id}')">
+      <div class="nav-item-left">${it.icon}<span>${it.label}</span></div>
+      ${it.badge ? `<span class="nav-pill">${it.badge}</span>` : ''}
+    </button>
+  `).join("");
+}
+
+function renderBottomNav() {
+  const bnav = document.getElementById("mobileBottomNav");
+  const quick = currentUser.role === "admin"
+    ? [
+        { id: "dashboard", label: "Asosiy", icon: ICONS.home },
+        { id: "admin", label: "Admin", icon: ICONS.admin },
+        { id: "chats", label: "Chatlar", icon: ICONS.chat },
+        { id: "student_certs", label: "Sertifikat", icon: ICONS.cert },
+        { id: "profile", label: "Profil", icon: ICONS.user }
+      ]
+    : [
+        { id: "dashboard", label: "Asosiy", icon: ICONS.home },
+        { id: "chats", label: "Chatlar", icon: ICONS.chat },
+        { id: "tasks", label: "Vazifa", icon: ICONS.task },
+        { id: "tests", label: "Testlar", icon: ICONS.test },
+        { id: "profile", label: "Profil", icon: ICONS.user }
+      ];
+  bnav.innerHTML = quick.map(q => `
+    <button class="bnav-btn ${currentView === q.id ? 'active' : ''}" onclick="navigate('${q.id}')">
+      ${q.icon}
+      <span>${q.label}</span>
+      <span class="bnav-bar"></span>
+    </button>
+  `).join("");
+}
+
+function navigate(viewId) {
+  currentView = viewId;
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").classList.remove("show");
+  renderSidebarMenu();
+  renderBottomNav();
+  updateTopbar();
+  const box = document.getElementById("mainContent");
+
+  if (viewId === "dashboard") renderDashboard(box);
+  else if (viewId === "chats") renderChats(box);
+  else if (viewId === "tasks") renderTasks(box);
+  else if (viewId === "tests") renderTests(box);
+  else if (viewId === "ai") renderAI(box);
+  else if (viewId === "ranking") renderRanking(box);
+  else if (viewId === "store") renderStore(box);
+  else if (viewId === "student_certs") renderStudentCertsForTeacher(box);
+  else if (viewId === "announcements") renderAnnouncements(box);
+  else if (viewId === "profile") renderProfile(box);
+  else if (viewId === "admin") renderAdmin(box);
+}
+
+/* ================= 1. BOSH SAHIFA ================= */
+function renderDashboard(box) {
+  const r = currentUser.role;
+
+  if (r === "student") {
+    const allStudents = DB.users.filter(u => u.role === "student").sort((a,b) => b.points - a.points);
+    const rank = allStudents.findIndex(s => s.id === currentUser.id) + 1;
+    const pendingTasks = DB.tasks.filter(t => !t.submissions.some(s => s.studentId === currentUser.id));
+    const progressToCert = Math.min(100, Math.round((currentUser.points / 1200) * 100));
+    const level = Math.floor(currentUser.points / 150) + 1;
+    const today = new Date().toISOString().slice(0, 10);
+
+    const missions = [
+      { id: "m_login_" + today, title: "Kunlik tashrif bonusi", reward: 15, done: true },
+      { id: "m_test_" + today, title: "Bugun kamida 1 ta fan testini yechish", reward: 25, done: (currentUser.solvedTests || []).length > 0 },
+      { id: "m_chat_" + today, title: "Sinf yoki maktab kanalida faol bo'lish", reward: 15, done: (DB.messages["r_general"] || []).some(m => m.senderId === currentUser.id) }
+    ];
+
+    box.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+        <div>
+          <h2 class="page-title">Salom, ${currentUser.name}</h2>
+          <p class="page-sub" style="margin:0;">${currentUser.grade} • Daraja: <strong>Level ${level}</strong></p>
+        </div>
+        <div class="badge badge-gold" style="padding:7px 13px;font-size:12px;">
+          ${ICONS.fire} ${currentUser.streak || 1} kunlik seriya
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="stat-label">${ICONS.cert} Umumiy Ballarim</div>
+          <div class="stat-val">${currentUser.points} ball</div>
+          <div style="font-size:12px;color:var(--gold);margin-top:4px;font-weight:700;">Haftalik: +${currentUser.weeklyPoints || 0} ball</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">${ICONS.rank} Reytingdagi O'rnim</div>
+          <div class="stat-val">#${rank}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Jami ${allStudents.length} o'quvchi orasida</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">${ICONS.store} 1200 Ballik Sertifikat</div>
+          <div class="stat-val">${progressToCert}%</div>
+          <div style="height:8px;background:#E8E3D9;border-radius:10px;margin-top:8px;overflow:hidden;">
+            <div style="height:100%;width:${progressToCert}%;background:linear-gradient(90deg, #B45309, #F59E0B);transition:width 0.4s;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color:var(--primary);margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.ai} Kunlik Missiyalar (Qo'shimcha Ball)</h3>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Har kuni topshiriqlarni bajaring va mukofot ballarini oling</p>
+          ${missions.map(ms => {
+            const claimed = (currentUser.claimedMissions || []).includes(ms.id);
+            return `
+              <div style="padding:11px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div>
+                  <div style="font-weight:700;font-size:13px;">${ms.title}</div>
+                  <div style="font-size:11px;color:var(--gold);font-weight:800;">Mukofot: +${ms.reward} ball</div>
+                </div>
+                ${claimed
+                  ? `<span class="badge badge-green">Olingan</span>`
+                  : ms.done
+                    ? `<button class="btn-gold" style="padding:7px 12px;font-size:12px;" onclick="claimMission('${ms.id}', ${ms.reward})">Ballni Olish</button>`
+                    : `<span class="badge">Jarayonda</span>`
+                }
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="card">
+          <h3 style="color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:8px;">${ICONS.task} Bajarilmagan Vazifalar (${pendingTasks.length})</h3>
+          ${pendingTasks.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Ajoyib! Barcha berilgan vazifalarni topshirgansiz.</p>` : pendingTasks.slice(0, 4).map(t => `
+            <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <div>
+                <strong style="font-size:14px;">${t.title}</strong>
+                <div style="font-size:12px;color:var(--muted);">${t.subject} • Ustoz: ${t.teacherName}</div>
+              </div>
+              <button class="btn-primary" style="width:auto;margin:0;padding:8px 12px;font-size:12px;" onclick="navigate('tasks')">Topshirish</button>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  } else if (r === "teacher" || r === "homeroom") {
+    const myTasks = DB.tasks.filter(t => t.teacherId === currentUser.id);
+    let ungraded = 0;
+    myTasks.forEach(t => t.submissions.forEach(s => { if (s.grade === null) ungraded++; }));
+    const myTests = DB.tests.filter(t => t.authorId === currentUser.id).length;
+    const pendingCerts = DB.certificates.filter(c => !c.delivered).length;
+
+    box.innerHTML = `
+      <h2 class="page-title">Ustoz ${currentUser.name}</h2>
+      <p class="page-sub">${r === 'teacher' ? currentUser.subject + " o'qituvchisi" : currentUser.grade + " rahbari"} kabineti</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="stat-label">${ICONS.task} Tekshirilmagan Vazifalar</div>
+          <div class="stat-val">${ungraded} ta</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">${ICONS.cert} Topshiriladigan Sertifikatlar</div>
+          <div class="stat-val">${pendingCerts} ta</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">${ICONS.test} Mualliflik Testlarim</div>
+          <div class="stat-val">${myTests} ta</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--primary);margin-bottom:12px;">Tezkor Boshqaruv</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:10px;">
+          <button class="btn-primary" style="margin:0;" onclick="navigate('tasks')">${ICONS.task} Vazifa Berish</button>
+          <button class="btn-gold" onclick="navigate('tests')">${ICONS.test} Test Tuzish</button>
+          <button class="btn-secondary" onclick="navigate('student_certs')">${ICONS.cert} Sertifikatlar</button>
+          <button class="btn-secondary" onclick="navigate('ranking')">${ICONS.rank} Top Reyting</button>
+        </div>
+      </div>
+    `;
+  } else {
+    const studentsCount = DB.users.filter(u => u.role === "student").length;
+    const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
+    box.innerHTML = `
+      <h2 class="page-title">MaktabOS Boshqaruv Markazi</h2>
+      <p class="page-sub">Super Administrator nazorat paneli</p>
+      <div class="grid-3">
+        <div class="card"><div class="stat-label">${ICONS.user} Jami Foydalanuvchilar</div><div class="stat-val">${DB.users.length} nafar</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">${studentsCount} o'quvchi • ${teachersCount} ustoz</div></div>
+        <div class="card"><div class="stat-label">${ICONS.chat} Faol Guruh va Kanallar</div><div class="stat-val">${DB.rooms.length} ta</div></div>
+        <div class="card"><div class="stat-label">${ICONS.cert} Berilgan Sertifikatlar</div><div class="stat-val">${DB.certificates.length} ta</div></div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--primary);margin-bottom:12px;">Tezkor Admin Vositalari</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-primary" style="width:auto;margin:0;" onclick="navigate('admin')">${ICONS.admin} To'liq Admin Panelini Ochish</button>
+          <button class="btn-gold" onclick="openAdminCreateUserModal()">+ Yangi Foydalanuvchi Qo'shish</button>
+          <button class="btn-secondary" onclick="openAdminBroadcastModal()">Barcha Kanallarga E'lon</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function claimMission(missionId, reward) {
+  if (!currentUser.claimedMissions) currentUser.claimedMissions = [];
+  if (currentUser.claimedMissions.includes(missionId)) return;
+  currentUser.claimedMissions.push(missionId);
+  currentUser.points += reward;
+  currentUser.weeklyPoints = (currentUser.weeklyPoints || 0) + reward;
+  saveDB();
+  updateTopbar();
+  notify(`Missiya bajarildi! +${reward} ball qo'shildi.`, "success");
+  renderDashboard(document.getElementById("mainContent"));
+}
+
+/* ================= 2. CHATLAR VA KANALLAR ================= */
+function renderChats(box) {
+  const accessibleRooms = DB.rooms.filter(r =>
+    currentUser.role === "admin" || r.id === "r_general" || r.members.includes(currentUser.id)
+  );
+  if (!accessibleRooms.some(r => r.id === activeRoomId) && accessibleRooms.length) {
+    activeRoomId = accessibleRooms[0].id;
+  }
+  const activeRoom = DB.rooms.find(r => r.id === activeRoomId);
+  const msgs = DB.messages[activeRoomId] || [];
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+      <div>
+        <h2 class="page-title">${ICONS.chat} Chatlar va Kanallar</h2>
+        <p class="page-sub" style="margin:0;">Sinfdoshlar, ustozlar va rasmiy maktab kanallari</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-secondary" onclick="openDirectChatModal()">+ Shaxsiy Chat</button>
+        <button class="btn-primary" style="width:auto;margin:0;padding:10px 14px;" onclick="openCreateRoomModal()">+ Guruh / Kanal</button>
+      </div>
+    </div>
+
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-weight:800;font-size:12px;color:var(--primary);text-transform:uppercase;">
+          Suhbatlar (${accessibleRooms.length})
+        </div>
+        <div class="chat-list">
+          ${accessibleRooms.map(r => `
+            <div class="chat-room-item ${r.id === activeRoomId ? 'active' : ''}" onclick="selectRoom('${r.id}')">
+              <div style="font-weight:800;font-size:14px;">${r.name}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">
+                ${r.type === 'channel' ? 'Kanal' : r.type === 'direct' ? 'Shaxsiy suhbat' : 'Guruh'} • ${r.members.length} a'zo
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="chat-main">
+        ${activeRoom ? `
+          <div class="chat-header">
+            <div>
+              <div style="font-weight:900;font-size:15px;color:var(--primary);">${activeRoom.name}</div>
+              <div style="font-size:11px;color:var(--muted);">${activeRoom.desc || ''} • ${activeRoom.members.length} a'zo</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn-secondary" style="padding:7px 10px;font-size:12px;" onclick="viewRoomMembers('${activeRoom.id}')">A'zolar</button>
+              <button class="btn-secondary" style="padding:7px 10px;font-size:12px;" onclick="openPollModal()">So'rovnoma</button>
+            </div>
+          </div>
+
+          ${activeRoom.pinned ? `
+            <div style="background:#FEF3C7;padding:8px 14px;font-size:12px;color:#92400E;border-bottom:1px solid #FDE68A;">
+              <strong>Mahkamlangan:</strong> ${activeRoom.pinned}
+            </div>
+          ` : ''}
+
+          <div id="chatMsgList" class="chat-messages">
+            ${msgs.map(m => `
+              <div class="msg-bubble ${m.senderId === currentUser.id ? 'mine' : ''}">
+                <div class="msg-meta">
+                  <span>${m.senderName}</span>
+                  <span>${m.time}</span>
+                </div>
+                ${m.replyTo ? `<div style="font-size:11px;background:rgba(0,0,0,0.05);padding:4px 8px;border-left:3px solid var(--primary);margin-bottom:6px;border-radius:4px;">Javob: ${m.replyTo}</div>` : ''}
+                ${m.mediaType === 'image' ? `<img src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;" />` : ''}
+                ${m.mediaType === 'audio' ? `<audio controls src="${m.mediaUrl}" style="max-width:220px;margin-bottom:6px;display:block;"></audio>` : ''}
+                ${m.mediaType === 'video' ? `<video controls src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;"></video>` : ''}
+                <div style="font-size:14px;line-height:1.45;">${m.text}</div>
+                <div class="msg-actions">
+                  <button class="react-btn" onclick="reactMsg('${m.id}', 'Ajoyib', this)">Ajoyib (${m.reactions?.['Ajoyib'] || 0})</button>
+                  <button class="react-btn" onclick="reactMsg('${m.id}', 'Foydali', this)">Foydali (${m.reactions?.['Foydali'] || 0})</button>
+                  <button class="react-btn" onclick="setReply('${m.text.replace(/'/g, '')}')">Javob</button>
+                  <button class="react-btn" onclick="pinMsg('${m.text.replace(/'/g, '')}')">Mahkamlash</button>
+                  ${(m.senderId === currentUser.id || currentUser.role === 'admin') ? `<button class="react-btn" style="color:#991B1B;" onclick="deleteMsg('${m.id}')">O'chirish</button>` : ''}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+
+          <div id="replyBar" class="hidden" style="background:#EFECE6;padding:6px 14px;font-size:12px;display:flex;justify-content:space-between;">
+            <span id="replyText"></span>
+            <button onclick="clearReply()" style="background:none;font-weight:800;">X</button>
+          </div>
+
+          <form class="chat-input-bar" onsubmit="sendMessage(event)">
+            <label class="btn-secondary" style="margin:0;padding:9px 10px;cursor:pointer;font-size:12px;">
+              Rasm
+              <input type="file" accept="image/*" class="hidden" onchange="sendMediaFile(event, 'image')" />
+            </label>
+            <label class="btn-secondary" style="margin:0;padding:9px 10px;cursor:pointer;font-size:12px;">
+              Audio
+              <input type="file" accept="audio/*" class="hidden" onchange="sendMediaFile(event, 'audio')" />
+            </label>
+            <label class="btn-secondary" style="margin:0;padding:9px 10px;cursor:pointer;font-size:12px;">
+              Video
+              <input type="file" accept="video/*" class="hidden" onchange="sendMediaFile(event, 'video')" />
+            </label>
+            <input type="text" id="chatInput" placeholder="Xabar yozing..." style="flex:1;min-width:140px;" />
+            <button type="submit" class="btn-primary" style="width:auto;margin:0;padding:11px 16px;">Yuborish</button>
+          </form>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  const list = document.getElementById("chatMsgList");
+  if (list) list.scrollTop = list.scrollHeight;
+}
+
+function selectRoom(id) { activeRoomId = id; renderChats(document.getElementById("mainContent")); }
+
+function sendMessage(e) {
+  e.preventDefault();
+  const inp = document.getElementById("chatInput");
+  const txt = inp.value.trim();
+  if (!txt) return;
+  if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
+  DB.messages[activeRoomId].push({
+    id: "m_" + Date.now(),
+    senderId: currentUser.id,
+    senderName: currentUser.name,
+    text: txt,
+    time: new Date().toTimeString().slice(0,5),
+    reactions: { "Ajoyib": 0, "Foydali": 0 },
+    replyTo: replyTarget
+  });
+  replyTarget = null;
+  saveDB();
+  renderChats(document.getElementById("mainContent"));
+}
+
+function sendMediaFile(e, type) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
+    DB.messages[activeRoomId].push({
+      id: "m_" + Date.now(),
+      senderId: currentUser.id,
+      senderName: currentUser.name,
+      text: file.name,
+      mediaType: type,
+      mediaUrl: ev.target.result,
+      time: new Date().toTimeString().slice(0,5),
+      reactions: { "Ajoyib": 0, "Foydali": 0 },
+      replyTo: null
+    });
+    saveDB();
+    notify("Media fayl yuborildi", "success");
+    renderChats(document.getElementById("mainContent"));
+  };
+  reader.readAsDataURL(file);
+}
+
+function reactMsg(msgId, key, btn) {
+  const msg = (DB.messages[activeRoomId] || []).find(m => m.id === msgId);
+  if (!msg) return;
+  msg.reactions[key] = (msg.reactions[key] || 0) + 1;
+  saveDB();
+  btn.classList.add("pop");
+  setTimeout(() => renderChats(document.getElementById("mainContent")), 250);
+}
+
+function setReply(txt) {
+  replyTarget = txt;
+  document.getElementById("replyBar").classList.remove("hidden");
+  document.getElementById("replyText").textContent = "Javob: " + txt;
+}
+function clearReply() {
+  replyTarget = null;
+  document.getElementById("replyBar").classList.add("hidden");
+}
+function pinMsg(txt) {
+  const room = DB.rooms.find(r => r.id === activeRoomId);
+  if (room) {
+    room.pinned = txt;
+    saveDB();
+    notify("Xabar yuqoriga mahkamlandi", "success");
+    renderChats(document.getElementById("mainContent"));
+  }
+}
+function deleteMsg(msgId) {
+  DB.messages[activeRoomId] = (DB.messages[activeRoomId] || []).filter(m => m.id !== msgId);
+  saveDB();
+  notify("Xabar o'chirildi");
+  renderChats(document.getElementById("mainContent"));
+}
+
+function openCreateRoomModal() {
+  openModal(`
+    <h3 style="margin-bottom:14px;color:var(--primary);">Yangi Guruh yoki Kanal</h3>
+    <div class="form-group"><label>Nomi</label><input id="newRoomName" placeholder="Masalan: 9-sinf Fizika klubi" /></div>
+    <div class="form-group"><label>Turi</label>
+      <select id="newRoomType">
+        <option value="group">Guruh</option>
+        <option value="channel">Kanal</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Tavsif</label><input id="newRoomDesc" placeholder="Guruh haqida qisqacha" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="createRoom()">Yaratish</button>
+    </div>
+  `);
+}
+
+function createRoom() {
+  const name = document.getElementById("newRoomName").value.trim();
+  if (!name) return;
+  const id = "r_" + Date.now();
+  DB.rooms.push({
+    id, name,
+    type: document.getElementById("newRoomType").value,
+    desc: document.getElementById("newRoomDesc").value.trim(),
+    creator: currentUser.name,
+    members: DB.users.map(u => u.id),
+    pinned: ""
+  });
+  DB.messages[id] = [];
+  activeRoomId = id;
+  saveDB();
+  closeModal();
+  notify(`"${name}" yaratildi!`, "success");
+  renderChats(document.getElementById("mainContent"));
+}
+
+function openDirectChatModal() {
+  const others = DB.users.filter(u => u.id !== currentUser.id);
+  openModal(`
+    <h3 style="margin-bottom:10px;color:var(--primary);">Shaxsiy Chat Boshlash</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Sinfdoshlar yoki o'qituvchilar bilan 1-ga-1 muloqot</p>
+    ${others.length === 0 ? '<p style="font-size:13px;">Hozircha boshqa foydalanuvchilar ro\'yxatdan o\'tmagan.</p>' : others.map(u => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${renderAvatarHTML(u, 34, 13)}
+          <div><strong>${u.name}</strong> <span class="badge">${u.role === 'student' ? u.grade : u.subject || u.role}</span></div>
+        </div>
+        <button class="btn-primary" style="width:auto;margin:0;padding:8px 14px;font-size:12px;" onclick="startDirectChat('${u.id}')">Yozish</button>
+      </div>
+    `).join("")}
+    <div style="margin-top:14px;text-align:right;"><button class="btn-secondary" onclick="closeModal()">Yopish</button></div>
+  `);
+}
+
+function startDirectChat(targetId) {
+  const target = DB.users.find(u => u.id === targetId);
+  if (!target) return;
+  const pairId = "dm_" + [currentUser.id, targetId].sort().join("_");
+  if (!DB.rooms.some(r => r.id === pairId)) {
+    DB.rooms.push({
+      id: pairId,
+      name: `${currentUser.name} & ${target.name}`,
+      type: "direct",
+      desc: "Shaxsiy suhbat",
+      creator: currentUser.name,
+      members: [currentUser.id, targetId],
+      pinned: ""
+    });
+    DB.messages[pairId] = [];
+  }
+  activeRoomId = pairId;
+  saveDB();
+  closeModal();
+  renderChats(document.getElementById("mainContent"));
+}
+
+function viewRoomMembers(roomId) {
+  const room = DB.rooms.find(r => r.id === roomId);
+  const members = DB.users.filter(u => room.members.includes(u.id));
+  openModal(`
+    <h3 style="margin-bottom:12px;color:var(--primary);">${room.name} (${members.length} a'zo)</h3>
+    ${members.map(m => `
+      <div style="padding:9px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${renderAvatarHTML(m, 32, 13)}
+          <strong>${m.name}</strong>
+        </div>
+        <span class="badge">${m.role === 'student' ? m.grade : m.role}</span>
+      </div>
+    `).join("")}
+    <div style="margin-top:14px;text-align:right;"><button class="btn-secondary" onclick="closeModal()">Yopish</button></div>
+  `);
+}
+
+function openPollModal() {
+  openModal(`
+    <h3 style="margin-bottom:12px;color:var(--primary);">So'rovnoma Yaratish</h3>
+    <div class="form-group"><label>Savol matni</label><input id="pollQ" placeholder="Masalan: Ertaga qo'shimcha dars soat nechada bo'lsin?" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="postPoll()">Yuborish</button>
+    </div>
+  `);
+}
+
+function postPoll() {
+  const q = document.getElementById("pollQ").value.trim();
+  if (!q) return;
+  if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
+  DB.messages[activeRoomId].push({
+    id: "m_" + Date.now(),
+    senderId: currentUser.id,
+    senderName: currentUser.name,
+    text: `SO'ROVNOMA: ${q}`,
+    time: new Date().toTimeString().slice(0,5),
+    reactions: { "Ha / Roziman": 0, "Yo'q": 0 },
+    replyTo: null
+  });
+  saveDB();
+  closeModal();
+  notify("So'rovnoma yuborildi", "success");
+  renderChats(document.getElementById("mainContent"));
+}
+
+/* ================= 3. VAZIFALAR ================= */
+function renderTasks(box) {
+  const canCreate = currentUser.role === "teacher" || currentUser.role === "homeroom" || currentUser.role === "admin";
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div>
+        <h2 class="page-title">${ICONS.task} Vazifalar</h2>
+        <p class="page-sub" style="margin:0;">Har bir vazifadan maksimal 60 ball olish mumkin</p>
+      </div>
+      ${canCreate ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openCreateTaskModal()">+ Vazifa Berish</button>` : ''}
+    </div>
+
+    ${DB.tasks.length === 0 ? `<div class="card"><p style="color:var(--muted);">Hozircha faol vazifalar mavjud emas.</p></div>` : DB.tasks.map(t => {
+      const mySub = t.submissions.find(s => s.studentId === currentUser.id);
+      return `
+        <div class="card" style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+              <span class="badge">${t.subject}</span>
+              <span class="badge badge-gold">Max: ${t.maxPoints} ball</span>
+              <h3 style="margin-top:8px;color:var(--primary);">${t.title}</h3>
+            </div>
+            <div style="font-size:12px;color:var(--muted);">
+              <div><strong>Ustoz:</strong> ${t.teacherName}</div>
+              <div>Muddat: ${t.deadline}</div>
+            </div>
+          </div>
+          <p style="font-size:14px;margin:10px 0;">${t.desc}</p>
+
+          ${currentUser.role === "student" ? `
+            ${mySub ? `
+              <div style="background:#ECFDF5;padding:10px 12px;border-radius:10px;font-size:13px;color:#065F46;">
+                <strong>Yuborilgan javob:</strong> ${mySub.answer}<br/>
+                <strong>Natija:</strong> ${mySub.grade !== null ? `+${mySub.grade} ball berildi` : "Ustoz tekshirmoqda..."}
+              </div>
+            ` : `
+              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                <input id="ans_${t.id}" placeholder="Javobingizni yozing..." style="flex:1;min-width:200px;" />
+                <button class="btn-primary" style="width:auto;margin:0;" onclick="submitTask('${t.id}')">Topshirish</button>
+              </div>
+            `}
+          ` : `
+            <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+              <strong style="font-size:13px;">Topshirilgan ishlar (${t.submissions.length}):</strong>
+              ${t.submissions.map(s => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F1EDE6;gap:8px;flex-wrap:wrap;">
+                  <div style="font-size:13px;"><strong>${s.studentName}:</strong> ${s.answer}</div>
+                  ${s.grade !== null ? `<span class="badge badge-green">${s.grade} ball</span>` : `
+                    <div style="display:flex;gap:6px;align-items:center;">
+                      <input type="number" id="grd_${t.id}_${s.studentId}" min="0" max="${t.maxPoints}" placeholder="0-${t.maxPoints}" style="width:85px;padding:7px;" />
+                      <button class="btn-primary" style="width:auto;margin:0;padding:7px 12px;" onclick="gradeTask('${t.id}', '${s.studentId}')">Baholash</button>
+                    </div>
+                  `}
+                </div>
+              `).join("")}
+            </div>
+          `}
+        </div>
+      `;
+    }).join("")}
+  `;
+}
+
+function openCreateTaskModal() {
+  const defaultSubj = currentUser.role === "teacher" ? currentUser.subject : SUBJECTS[0];
+  openModal(`
+    <h3 style="margin-bottom:12px;color:var(--primary);">Yangi Vazifa Berish</h3>
+    <div class="form-group"><label>Fan</label>
+      <select id="taskSubj" ${currentUser.role === 'teacher' ? 'disabled' : ''}>
+        ${SUBJECTS.map(s => `<option value="${s}" ${s === defaultSubj ? 'selected' : ''}>${s}</option>`).join("")}
+      </select>
+    </div>
+    <div class="form-group"><label>Mavzu</label><input id="taskTitle" placeholder="Vazifa nomi" /></div>
+    <div class="form-group"><label>Sharti</label><textarea id="taskDesc" rows="3" placeholder="Batafsil topshiriq..."></textarea></div>
+    <div class="form-group"><label>Maksimal Ball (1 - 60)</label><input type="number" id="taskMax" value="60" min="5" max="60" /></div>
+    <div class="form-group"><label>Muddat</label><input type="date" id="taskDate" value="2026-12-01" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="createTask()">Saqlash</button>
+    </div>
+  `);
+}
+
+function createTask() {
+  const title = document.getElementById("taskTitle").value.trim();
+  const desc = document.getElementById("taskDesc").value.trim();
+  let maxPoints = parseInt(document.getElementById("taskMax").value, 10) || 60;
+  if (maxPoints > 60) maxPoints = 60;
+  if (!title) return;
+
+  DB.tasks.unshift({
+    id: "t_" + Date.now(),
+    subject: document.getElementById("taskSubj").value,
+    title, desc, maxPoints,
+    deadline: document.getElementById("taskDate").value,
+    teacherId: currentUser.id,
+    teacherName: currentUser.name,
+    submissions: []
+  });
+  saveDB();
+  closeModal();
+  notify("Yangi vazifa e'lon qilindi!", "success");
+  renderTasks(document.getElementById("mainContent"));
+}
+
+function submitTask(taskId) {
+  const ans = document.getElementById("ans_" + taskId).value.trim();
+  if (!ans) return;
+  const task = DB.tasks.find(t => t.id === taskId);
+  task.submissions.push({ studentId: currentUser.id, studentName: currentUser.name, answer: ans, grade: null });
+  saveDB();
+  notify("Javobingiz ustozga yuborildi!", "success");
+  renderTasks(document.getElementById("mainContent"));
+}
+
+function gradeTask(taskId, studentId) {
+  const task = DB.tasks.find(t => t.id === taskId);
+  const sub = task.submissions.find(s => s.studentId === studentId);
+  let val = parseInt(document.getElementById(`grd_${taskId}_${studentId}`).value, 10);
+  if (isNaN(val) || val < 0) val = 0;
+  if (val > task.maxPoints) val = task.maxPoints;
+
+  sub.grade = val;
+  const st = DB.users.find(u => u.id === studentId);
+  if (st) {
+    st.points += val;
+    st.weeklyPoints = (st.weeklyPoints || 0) + val;
+  }
+  saveDB();
+  notify(`O'quvchiga +${val} ball berildi!`, "success");
+  renderTasks(document.getElementById("mainContent"));
+}
+
+/* ================= 4. FAN TESTLARI ================= */
+let filterTestGrade = "9-sinf";
+let filterTestSubj = "Matematika";
+
+function renderTests(box) {
+  const canCreate = currentUser.role === "teacher" || currentUser.role === "homeroom" || currentUser.role === "admin";
+  const filtered = DB.tests.filter(t => t.grade === filterTestGrade && t.subject === filterTestSubj);
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div>
+        <h2 class="page-title">${ICONS.test} Fan Testlari</h2>
+        <p class="page-sub" style="margin:0;">Har bir test faqat bir marta yechiladi (Max: 60 ball)</p>
+      </div>
+      ${canCreate ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openCreateTestModal()">+ Test Tuzish</button>` : ''}
+    </div>
+
+    <div class="card" style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:140px;">
+        <label style="font-size:11px;font-weight:800;color:var(--muted);">SINF</label>
+        <select onchange="filterTestGrade=this.value;renderTests(document.getElementById('mainContent'))">
+          ${CLASSES.map(c => `<option value="${c}" ${c === filterTestGrade ? 'selected' : ''}>${c}</option>`).join("")}
+        </select>
+      </div>
+      <div style="flex:1;min-width:160px;">
+        <label style="font-size:11px;font-weight:800;color:var(--muted);">FAN</label>
+        <select onchange="filterTestSubj=this.value;renderTests(document.getElementById('mainContent'))">
+          ${SUBJECTS.map(s => `<option value="${s}" ${s === filterTestSubj ? 'selected' : ''}>${s}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      ${filtered.map(t => {
+        const solved = (currentUser.solvedTests || []).includes(t.id);
+        return `
+          <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
+            <div>
+              <div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:8px;">
+                <span class="badge">${t.grade}</span>
+                <span class="badge badge-gold">Max: ${t.maxPoints} ball</span>
+              </div>
+              <h4 style="color:var(--primary);margin-bottom:6px;font-size:15px;">${t.title}</h4>
+              ${t.authorName ? `<div style="font-size:12px;color:var(--accent);font-weight:800;margin-bottom:4px;">Ustoz: ${t.authorName}</div>` : ''}
+              <p style="font-size:12px;color:var(--muted);">Savollar: ${t.questions.length} ta</p>
+            </div>
+            <div style="margin-top:14px;">
+              ${currentUser.role === "student" ? (
+                solved
+                  ? `<button class="btn-secondary" style="width:100%;" disabled>Yechilgan</button>`
+                  : `<button class="btn-primary" style="margin:0;" onclick="startTestModal('${t.id}')">Testni Boshlash</button>`
+              ) : `<span class="badge badge-green">O'qituvchi ko'rish rejimi</span>`}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function startTestModal(testId) {
+  const test = DB.tests.find(t => t.id === testId);
+  if (!test) return;
+  openModal(`
+    <h3 style="color:var(--primary);margin-bottom:4px;">${test.title}</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Diqqat! Test faqat bir marta topshiriladi.</p>
+    ${test.questions.map((qObj, idx) => `
+      <div style="margin-bottom:12px;padding:12px;background:#FAF9F6;border-radius:12px;border:1px solid var(--border);">
+        <div style="font-weight:700;font-size:14px;margin-bottom:8px;">${idx + 1}. ${qObj.q}</div>
+        ${qObj.options.map((opt, oIdx) => `
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:6px;cursor:pointer;">
+            <input type="radio" name="q_${idx}" value="${oIdx}" style="width:auto;" />
+            <span>${opt}</span>
+          </label>
+        `).join("")}
+      </div>
+    `).join("")}
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="finishTest('${test.id}')">Yakunlash</button>
+    </div>
+  `);
+}
+
+function finishTest(testId) {
+  const test = DB.tests.find(t => t.id === testId);
+  let correctCount = 0;
+  test.questions.forEach((qObj, idx) => {
+    const sel = document.querySelector(`input[name="q_${idx}"]:checked`);
+    if (sel && parseInt(sel.value, 10) === qObj.correct) correctCount++;
+  });
+  const earned = Math.round((correctCount / test.questions.length) * test.maxPoints);
+  if (!currentUser.solvedTests) currentUser.solvedTests = [];
+  currentUser.solvedTests.push(test.id);
+  currentUser.points += earned;
+  currentUser.weeklyPoints = (currentUser.weeklyPoints || 0) + earned;
+  saveDB();
+  closeModal();
+  notify(`Test yakunlandi! To'g'ri: ${correctCount}/${test.questions.length}. +${earned} ball qo'shildi!`, "success");
+  navigate("tests");
+}
+
+function openCreateTestModal() {
+  const defaultSubj = currentUser.role === "teacher" ? currentUser.subject : SUBJECTS[0];
+  openModal(`
+    <h3 style="margin-bottom:12px;color:var(--primary);">Yangi Test Tuzish</h3>
+    <div class="form-group"><label>Sinf</label>
+      <select id="ctGrade">${CLASSES.map(c => `<option value="${c}">${c}</option>`).join("")}</select>
+    </div>
+    <div class="form-group"><label>Fan</label>
+      <select id="ctSubj" ${currentUser.role === 'teacher' ? 'disabled' : ''}>
+        ${SUBJECTS.map(s => `<option value="${s}" ${s === defaultSubj ? 'selected' : ''}>${s}</option>`).join("")}
+      </select>
+    </div>
+    <div class="form-group"><label>Test Nomi</label><input id="ctTitle" placeholder="Test sarlavhasi" /></div>
+    <div class="form-group"><label>Savol</label><input id="ctQ1" placeholder="Savol matni" /></div>
+    <div class="form-group"><label>To'g'ri javob</label><input id="ctOpt1" placeholder="To'g'ri variant" /></div>
+    <div class="form-group"><label>Noto'g'ri variant 1</label><input id="ctOpt2" placeholder="Variant 2" /></div>
+    <div class="form-group"><label>Noto'g'ri variant 2</label><input id="ctOpt3" placeholder="Variant 3" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="saveTeacherTest()">Saqlash</button>
+    </div>
+  `);
+}
+
+function saveTeacherTest() {
+  const title = document.getElementById("ctTitle").value.trim();
+  const q1 = document.getElementById("ctQ1").value.trim();
+  const o1 = document.getElementById("ctOpt1").value.trim();
+  const o2 = document.getElementById("ctOpt2").value.trim();
+  const o3 = document.getElementById("ctOpt3").value.trim();
+  if (!title || !q1 || !o1) return;
+
+  DB.tests.unshift({
+    id: "tch_t_" + Date.now(),
+    subject: document.getElementById("ctSubj").value,
+    grade: document.getElementById("ctGrade").value,
+    title,
+    authorId: currentUser.id,
+    authorName: currentUser.name,
+    maxPoints: 60,
+    questions: [{ q: q1, options: [o1, o2 || "Variant B", o3 || "Variant C"], correct: 0 }]
+  });
+  saveDB();
+  closeModal();
+  notify("Mualliflik testi muvaffaqiyatli qo'shildi!", "success");
+  renderTests(document.getElementById("mainContent"));
+}
+
+/* ================= 5. AI USTOZ ================= */
+function renderAI(box) {
+  box.innerHTML = `
+    <h2 class="page-title">${ICONS.ai} AI Yordamchi Ustoz</h2>
+    <p class="page-sub">Misol yechish, mavzularni tushuntirish va tezkor yordam</p>
+    <div class="card">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        ${AI_PRESETS.map(p => `<button class="react-btn" onclick="document.getElementById('aiPrompt').value='${p}'">${p}</button>`).join("")}
+      </div>
+      <div id="aiHistory" style="min-height:220px;max-height:360px;overflow-y:auto;padding:12px;background:#FAF9F6;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;display:flex;flex-direction:column;gap:10px;">
+        <div class="msg-bubble">
+          <div class="msg-meta"><span>MaktabOS AI</span></div>
+          <div>Assalomu alaykum, ${currentUser.name}! Qanday savol yoki misol bor?</div>
+        </div>
+      </div>
+      <form onsubmit="askAI(event)" style="display:flex;gap:8px;">
+        <input id="aiPrompt" placeholder="Savol yoki misol yozing..." />
+        <button type="submit" class="btn-primary" style="width:auto;margin:0;">So'rash</button>
+      </form>
+    </div>
+  `;
+}
+
+function askAI(e) {
+  e.preventDefault();
+  const inp = document.getElementById("aiPrompt");
+  const q = inp.value.trim();
+  if (!q) return;
+  const hist = document.getElementById("aiHistory");
+  hist.innerHTML += `<div class="msg-bubble mine"><div class="msg-meta"><span>Siz</span></div><div>${q}</div></div>`;
+
+  let answer = "";
+  const mathMatch = q.match(/^[0-9+\-*/().\s]+$/);
+  if (mathMatch) {
+    try {
+      const res = Function('"use strict";return (' + q + ')')();
+      answer = `Natija: <strong>${q} = ${res}</strong>.`;
+    } catch { answer = "Ifodani tekshirib qayta yozing."; }
+  } else if (q.toLowerCase().includes("kvadrat")) {
+    answer = "<strong>Kvadrat tenglama:</strong> ax² + bx + c = 0. Diskriminant D = b² - 4ac. Agar D > 0 bo'lsa, x₁,₂ = (-b ± √D) / (2a).";
+  } else if (q.toLowerCase().includes("pifagor")) {
+    answer = "<strong>Pifagor teoremasi:</strong> To'g'ri burchakli uchburchakda gipotenuzaning kvadrati katetlar kvadratlari yig'indisiga teng: c² = a² + b².";
+  } else {
+    answer = `<strong>"${q}"</strong> bo'yicha tahlil: Mavzuning asosiy qoidalarini ko'rib chiqing, so'ngra Fan Testlari bo'limida 60 ballik sinovni yeching.`;
+  }
+
+  hist.innerHTML += `<div class="msg-bubble"><div class="msg-meta"><span>MaktabOS AI</span></div><div>${answer}</div></div>`;
+  inp.value = "";
+  hist.scrollTop = hist.scrollHeight;
+}
+
+/* ================= 6. TOP REYTING ================= */
+function renderRanking(box) {
+  const students = DB.users.filter(u => u.role === "student");
+  const sorted = [...students].sort((a, b) => {
+    if (rankingTab === "weekly") return (b.weeklyPoints || 0) - (a.weeklyPoints || 0);
+    return b.points - a.points;
+  });
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div>
+        <h2 class="page-title">${ICONS.rank} Maktab Top Reytingi</h2>
+        <p class="page-sub" style="margin:0;">Haftalik va barcha davrlar bo'yicha eng faol o'quvchilar</p>
+      </div>
+      <div class="tabs" style="margin:0;width:260px;">
+        <button class="tab-btn ${rankingTab === 'weekly' ? 'active' : ''}" onclick="rankingTab='weekly';renderRanking(document.getElementById('mainContent'))">Haftalik</button>
+        <button class="tab-btn ${rankingTab === 'all' ? 'active' : ''}" onclick="rankingTab='all';renderRanking(document.getElementById('mainContent'))">Umumiy (Barchasi)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      ${sorted.length === 0 ? `<p style="color:var(--muted);">Hozircha ro'yxatdan o'tgan o'quvchilar yo'q.</p>` : sorted.map((s, i) => {
+        const score = rankingTab === "weekly" ? (s.weeklyPoints || 0) : s.points;
+        return `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <strong style="width:28px;color:${i === 0 ? '#D97706' : 'var(--primary)'};font-size:15px;">#${i + 1}</strong>
+              ${renderAvatarHTML(s, 40, 15)}
+              <div>
+                <div style="font-weight:800;font-size:14px;">${s.name} ${s.activeTitle ? `<span class="badge badge-gold">${s.activeTitle}</span>` : ''}</div>
+                <div style="font-size:12px;color:var(--muted);">${s.grade}</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <strong style="color:var(--primary);font-size:16px;">${score} ball</strong>
+              <div style="font-size:11px;color:var(--muted);">${rankingTab === 'weekly' ? 'shu hafta' : 'jami'}</div>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+/* ================= 7. MUKOFOTLAR DO'KONI ================= */
+function renderStore(box) {
+  const certs = STORE_CATALOG.filter(i => i.type === "certificate");
+  const frames = STORE_CATALOG.filter(i => i.type === "frame");
+  const titles = STORE_CATALOG.filter(i => i.type === "title");
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div>
+        <h2 class="page-title">${ICONS.store} Mukofotlar Do'koni</h2>
+        <p class="page-sub" style="margin:0;">Ballaringizga rasmiy PDF sertifikatlar, animatsiyali ramkalar va unvonlar oling</p>
+      </div>
+      <div class="badge badge-gold" style="font-size:14px;padding:8px 14px;">Balansingiz: ${currentUser.points} ball</div>
+    </div>
+
+    <h3 style="color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:8px;">${ICONS.cert} Rasmiy PDF Sertifikatlar (Har biri 1200 ball)</h3>
+    <div class="grid-2">
+      ${certs.map(item => {
+        const isOwned = (currentUser.owned || []).includes(item.id);
+        return `
+          <div class="card" style="border:2px solid #FDE68A;background:linear-gradient(180deg, #FFFDF7 0%, #FFFFFF 100%);display:flex;flex-direction:column;justify-content:space-between;">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span class="badge badge-gold">${item.tier}</span>
+                <strong style="color:var(--gold);font-size:15px;">1200 ball</strong>
+              </div>
+              <h3 style="color:var(--primary);margin-bottom:6px;font-size:17px;">${item.name}</h3>
+              <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">${item.desc}</p>
+            </div>
+            ${isOwned
+              ? `<button class="btn-secondary" style="width:100%;background:#D1FAE5;color:#065F46;" disabled>Olingan (Profilda mavjud)</button>`
+              : `<button class="btn-gold" style="width:100%;padding:12px;" onclick="buyItem('${item.id}')">Sotib Olish (1200 ball)</button>`
+            }
+          </div>
+        `;
+      }).join("")}
+    </div>
+
+    <h3 style="color:var(--primary);margin:18px 0 10px;">Hashamatli Animatsiyali Profil Ramkalari</h3>
+    <div class="grid-3">
+      ${frames.map(item => {
+        const isOwned = (currentUser.owned || []).includes(item.id);
+        const previewUser = { ...currentUser, activeFrame: item.frameClass };
+        return `
+          <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+              ${renderAvatarHTML(previewUser, 48, 18)}
+              <div>
+                <h4 style="color:var(--primary);font-size:15px;">${item.name}</h4>
+                <div style="font-weight:800;color:var(--gold);font-size:13px;">${item.price} ball</div>
+              </div>
+            </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">${item.desc}</p>
+            ${isOwned
+              ? `<button class="btn-secondary" style="width:100%;background:#D1FAE5;color:#065F46;" disabled>Olingan</button>`
+              : `<button class="btn-primary" style="margin:0;" onclick="buyItem('${item.id}')">Olish (${item.price} ball)</button>`
+            }
+          </div>
+        `;
+      }).join("")}
+    </div>
+
+    <h3 style="color:var(--primary);margin:18px 0 10px;">Maxsus Unvonlar</h3>
+    <div class="grid-3">
+      ${titles.map(item => {
+        const isOwned = (currentUser.owned || []).includes(item.id);
+        return `
+          <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
+            <div>
+              <span class="badge badge-blue">Unvon</span>
+              <h4 style="color:var(--primary);margin:8px 0 4px;">${item.name}</h4>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">${item.desc}</p>
+            </div>
+            <div>
+              <div style="font-weight:800;color:var(--gold);margin-bottom:8px;">${item.price} ball</div>
+              ${isOwned
+                ? `<button class="btn-secondary" style="width:100%;background:#D1FAE5;color:#065F46;" disabled>Olingan</button>`
+                : `<button class="btn-primary" style="margin:0;" onclick="buyItem('${item.id}')">Olish (${item.price} ball)</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function buyItem(itemId) {
+  const item = STORE_CATALOG.find(i => i.id === itemId);
+  if (!item) return;
+  if (currentUser.points < item.price) {
+    notify(`Ballaringiz yetarli emas! ${item.price} ball kerak (Sizda: ${currentUser.points} ball).`, "error");
+    return;
+  }
+  currentUser.points -= item.price;
+  if (!currentUser.owned) currentUser.owned = [];
+  currentUser.owned.push(item.id);
+
+  if (item.type === "frame") currentUser.activeFrame = item.frameClass;
+  if (item.type === "title") currentUser.activeTitle = item.name;
+  if (item.type === "certificate") {
+    const certRecord = {
+      id: "MOS-" + Math.floor(100000 + Math.random() * 900000),
+      studentId: currentUser.id,
+      studentName: currentUser.name,
+      grade: currentUser.grade,
+      title: item.name,
+      tier: item.tier,
+      date: new Date().toISOString().slice(0, 10),
+      delivered: false
+    };
+    DB.certificates.unshift(certRecord);
+    DB.messages["r_general"].push({
+      id: "m_" + Date.now(),
+      senderId: "u_admin",
+      senderName: "MaktabOS Tizimi",
+      text: `YANGI SERTIFIKAT! ${currentUser.grade} o'quvchisi ${currentUser.name} 1200 ball evaziga "${item.name}" rasmiy sertifikatini qo'lga kiritdi (ID: ${certRecord.id}). O'qituvchilar bo'limiga yuborildi.`,
+      time: new Date().toTimeString().slice(0,5),
+      reactions: { "Tabriklaymiz": 1 }
+    });
+  }
+
+  saveDB();
+  updateTopbar();
+  notify(`"${item.name}" olindi! Uni Profil bo'limida ko'rishingiz mumkin.`, "success");
+  renderStore(document.getElementById("mainContent"));
+}
+
+/* ================= 8. PROFIL, RASM QO'YISH VA MEN OLGAN MUKOFOTLAR ================= */
+function renderProfile(box) {
+  const ownedFrames = STORE_CATALOG.filter(i => i.type === "frame" && (currentUser.owned || []).includes(i.id));
+  const ownedTitles = STORE_CATALOG.filter(i => i.type === "title" && (currentUser.owned || []).includes(i.id));
+  const myCerts = DB.certificates.filter(c => c.studentId === currentUser.id);
+  const myAllItems = STORE_CATALOG.filter(i => (currentUser.owned || []).includes(i.id));
+
+  box.innerHTML = `
+    <h2 class="page-title">${ICONS.user} Shaxsiy Profil va Mukofotlarim</h2>
+    <p class="page-sub">Profil rasmini qo'yish, ma'lumotlarni tahrirlash, animatsiyali ramkalarni almashtirish va PDF sertifikatlarni yuklab olish</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+          ${renderAvatarHTML(currentUser, 74, 28)}
+          <div>
+            <h3 style="color:var(--primary);font-size:18px;">${currentUser.name}</h3>
+            <div style="font-size:13px;color:var(--muted);margin-top:2px;">Login: <strong>${currentUser.login}</strong></div>
+            ${currentUser.activeTitle ? `<span class="badge badge-gold" style="margin-top:6px;">${currentUser.activeTitle}</span>` : ''}
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <label class="btn-secondary" style="cursor:pointer;">
+            ${ICONS.camera} Profilga Rasm Qo'yish
+            <input type="file" accept="image/*" class="hidden" onchange="uploadProfilePhoto(event)" />
+          </label>
+          ${currentUser.avatarImg ? `<button class="btn-accent" onclick="removeProfilePhoto()">Rasmni O'chirish</button>` : ''}
+          <button class="btn-primary" style="width:auto;margin:0;" onclick="openEditProfileModal()">Ma'lumotlarni O'zgartirish</button>
+        </div>
+      </div>
+
+      ${currentUser.role === "student" ? `
+        <div class="card">
+          <h3 style="margin-bottom:12px;color:var(--primary);">Ramka va Unvonlarni Almashtirish</h3>
+          <div style="margin-bottom:14px;">
+            <strong style="font-size:11px;color:var(--muted);">ANIMATSIYALI RAMKALAR:</strong>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+              <button class="btn-secondary" onclick="equipFrame('')">Oddiy</button>
+              ${ownedFrames.map(f => `
+                <button class="btn-secondary" style="${currentUser.activeFrame === f.frameClass ? 'border:2px solid var(--primary);background:#E3F1EE;' : ''}" onclick="equipFrame('${f.frameClass}')">
+                  ${f.name}
+                </button>
+              `).join("")}
+            </div>
+          </div>
+
+          <div>
+            <strong style="font-size:11px;color:var(--muted);">UNVONLAR:</strong>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+              <button class="btn-secondary" onclick="equipTitle('')">Unvonsiz</button>
+              ${ownedTitles.map(t => `
+                <button class="btn-secondary" style="${currentUser.activeTitle === t.name ? 'border:2px solid var(--primary);background:#E3F1EE;' : ''}" onclick="equipTitle('${t.name}')">
+                  ${t.name}
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+
+    ${currentUser.role === "student" ? `
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.cert} Men Olgan PDF Sertifikatlar (${myCerts.length})</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Ism-familiyangiz tushirilgan rasmiy hujjatlarni PDF formatda yuklab oling</p>
+        ${myCerts.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Hali sertifikat olmadingiz. 1200 ball yig'ib Mukofotlar do'konidan oling.</p>` : `
+          <div class="grid-2" style="margin-bottom:0;">
+            ${myCerts.map(c => `
+              <div style="padding:14px;border-radius:14px;border:1.5px solid #FDE68A;background:#FFFDF7;">
+                <span class="badge ${c.delivered ? 'badge-green' : 'badge-gold'}">${c.delivered ? 'Ustoz topshirgan' : 'Ustozga yuborilgan'}</span>
+                <h4 style="margin:8px 0 4px;color:var(--primary);">${c.title}</h4>
+                <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">ID: ${c.id} • Sana: ${c.date}</div>
+                <button class="btn-gold" style="width:100%;" onclick="openCertPdfModal('${c.id}')">PDF Sertifikatni Ochish / Yuklash</button>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--primary);margin-bottom:10px;">Barcha Sotib Olingan Mukofotlarim (${myAllItems.length})</h3>
+        ${myAllItems.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Hozircha mukofotlar sotib olinmagan.</p>` : `
+          <div class="grid-3" style="margin-bottom:0;">
+            ${myAllItems.map(it => `
+              <div style="padding:12px;border-radius:12px;background:#FAF9F6;border:1px solid var(--border);">
+                <strong style="font-size:14px;color:var(--primary);">${it.name}</strong>
+                <div style="font-size:12px;color:var(--muted);margin-top:4px;">${it.desc}</div>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+    ` : ''}
+  `;
+}
+
+function uploadProfilePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    currentUser.avatarImg = ev.target.result;
+    saveDB();
+    updateTopbar();
+    notify("Profil rasmi muvaffaqiyatli yangilandi!", "success");
+    renderProfile(document.getElementById("mainContent"));
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeProfilePhoto() {
+  currentUser.avatarImg = "";
+  saveDB();
+  updateTopbar();
+  notify("Profil rasmi olib tashlandi");
+  renderProfile(document.getElementById("mainContent"));
+}
+
+function equipFrame(frameClass) {
+  currentUser.activeFrame = frameClass;
+  saveDB();
+  updateTopbar();
+  notify("Profil ramkasi almashtirildi!", "success");
+  renderProfile(document.getElementById("mainContent"));
+}
+function equipTitle(titleName) {
+  currentUser.activeTitle = titleName;
+  saveDB();
+  updateTopbar();
+  notify("Profil unvoni yangilandi!", "success");
+  renderProfile(document.getElementById("mainContent"));
+}
+
+function openEditProfileModal() {
+  openModal(`
+    <h3 style="margin-bottom:12px;color:var(--primary);">Profil Ma'lumotlarini O'zgartirish</h3>
+    <div class="form-group"><label>Ism va Familiya</label><input id="edName" value="${currentUser.name}" /></div>
+    <div class="form-group"><label>Login</label><input id="edLogin" value="${currentUser.login}" /></div>
+    <div class="form-group"><label>Yangi Parol</label><input id="edPass" value="${currentUser.pass}" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="saveProfileEdit()">Saqlash</button>
+    </div>
+  `);
+}
+
+function saveProfileEdit() {
+  const n = document.getElementById("edName").value.trim();
+  const l = document.getElementById("edLogin").value.trim();
+  const p = document.getElementById("edPass").value.trim();
+  if (!n || !l || !p) return;
+  currentUser.name = n; currentUser.login = l; currentUser.pass = p;
+  saveDB();
+  closeModal();
+  updateTopbar();
+  notify("Profil ma'lumotlari saqlandi!", "success");
+  renderProfile(document.getElementById("mainContent"));
+}
+
+/* ================= PDF SERTIFIKAT MODAL ================= */
+function openCertPdfModal(certId) {
+  const cert = DB.certificates.find(c => c.id === certId);
+  if (!cert) return;
+  openModal(`
+    <div id="certPrintArea" class="cert-frame-outer">
+      <div class="cert-frame-inner">
+        <div class="cert-ribbon">${cert.tier || 'RASMIY HUJJAT'}</div>
+        <div style="font-size:12px;font-weight:800;color:#5C6B66;letter-spacing:1.5px;">MAKTABOS RAQAMLI EKOTIZIMI</div>
+        <h1 class="cert-main-title">SERTIFIKAT</h1>
+        <p style="font-size:13px;color:#5C6B66;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
+
+        <div class="cert-recipient">${cert.studentName}</div>
+        <div style="font-size:14px;font-weight:800;color:#0F3D3E;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
+
+        <p style="font-size:14px;color:#16211E;max-width:410px;margin:0 auto 18px;line-height:1.5;">
+          MaktabOS platformasida 1200 ball to'plab, <strong>"${cert.title}"</strong> nominatsiyasida g'olib bo'lganligi uchun taqdim etildi.
+        </p>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #D97706;text-align:left;font-size:12px;color:#5C6B66;">
+          <div>
+            <div><strong>Berilgan sana:</strong> ${cert.date}</div>
+            <div><strong>Seriya raqami:</strong> ${cert.id}</div>
+            <div style="margin-top:4px;color:#0F3D3E;font-weight:700;">Maktab Ma'muriyati</div>
+          </div>
+          <div class="cert-gold-seal">
+            <span>MAKTABOS</span>
+            <span>RASMIY</span>
+            <span>MUHR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn-secondary" onclick="closeModal()">Yopish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="window.print()">PDF Saqlash / Chop Etish</button>
+    </div>
+  `);
+}
+
+/* ================= 9. O'QITUVCHI UCHUN O'QUVCHILAR SERTIFIKATLARI ================= */
+function renderStudentCertsForTeacher(box) {
+  box.innerHTML = `
+    <h2 class="page-title">${ICONS.cert} O'quvchilar Olgan Sertifikatlar</h2>
+    <p class="page-sub">1200 ball to'plab sertifikat olgan o'quvchilar — ularga rasmiy sertifikatni topshiring</p>
+    <div class="card">
+      ${DB.certificates.length === 0 ? `<p style="color:var(--muted);">Hozircha sertifikat olgan o'quvchilar yo'q.</p>` : DB.certificates.map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;">
+          <div>
+            <strong>${c.studentName}</strong> (${c.grade}) — <span style="color:var(--primary);font-weight:800;">${c.title}</span>
+            <div style="font-size:12px;color:var(--muted);">Sana: ${c.date} • ID: ${c.id}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn-secondary" onclick="openCertPdfModal('${c.id}')">PDF Ko'rish</button>
+            ${c.delivered
+              ? `<span class="badge badge-green">Topshirilgan</span>`
+              : `<button class="btn-primary" style="width:auto;margin:0;padding:8px 12px;" onclick="markCertDelivered('${c.id}')">Topshirildi</button>`
+            }
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function markCertDelivered(certId) {
+  const c = DB.certificates.find(x => x.id === certId);
+  if (c) {
+    c.delivered = true;
+    saveDB();
+    notify("Sertifikat topshirildi deb belgilandi!", "success");
+    renderStudentCertsForTeacher(document.getElementById("mainContent"));
+  }
+}
+
+/* ================= 10. MAKTAB E'LONLARI ================= */
+function renderAnnouncements(box) {
+  const canManage = currentUser.role === "teacher" || currentUser.role === "homeroom" || currentUser.role === "admin";
+  let changed = false;
+  DB.announcements.forEach(a => {
+    if (!a.views.includes(currentUser.id)) { a.views.push(currentUser.id); changed = true; }
+  });
+  if (changed) saveDB();
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div>
+        <h2 class="page-title">${ICONS.news} Maktab E'lonlari</h2>
+        <p class="page-sub" style="margin:0;">Rasmiy xabarlar va ko'rishlar statistikasi</p>
+      </div>
+      ${canManage ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openAnnModal()">+ E'lon Qo'shish</button>` : ''}
+    </div>
+
+    ${DB.announcements.map(a => `
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+          <div>
+            <h3 style="color:var(--primary);">${a.title}</h3>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Muallif: ${a.author} • ${a.date}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span class="badge">Ko'rildi: ${a.views.length} kishi</span>
+            ${canManage ? `
+              <button class="btn-secondary" style="padding:7px 10px;font-size:12px;" onclick="openAnnModal('${a.id}')">Tahrirlash</button>
+              <button class="btn-accent" style="padding:7px 10px;font-size:12px;" onclick="deleteAnn('${a.id}')">O'chirish</button>
+            ` : ''}
+          </div>
+        </div>
+        <p style="font-size:14px;margin-top:12px;line-height:1.5;">${a.body}</p>
+      </div>
+    `).join("")}
+  `;
+}
+
+function openAnnModal(editId = null) {
+  const item = editId ? DB.announcements.find(a => a.id === editId) : null;
+  openModal(`
+    <h3 style="margin-bottom:12px;color:var(--primary);">${item ? "E'lonni Tahrirlash" : "Yangi E'lon"}</h3>
+    <div class="form-group"><label>Sarlavha</label><input id="annTitle" value="${item ? item.title : ''}" /></div>
+    <div class="form-group"><label>Matn</label><textarea id="annBody" rows="4">${item ? item.body : ''}</textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="saveAnn('${editId || ''}')">Saqlash</button>
+    </div>
+  `);
+}
+
+function saveAnn(editId) {
+  const title = document.getElementById("annTitle").value.trim();
+  const body = document.getElementById("annBody").value.trim();
+  if (!title || !body) return;
+  if (editId) {
+    const item = DB.announcements.find(a => a.id === editId);
+    item.title = title; item.body = body;
+  } else {
+    DB.announcements.unshift({
+      id: "ann_" + Date.now(), title, body,
+      author: currentUser.name, date: new Date().toISOString().slice(0,10),
+      views: [currentUser.id]
+    });
+  }
+  saveDB();
+  closeModal();
+  notify("E'lon saqlandi!", "success");
+  renderAnnouncements(document.getElementById("mainContent"));
+}
+
+function deleteAnn(id) {
+  DB.announcements = DB.announcements.filter(a => a.id !== id);
+  saveDB();
+  notify("E'lon o'chirildi");
+  renderAnnouncements(document.getElementById("mainContent"));
+}
+
+/* ================= 11. KENGAYTIRILGAN SUPER ADMIN PANELI ================= */
+function renderAdmin(box) {
+  const studentsCount = DB.users.filter(u => u.role === "student").length;
+  const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
+  const bannedCount = DB.users.filter(u => u.banned).length;
+
+  const filteredUsers = DB.users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(adminSearch.toLowerCase()) ||
+                          u.login.toLowerCase().includes(adminSearch.toLowerCase());
+    const matchesRole = adminRoleFilter === "all" || u.role === adminRoleFilter;
+    return matchesSearch && matchesRole;
+  });
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div>
+        <h2 class="page-title">${ICONS.admin} Super Admin Boshqaruv Paneli</h2>
+        <p class="page-sub" style="margin:0;">To'liq nazorat: Foydalanuvchilar, Ballar, Sertifikatlar, Guruhlar va Tizim Zaxirasi</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-gold" onclick="openAdminCreateUserModal()">+ Yangi Foydalanuvchi</button>
+        <button class="btn-primary" style="width:auto;margin:0;" onclick="openAdminBroadcastModal()">Ommaviy E'lon</button>
+      </div>
+    </div>
+
+    <!-- ADMIN STATISTIKA -->
+    <div class="grid-3">
+      <div class="card">
+        <div class="stat-label">Jami Foydalanuvchilar</div>
+        <div class="stat-val">${DB.users.length} nafar</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">${studentsCount} o'quvchi • ${teachersCount} ustoz • ${bannedCount} bloklangan</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Tizim Faolligi</div>
+        <div class="stat-val">${DB.rooms.length} kanal / ${DB.tasks.length} vazifa</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Testlar bazasi: ${DB.tests.length} ta</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Tezkor Amallar</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <button class="btn-secondary" style="font-size:12px;padding:8px 10px;" onclick="confirmResetWeekly()">Haftalikni 0 qilish</button>
+          <button class="btn-secondary" style="font-size:12px;padding:8px 10px;" onclick="exportDatabaseBackup()">Zaxira Yuklash (JSON)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN BO'LIM TABLARI -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      <button class="${adminTab === 'users' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;margin:0;" onclick="adminTab='users';renderAdmin(document.getElementById('mainContent'))">Foydalanuvchilar (${DB.users.length})</button>
+      <button class="${adminTab === 'rooms' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;margin:0;" onclick="adminTab='rooms';renderAdmin(document.getElementById('mainContent'))">Guruh va Kanallar (${DB.rooms.length})</button>
+      <button class="${adminTab === 'certs' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;margin:0;" onclick="adminTab='certs';renderAdmin(document.getElementById('mainContent'))">Sertifikatlar (${DB.certificates.length})</button>
+      <button class="${adminTab === 'tasks' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;margin:0;" onclick="adminTab='tasks';renderAdmin(document.getElementById('mainContent'))">Vazifalar (${DB.tasks.length})</button>
+    </div>
+
+    ${adminTab === 'users' ? `
+      <div class="card" style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;">
+        <input type="text" placeholder="Ism yoki login bo'yicha qidirish..." value="${adminSearch}" oninput="adminSearch=this.value;renderAdmin(document.getElementById('mainContent'))" style="flex:2;min-width:200px;" />
+        <select onchange="adminRoleFilter=this.value;renderAdmin(document.getElementById('mainContent'))" style="flex:1;min-width:150px;">
+          <option value="all" ${adminRoleFilter === 'all' ? 'selected' : ''}>Barcha rollar</option>
+          <option value="student" ${adminRoleFilter === 'student' ? 'selected' : ''}>O'quvchilar</option>
+          <option value="teacher" ${adminRoleFilter === 'teacher' ? 'selected' : ''}>Fan o'qituvchilari</option>
+          <option value="homeroom" ${adminRoleFilter === 'homeroom' ? 'selected' : ''}>Sinf rahbarlari</option>
+        </select>
+      </div>
+
+      <div class="card" style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;min-width:760px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);color:var(--primary);">
+              <th style="padding:10px;">Foydalanuvchi</th>
+              <th style="padding:10px;">Rol / Sinf</th>
+              <th style="padding:10px;">Login / Parol</th>
+              <th style="padding:10px;">Ball (Haftalik)</th>
+              <th style="padding:10px;">Holat</th>
+              <th style="padding:10px;">Boshqaruv Amallari</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredUsers.map(u => `
+              <tr style="border-bottom:1px solid var(--border);${u.banned ? 'background:#FEF2F2;' : ''}">
+                <td style="padding:10px;display:flex;align-items:center;gap:8px;">
+                  ${renderAvatarHTML(u, 32, 12)}
+                  <div>
+                    <strong>${u.name}</strong>
+                    ${u.activeTitle ? `<div style="font-size:10px;color:var(--gold);font-weight:800;">${u.activeTitle}</div>` : ''}
+                  </div>
+                </td>
+                <td style="padding:10px;">${u.role} ${u.grade || u.subject || ''}</td>
+                <td style="padding:10px;"><code>${u.login}</code> / <code>${u.pass}</code></td>
+                <td style="padding:10px;"><strong>${u.points}</strong> (${u.weeklyPoints || 0})</td>
+                <td style="padding:10px;">
+                  ${u.banned ? `<span class="badge badge-red">Bloklangan</span>` : `<span class="badge badge-green">Faol</span>`}
+                </td>
+                <td style="padding:10px;display:flex;gap:5px;flex-wrap:wrap;">
+                  <button class="btn-secondary" style="padding:6px 9px;" onclick="openAdminEditUserModal('${u.id}')">Tahrirlash</button>
+                  ${u.role === 'student' ? `
+                    <button class="btn-secondary" style="padding:6px 9px;" onclick="openAdminPointsModal('${u.id}')">Ball</button>
+                    <button class="btn-gold" style="padding:6px 9px;" onclick="openAdminGrantCertModal('${u.id}')">+Sertifikat</button>
+                  ` : ''}
+                  ${u.id !== 'u_admin' ? `
+                    <button class="btn-secondary" style="padding:6px 9px;" onclick="toggleUserBan('${u.id}')">${u.banned ? 'Ochish' : 'Bloklash'}</button>
+                    <button class="btn-accent" style="padding:6px 9px;" onclick="confirmDeleteUser('${u.id}', '${u.name}')">O'chirish</button>
+                  ` : ''}
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    ` : ''}
+
+    ${adminTab === 'rooms' ? `
+      <div class="card">
+        <h3 style="color:var(--primary);margin-bottom:12px;">Barcha Guruh va Kanallar Boshqaruvi</h3>
+        ${DB.rooms.map(r => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong>${r.name}</strong> <span class="badge">${r.type}</span>
+              <div style="font-size:12px;color:var(--muted);">Yaratuvchi: ${r.creator} • A'zolar: ${r.members.length} nafar</div>
+            </div>
+            ${r.id !== 'r_general' ? `<button class="btn-accent" onclick="adminDeleteRoom('${r.id}')">Guruhni O'chirish</button>` : `<span class="badge badge-green">Asosiy kanal</span>`}
+          </div>
+        `).join("")}
+      </div>
+    ` : ''}
+
+    ${adminTab === 'certs' ? `
+      <div class="card">
+        <h3 style="color:var(--primary);margin-bottom:12px;">Tizimdagi Barcha Sertifikatlar</h3>
+        ${DB.certificates.length === 0 ? `<p style="color:var(--muted);">Hozircha sertifikatlar yo'q.</p>` : DB.certificates.map(c => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong>${c.studentName}</strong> (${c.grade}) — <strong>${c.title}</strong>
+              <div style="font-size:12px;color:var(--muted);">ID: ${c.id} • Sana: ${c.date}</div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-secondary" onclick="openCertPdfModal('${c.id}')">Ko'rish</button>
+              <button class="btn-accent" onclick="adminDeleteCert('${c.id}')">Bekor qilish</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    ` : ''}
+
+    ${adminTab === 'tasks' ? `
+      <div class="card">
+        <h3 style="color:var(--primary);margin-bottom:12px;">Barcha Berilgan Vazifalar</h3>
+        ${DB.tasks.length === 0 ? `<p style="color:var(--muted);">Hozircha vazifalar yo'q.</p>` : DB.tasks.map(t => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong>${t.title}</strong> <span class="badge">${t.subject}</span>
+              <div style="font-size:12px;color:var(--muted);">Ustoz: ${t.teacherName} • Topshirdi: ${t.submissions.length} o'quvchi</div>
+            </div>
+            <button class="btn-accent" onclick="adminDeleteTask('${t.id}')">Vazifani O'chirish</button>
+          </div>
+        `).join("")}
+      </div>
+    ` : ''}
+  `;
+}
+
+function openAdminCreateUserModal() {
+  openModal(`
+    <h3 style="color:var(--primary);margin-bottom:12px;">Yangi Foydalanuvchi Qo'shish</h3>
+    <div class="form-group"><label>Ism va Familiya</label><input id="admNewName" placeholder="To'liq ism" /></div>
+    <div class="form-group"><label>Maqomi</label>
+      <select id="admNewRole">
+        <option value="student">O'quvchi</option>
+        <option value="teacher">Fan O'qituvchisi</option>
+        <option value="homeroom">Sinf Rahbari</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Sinf (O'quvchi / Sinf rahbari uchun)</label>
+      <select id="admNewGrade">${CLASSES.map(c => `<option value="${c}">${c}</option>`).join("")}</select>
+    </div>
+    <div class="form-group"><label>Fan (O'qituvchi uchun)</label>
+      <select id="admNewSubj">${SUBJECTS.map(s => `<option value="${s}">${s}</option>`).join("")}</select>
+    </div>
+    <div class="form-group"><label>Login</label><input id="admNewLogin" placeholder="Login" /></div>
+    <div class="form-group"><label>Parol</label><input id="admNewPass" placeholder="Parol" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="adminCreateUser()">Yaratish</button>
+    </div>
+  `);
+}
+
+function adminCreateUser() {
+  const name = document.getElementById("admNewName").value.trim();
+  const role = document.getElementById("admNewRole").value;
+  const grade = document.getElementById("admNewGrade").value;
+  const subject = document.getElementById("admNewSubj").value;
+  const login = document.getElementById("admNewLogin").value.trim();
+  const pass = document.getElementById("admNewPass").value.trim();
+  if (!name || !login || !pass) return;
+  if (DB.users.some(u => u.login.toLowerCase() === login.toLowerCase())) {
+    notify("Bu login tizimda mavjud!", "error");
+    return;
+  }
+  const newU = {
+    id: "u_" + Date.now(), name, login, pass, role,
+    grade: role !== "teacher" ? grade : "",
+    subject: role === "teacher" ? subject : "",
+    points: 0, weeklyPoints: 0, streak: 1, lastLoginDate: "",
+    avatarImg: "", owned: [], activeFrame: "", activeTitle: "", solvedTests: [], claimedMissions: [], banned: false
+  };
+  DB.users.push(newU);
+  DB.rooms[0].members.push(newU.id);
+  saveDB();
+  closeModal();
+  notify(`${name} muvaffaqiyatli qo'shildi!`, "success");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function openAdminEditUserModal(uid) {
+  const u = DB.users.find(x => x.id === uid);
+  if (!u) return;
+  openModal(`
+    <h3 style="color:var(--primary);margin-bottom:12px;">Foydalanuvchini Tahrirlash</h3>
+    <div class="form-group"><label>Ism Familiya</label><input id="admEdName" value="${u.name}" /></div>
+    <div class="form-group"><label>Login</label><input id="admEdLogin" value="${u.login}" /></div>
+    <div class="form-group"><label>Parol</label><input id="admEdPass" value="${u.pass}" /></div>
+    ${u.role !== 'admin' ? `
+      <div class="form-group"><label>Sinf</label>
+        <select id="admEdGrade">${CLASSES.map(c => `<option value="${c}" ${c === u.grade ? 'selected' : ''}>${c}</option>`).join("")}</select>
+      </div>
+      <div class="form-group"><label>Fan</label>
+        <select id="admEdSubj">${SUBJECTS.map(s => `<option value="${s}" ${s === u.subject ? 'selected' : ''}>${s}</option>`).join("")}</select>
+      </div>
+    ` : ''}
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="adminSaveUserEdit('${u.id}')">Saqlash</button>
+    </div>
+  `);
+}
+
+function adminSaveUserEdit(uid) {
+  const u = DB.users.find(x => x.id === uid);
+  if (!u) return;
+  u.name = document.getElementById("admEdName").value.trim() || u.name;
+  u.login = document.getElementById("admEdLogin").value.trim() || u.login;
+  u.pass = document.getElementById("admEdPass").value.trim() || u.pass;
+  if (u.role !== 'admin') {
+    if (u.role !== 'teacher') u.grade = document.getElementById("admEdGrade").value;
+    if (u.role === 'teacher') u.subject = document.getElementById("admEdSubj").value;
+  }
+  saveDB();
+  closeModal();
+  notify("Foydalanuvchi ma'lumotlari yangilandi!", "success");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function openAdminPointsModal(uid) {
+  const u = DB.users.find(x => x.id === uid);
+  if (!u) return;
+  openModal(`
+    <h3 style="color:var(--primary);margin-bottom:8px;">Ballarni Boshqarish: ${u.name}</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Hozirgi balans: <strong>${u.points} ball</strong></p>
+    <div class="form-group"><label>Qo'shish (+) yoki ayirish (-) miqdori</label><input type="number" id="admPtsDelta" value="200" /></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="applyAdminPoints('${u.id}')">Qo'llash</button>
+    </div>
+  `);
+}
+
+function applyAdminPoints(uid) {
+  const delta = parseInt(document.getElementById("admPtsDelta").value, 10) || 0;
+  const u = DB.users.find(x => x.id === uid);
+  if (u) {
+    u.points = Math.max(0, u.points + delta);
+    u.weeklyPoints = Math.max(0, (u.weeklyPoints || 0) + delta);
+    saveDB();
+    closeModal();
+    notify(`${u.name}: ${delta >= 0 ? '+' + delta : delta} ball o'zgartirildi`, "success");
+    renderAdmin(document.getElementById("mainContent"));
+  }
+}
+
+function openAdminGrantCertModal(uid) {
+  const u = DB.users.find(x => x.id === uid);
+  const certs = STORE_CATALOG.filter(i => i.type === "certificate");
+  openModal(`
+    <h3 style="color:var(--primary);margin-bottom:8px;">Sertifikat Taqdim Etish</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">O'quvchi: <strong>${u.name}</strong> (${u.grade})</p>
+    <div class="form-group"><label>Sertifikat turini tanlang</label>
+      <select id="admCertSelect">
+        ${certs.map(c => `<option value="${c.id}">${c.name}</option>`).join("")}
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-gold" onclick="adminGrantCert('${u.id}')">Sertifikatni Berish</button>
+    </div>
+  `);
+}
+
+function adminGrantCert(uid) {
+  const u = DB.users.find(x => x.id === uid);
+  const certId = document.getElementById("admCertSelect").value;
+  const item = STORE_CATALOG.find(i => i.id === certId);
+  if (!u || !item) return;
+
+  if (!u.owned) u.owned = [];
+  if (!u.owned.includes(item.id)) u.owned.push(item.id);
+
+  const certRecord = {
+    id: "MOS-" + Math.floor(100000 + Math.random() * 900000),
+    studentId: u.id,
+    studentName: u.name,
+    grade: u.grade,
+    title: item.name,
+    tier: item.tier,
+    date: new Date().toISOString().slice(0, 10),
+    delivered: true
+  };
+  DB.certificates.unshift(certRecord);
+  saveDB();
+  closeModal();
+  notify(`${u.name} ga "${item.name}" taqdim etildi!`, "success");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function toggleUserBan(uid) {
+  const u = DB.users.find(x => x.id === uid);
+  if (!u) return;
+  u.banned = !u.banned;
+  saveDB();
+  notify(u.banned ? `${u.name} bloklandi` : `${u.name} blokdan chiqarildi`, u.banned ? "error" : "success");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function openAdminBroadcastModal() {
+  openModal(`
+    <h3 style="color:var(--primary);margin-bottom:8px;">Barcha Kanallarga Ommaviy Xabar</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Ushbu xabar tizimdagi barcha guruh va kanallarga bir vaqtda yuboriladi</p>
+    <div class="form-group"><label>Xabar matni</label><textarea id="admBroadMsg" rows="3" placeholder="Muhim xabar matnini yozing..."></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="sendAdminBroadcast()">Barchaga Yuborish</button>
+    </div>
+  `);
+}
+
+function sendAdminBroadcast() {
+  const txt = document.getElementById("admBroadMsg").value.trim();
+  if (!txt) return;
+  DB.rooms.forEach(r => {
+    if (!DB.messages[r.id]) DB.messages[r.id] = [];
+    DB.messages[r.id].push({
+      id: "m_" + Date.now() + Math.random(),
+      senderId: currentUser.id,
+      senderName: "Bosh Administrator (Rasmiy)",
+      text: txt,
+      time: new Date().toTimeString().slice(0,5),
+      reactions: { "Ajoyib": 0, "Foydali": 0 }
+    });
+  });
+  saveDB();
+  closeModal();
+  notify("Xabar barcha guruh va kanallarga yuborildi!", "success");
+}
+
+function adminDeleteRoom(rid) {
+  DB.rooms = DB.rooms.filter(r => r.id !== rid);
+  delete DB.messages[rid];
+  saveDB();
+  notify("Guruh o'chirildi");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function adminDeleteCert(cid) {
+  DB.certificates = DB.certificates.filter(c => c.id !== cid);
+  saveDB();
+  notify("Sertifikat bekor qilindi");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function adminDeleteTask(tid) {
+  DB.tasks = DB.tasks.filter(t => t.id !== tid);
+  saveDB();
+  notify("Vazifa o'chirildi");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function exportDatabaseBackup() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB, null, 2));
+  const dl = document.createElement("a");
+  dl.setAttribute("href", dataStr);
+  dl.setAttribute("download", `MaktabOS_Backup_${new Date().toISOString().slice(0,10)}.json`);
+  document.body.appendChild(dl);
+  dl.click();
+  dl.remove();
+  notify("Tizim zaxira fayli yuklab olindi!", "success");
+}
+
+function confirmResetWeekly() {
+  openModal(`
+    <h3 style="color:var(--primary);margin-bottom:8px;">Haftalik Reytingni Yangilash</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Barcha o'quvchilarning haftalik ballarini 0 ga tushirmoqchimisiz? Umumiy ballar saqlanib qoladi.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="executeResetWeekly()">Tasdiqlash</button>
+    </div>
+  `);
+}
+
+function executeResetWeekly() {
+  DB.users.forEach(u => { u.weeklyPoints = 0; });
+  saveDB();
+  closeModal();
+  notify("Haftalik reyting 0 dan boshlandi!", "success");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+function confirmDeleteUser(uid, uname) {
+  openModal(`
+    <h3 style="color:var(--accent);margin-bottom:8px;">Foydalanuvchini O'chirish</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:16px;"><strong>${uname}</strong> hisobini tizimdan butunlay o'chirmoqchimisiz?</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-accent" onclick="executeDeleteUser('${uid}')">O'chirish</button>
+    </div>
+  `);
+}
+
+function executeDeleteUser(uid) {
+  DB.users = DB.users.filter(u => u.id !== uid);
+  saveDB();
+  closeModal();
+  notify("Foydalanuvchi tizimdan o'chirildi");
+  renderAdmin(document.getElementById("mainContent"));
+}
+
+/* Modal Helpers */
+function openModal(html) {
+  document.getElementById("modalCard").innerHTML = html;
+  document.getElementById("modalBackdrop").classList.remove("hidden");
+}
+function closeModal() { document.getElementById("modalBackdrop").classList.add("hidden"); }
+function closeModalOnBg(e) { if (e.target.id === "modalBackdrop") closeModal(); }
+</script>
+</body>
+</html>

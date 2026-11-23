@@ -1637,6 +1637,7 @@ function finishTest(testId) {
   currentUser.points += earned;
   currentUser.weeklyPoints = (currentUser.weeklyPoints || 0) + earned;
   saveDB();
+  updateTopbar();
   closeModal();
   notify(`Test yakunlandi! To'g'ri: ${correctCount}/${test.questions.length}. +${earned} ball qo'shildi!`, "success");
   navigate("tests");

@@ -80,6 +80,28 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* SYNC INDICATOR */
+    .sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #ECFDF5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+    }
+    .sync-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #10B981;
+      animation: pulseDot 1.6s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
     /* AUTH SCREEN */
     .auth-wrapper {
       min-height: 100vh;
@@ -502,6 +524,9 @@
         </div>
         <h1>MaktabOS</h1>
         <p>Maktabning Yagona Raqamli Operatsion Tizimi</p>
+        <div style="margin-top:8px;">
+          <span class="sync-pill"><span class="sync-dot"></span> Jonli Bulutli Baza Faol</span>
+        </div>
       </div>
 
       <div class="tabs">
@@ -547,7 +572,7 @@
           <label>Parol</label>
           <input type="password" id="regPass" placeholder="Parol yarating" required />
         </div>
-        <button type="submit" class="btn-primary">MaktabOS ga Qo'shilish</button>
+        <button type="submit" id="regSubmitBtn" class="btn-primary">MaktabOS ga Qo'shilish</button>
       </form>
 
       <!-- Login Form -->
@@ -560,7 +585,7 @@
           <label>Parol</label>
           <input type="password" id="loginPass" placeholder="Parolingizni kiriting" required />
         </div>
-        <button type="submit" class="btn-primary">Kabinetga Kirish</button>
+        <button type="submit" id="loginSubmitBtn" class="btn-primary">Kabinetga Kirish</button>
       </form>
     </div>
   </div>
@@ -604,16 +629,19 @@
             </svg>
             <div>
               <strong style="color:var(--primary);font-size:16px;display:block;line-height:1.1;">MaktabOS</strong>
-              <span id="topRoleBadge" style="font-size:11px;color:var(--muted);">Raqamli Maktab</span>
+              <span id="topRoleBadge" style="font-size:11px;color:var(--muted);">Jonli Sinxron</span>
             </div>
           </div>
         </div>
-        <div class="user-chip" onclick="navigate('profile')">
-          <div style="text-align:right;">
-            <div id="topUserName" style="font-weight:800;font-size:13px;"></div>
-            <div id="topUserSub" style="font-size:11px;color:var(--gold);font-weight:800;"></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn-secondary" style="padding:7px 10px;font-size:12px;" onclick="manualCloudPull()" title="Bazani yangilash">Yangilash</button>
+          <div class="user-chip" onclick="navigate('profile')">
+            <div style="text-align:right;">
+              <div id="topUserName" style="font-weight:800;font-size:13px;"></div>
+              <div id="topUserSub" style="font-size:11px;color:var(--gold);font-weight:800;"></div>
+            </div>
+            <div id="topAvatar" class="avatar-circle">U</div>
           </div>
-          <div id="topAvatar" class="avatar-circle">U</div>
         </div>
       </header>
 
@@ -630,6 +658,11 @@
   </div>
 
 <script>
+/* =========================================================================
+   REAL-TIME BULUTLI BAZA (BARCHA QURILMALARDA BIR-BIRINI KO'RISH UCHUN)
+   ========================================================================= */
+const CLOUD_DB_URL = "https://maktabos-live-default-rtdb.firebaseio.com/maktabos_prod_v1.json";
+
 const ICONS = {
   home: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   chat: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
@@ -668,6 +701,106 @@ const SUBJECTS = [
 
 const CLASSES = ["5-sinf", "6-sinf", "7-sinf", "8-sinf", "9-sinf", "10-sinf", "11-sinf"];
 
+/* =========================================================================
+   HAR BIR FANNING O'ZIGA XOS HAQIQIY SAVOLLARI (CHALKASHLIKLARSIZ)
+   ========================================================================= */
+const SUBJECT_QUESTION_BANK = {
+  "Matematika": [
+    { q: "Kvadratning tomoni 7 sm bo'lsa, uning yuzini toping.", options: ["49 sm²", "28 sm²", "14 sm²", "21 sm²"], correct: 0 },
+    { q: "3x + 12 = 33 tenglamaning ildizini toping.", options: ["x = 7", "x = 15", "x = 9", "x = 11"], correct: 0 },
+    { q: "144 sonining kvadrat ildizi nechaga teng?", options: ["12", "14", "16", "11"], correct: 0 },
+    { q: "Uchburchakning ichki burchaklari yig'indisi nechaga teng?", options: ["180°", "360°", "90°", "270°"], correct: 0 },
+    { q: "25% ulush qaysi oddiy kasrga teng?", options: ["1/4", "1/2", "1/5", "3/4"], correct: 0 }
+  ],
+  "Algebra va Geometriya": [
+    { q: "ax² + bx + c = 0 kvadrat tenglamaning diskriminant formulasini toping.", options: ["D = b² - 4ac", "D = b² + 4ac", "D = a² - 4bc", "D = b - 4ac"], correct: 0 },
+    { q: "To'g'ri burchakli uchburchakda katetlar 3 va 4 bo'lsa, gipotenuza nechaga teng?", options: ["5", "7", "6", "12"], correct: 0 },
+    { q: "sin(90°) ning qiymati nechaga teng?", options: ["1", "0", "-1", "0.5"], correct: 0 },
+    { q: "(a + b)² qisqa ko'paytirish formulasini toping.", options: ["a² + 2ab + b²", "a² - 2ab + b²", "a² + b²", "2a + 2b"], correct: 0 }
+  ],
+  "Fizika": [
+    { q: "Xalqaro birliklar tizimida (SI) kuchning o'lchov birligi nima?", options: ["Nyuton (N)", "Joul (J)", "Vatt (W)", "Paskal (Pa)"], correct: 0 },
+    { q: "Yorug'likning vakuumdagi tezligi taxminan nechaga teng?", options: ["300 000 km/s", "340 m/s", "150 000 km/s", "1 000 km/s"], correct: 0 },
+    { q: "Om qonuniga ko'ra zanjirning bir qismidagi tok kuchi nimaga teng?", options: ["I = U / R", "I = U · R", "I = R / U", "I = P · t"], correct: 0 },
+    { q: "Suvning normal atmosfera bosimidagi qaynash harorati necha gradus?", options: ["100 °C", "0 °C", "50 °C", "120 °C"], correct: 0 }
+  ],
+  "Kimyo": [
+    { q: "Suv molekulasining kimyoviy formulasi qaysi?", options: ["H₂O", "CO₂", "NaCl", "H₂SO₄"], correct: 0 },
+    { q: "Mendeleyev davriy jadvalida Kislorodning tartib raqami necha?", options: ["8", "6", "16", "12"], correct: 0 },
+    { q: "Osh tuzining kimyoviy nomi nima?", options: ["Natriy xlorid (NaCl)", "Kaliy permanganat", "Kalsiy karbonat", "Sulfat kislota"], correct: 0 },
+    { q: "Havoning asosiy qismini (taxminan 78%) qaysi gaz tashkil qiladi?", options: ["Azot (N₂)", "Kislorod (O₂)", "Vodorod (H₂)", "Geliy (He)"], correct: 0 }
+  ],
+  "Biologiya": [
+    { q: "O'simliklarda fotosintez jarayoni hujayraning qaysi organoidida kechadi?", options: ["Xloroplastlarda", "Mitoxondriyada", "Ribosomada", "Yadroda"], correct: 0 },
+    { q: "Odam yuragi nechta kameradan iborat?", options: ["4 ta", "2 ta", "3 ta", "5 ta"], correct: 0 },
+    { q: "Irsiy axborotni saqlovchi va nasldan-naslga o'tkazuvchi molekula nima?", options: ["DNK", "Kraxmal", "Glyukoza", "Sellyuloza"], correct: 0 },
+    { q: "Qonning ivishida qaysi qon shaklli elementlari ishtirok etadi?", options: ["Trombotsitlar", "Eritrotsitlar", "Leykotsitlar", "Plazma"], correct: 0 }
+  ],
+  "Informatika va IT": [
+    { q: "1 Kilobayt (KB) necha baytga teng?", options: ["1024 bayt", "1000 bayt", "512 bayt", "256 bayt"], correct: 0 },
+    { q: "Veb-sahifalarning tuzilishini yaratish uchun qaysi belgilash tili ishlatiladi?", options: ["HTML", "Python", "SQL", "C++"], correct: 0 },
+    { q: "Ikkilik sanoq tizimida qaysi raqamlar ishlatiladi?", options: ["0 va 1", "1 va 2", "0 dan 9 gacha", "0 dan 7 gacha"], correct: 0 },
+    { q: "Kompyuterning vaqtinchalik tezkor xotirasi nima deb ataladi?", options: ["RAM (OZU)", "HDD", "SSD", "CPU"], correct: 0 }
+  ],
+  "Ona tili": [
+    { q: "O'zbek tilida nechta unli tovush bor?", options: ["6 ta", "5 ta", "8 ta", "10 ta"], correct: 0 },
+    { q: "Kim? Nima? Qayer? so'roqlariga javob bo'luvchi so'z turkumi qaysi?", options: ["Ot", "Sifat", "Fe'l", "Ravish"], correct: 0 },
+    { q: "Gapning bosh bo'laklari qaysilar?", options: ["Ega va kesim", "Aniqlovchi va to'ldiruvchi", "Hol va undalma", "Sifat va son"], correct: 0 },
+    { q: "Ma'nodosh so'zlar tilshunoslikda nima deb ataladi?", options: ["Sinonimlar", "Antonimlar", "Omonimlar", "Paronimlar"], correct: 0 }
+  ],
+  "Adabiyot": [
+    { q: "'Xamsa' asarining muallifi kim?", options: ["Alisher Navoiy", "Zahiriddin Muhammad Bobur", "Abdulla Qodiriy", "Cho'lpon"], correct: 0 },
+    { q: "'O'tkan kunlar' romani kimning qalamiga mansub?", options: ["Abdulla Qodiriy", "Oybek", "G'afur G'ulom", "O'tkir Hoshimov"], correct: 0 },
+    { q: "'Boburnoma' asari qaysi janrda yozilgan?", options: ["Memuar (esdalik) nasr", "Doston", "Drama", "Masal"], correct: 0 },
+    { q: "'Shum bola' qissasining muallifi kim?", options: ["G'afur G'ulom", "Xudoyberdi To'xtaboyev", "Said Ahmad", "Erkin Vohidov"], correct: 0 }
+  ],
+  "Ingliz tili": [
+    { q: "'Book' so'zining ko'plik shakli qaysi?", options: ["Books", "Bookes", "Bookies", "Book"], correct: 0 },
+    { q: "'She ___ a student' gapida nuqtalar o'rniga to'g'ri fe'lni qo'ying.", options: ["is", "are", "am", "be"], correct: 0 },
+    { q: "'Apple' so'zining o'zbekcha tarjimasi nima?", options: ["Olma", "Nok", "Uzum", "Anor"], correct: 0 },
+    { q: "'Yesterday' so'zi qaysi zamonga ishora qiladi?", options: ["Past Simple (O'tgan zamon)", "Future Simple", "Present Continuous", "Present Perfect"], correct: 0 }
+  ],
+  "Rus tili": [
+    { q: "'Школа' so'zining o'zbekcha tarjimasi nima?", options: ["Maktab", "Kitob", "O'quvchi", "Sinf"], correct: 0 },
+    { q: "'Учитель' so'zi qaysi rodga (jinsga) tegishli?", options: ["Мужской род", "Женский род", "Средний род", "Множественное число"], correct: 0 },
+    { q: "'Доброе утро' iborasining ma'nosi nima?", options: ["Xayrli tong", "Xayrli kech", "Xayr", "Rahmat"], correct: 0 },
+    { q: "Rus alifbosida nechta harf mavjud?", options: ["33 ta", "26 ta", "29 ta", "31 ta"], correct: 0 }
+  ],
+  "O'zbekiston tarixi": [
+    { q: "O'zbekiston Respublikasining Davlat mustaqilligi qachon e'lon qilingan?", options: ["1991-yil 31-avgust", "1992-yil 8-dekabr", "1991-yil 18-noyabr", "1990-yil 20-iyun"], correct: 0 },
+    { q: "Amir Temur qaysi yili Samarqand taxtiga o'tirgan?", options: ["1370-yil", "1336-yil", "1405-yil", "1380-yil"], correct: 0 },
+    { q: "Mirzo Ulug'bek Samarqandda rasadxonani qaysi asrda qurdirgan?", options: ["XV asrda", "XIV asrda", "XVI asrda", "XIII asrda"], correct: 0 },
+    { q: "O'zbekiston Respublikasi Konstitutsiyasi qachon qabul qilingan?", options: ["1992-yil 8-dekabr", "1991-yil 1-sentabr", "1993-yil 2-mart", "1994-yil 1-iyul"], correct: 0 }
+  ],
+  "Jahon tarixi": [
+    { q: "Qadimgi Misr ehromlari (piramidalari) qaysi daryo vodiysida joylashgan?", options: ["Nil daryosi", "Dajla daryosi", "Hind daryosi", "Amazonka"], correct: 0 },
+    { q: "Ikkinchi Jahon urushi nechanchi yilda yakunlangan?", options: ["1945-yilda", "1941-yilda", "1939-yilda", "1918-yilda"], correct: 0 },
+    { q: "Xristofor Kolumb Amerika qit'asiga qaysi yili yetib borgan?", options: ["1492-yilda", "1498-yilda", "1519-yilda", "1453-yilda"], correct: 0 },
+    { q: "Birlashgan Millatlar Tashkiloti (BMT) qachon tashkil etilgan?", options: ["1945-yil 24-oktabr", "1919-yil", "1950-yil", "1939-yil"], correct: 0 }
+  ],
+  "Geografiya": [
+    { q: "Yer yuzidagi eng katta okean qaysi?", options: ["Tinch okeani", "Atlantika okeani", "Hind okeani", "Shimoliy Muz okeani"], correct: 0 },
+    { q: "Dunyodagi eng baland tog' cho'qqisi qaysi?", options: ["Everest (Jomolungma)", "Hazrati Sulton", "Elbrus", "Kilimanjaro"], correct: 0 },
+    { q: "O'zbekiston nechta davlat bilan chegaradosh?", options: ["5 ta", "4 ta", "6 ta", "3 ta"], correct: 0 },
+    { q: "Yer sharida nechta materik mavjud?", options: ["6 ta", "5 ta", "7 ta", "4 ta"], correct: 0 }
+  ],
+  "Huquqshunoslik": [
+    { q: "O'zbekiston Respublikasida oliy yuridik kuchga ega asosiy qonun nima?", options: ["Konstitutsiya", "Mehnat kodeksi", "Soliq kodeksi", "Fuqarolik kodeksi"], correct: 0 },
+    { q: "O'zbekiston fuqarolari necha yoshdan saylash huquqiga ega bo'ladilar?", options: ["18 yoshdan", "16 yoshdan", "21 yoshdan", "25 yoshdan"], correct: 0 },
+    { q: "Bola huquqlari to'g'risidagi Konvensiyaga ko'ra necha yoshgacha bo'lgan shaxs bola hisoblanadi?", options: ["18 yoshgacha", "14 yoshgacha", "16 yoshgacha", "12 yoshgacha"], correct: 0 }
+  ],
+  "Iqtisodiyot asoslari": [
+    { q: "Bozorda tovar va xizmatlarga bo'lgan ehtiyoj va xarid qobiliyati nima deyiladi?", options: ["Talab", "Taklif", "Inflyatsiya", "Soliq"], correct: 0 },
+    { q: "O'zbekiston Respublikasining milliy valyutasi nima?", options: ["So'm", "Tenge", "Rubl", "Manat"], correct: 0 },
+    { q: "Daromadlarning xarajatlardan ortiq qismi nima deb ataladi?", options: ["Foyda", "Zarar", "Kredit", "Qarz"], correct: 0 }
+  ],
+  "Astronomiya": [
+    { q: "Quyosh sistemasidagi eng katta sayyora qaysi?", options: ["Yupiter", "Saturn", "Yer", "Mars"], correct: 0 },
+    { q: "Yerning tabiiy yo'ldoshi nima?", options: ["Oy", "Fobos", "Titan", "Venera"], correct: 0 },
+    { q: "Quyoshga eng yaqin joylashgan sayyora qaysi?", options: ["Merkuriy", "Venera", "Mars", "Uran"], correct: 0 }
+  ]
+};
+
 const STORE_CATALOG = [
   { id: "cert_gold_honor", type: "certificate", name: "Oltin Faxriy Yorliq", price: 1200, tier: "Oltin Daraja", desc: "Maktab miqyosidagi eng yuqori natija uchun rasmiy muhrlangan PDF sertifikat" },
   { id: "cert_olympiad_master", type: "certificate", name: "Fan Olimpiadasi G'olibi Diplomi", price: 1200, tier: "Maxsus Diplom", desc: "Aniq va tabiiy fanlardan yuqori natija ko'rsatgan o'quvchi uchun rasmiy PDF diplom" },
@@ -700,33 +833,25 @@ function buildInitialTests() {
   let idx = 1;
   CLASSES.forEach(cls => {
     SUBJECTS.forEach(sub => {
-      for (let q = 1; q <= 15; q++) {
-        const a = (q * 4) + 7;
-        const b = q + 3;
+      const qPool = SUBJECT_QUESTION_BANK[sub] || SUBJECT_QUESTION_BANK["Matematika"];
+      for (let topic = 1; topic <= 10; topic++) {
+        const picked = [];
+        for (let k = 0; k < 3; k++) {
+          const item = qPool[(topic + k) % qPool.length];
+          picked.push({
+            q: `[${cls}] ${item.q}`,
+            options: [...item.options],
+            correct: item.correct
+          });
+        }
         bank.push({
           id: "sys_t_" + idx++,
           subject: sub,
           grade: cls,
-          title: `${sub} — ${q}-mavzu sinov testi`,
+          title: `${sub} — ${topic}-mavzu nazorat testi`,
           authorName: null,
           maxPoints: 60,
-          questions: [
-            {
-              q: `${sub} (${cls}) ${q}-savol: ${a} + ${b} × 3 ifodaning qiymatini toping.`,
-              options: [`${a + b * 3}`, `${(a + b) * 3}`, `${a + b}`, `${a * 3}`],
-              correct: 0
-            },
-            {
-              q: `${sub} fanida nazariy bilimlarni amaliyotda qo'llashning asosiy usuli qaysi?`,
-              options: ["Tahlil va masalalar yechish", "Faqat yodlash", "Tekshirmaslik", "Tasodifiy javob"],
-              correct: 0
-            },
-            {
-              q: `${cls} o'quv dasturi bo'yicha ${sub} fanidan yakuniy xulosa qanday asoslanadi?`,
-              options: ["Ilmiy dalil va hisob-kitoblar bilan", "Taxmin bilan", "Asossiz", "Noto'g'ri"],
-              correct: 0
-            }
-          ]
+          questions: picked
         });
       }
     });
@@ -765,27 +890,119 @@ const DEFAULT_DB = {
       id: "ann_1",
       title: "MaktabOS Raqamli Ekotizimi Ishga Tushdi",
       body: "O'quvchilar kunlik missiyalar, fan testlari va vazifalarni bajarib maksimal 60 ballgacha to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlarni qo'lga kiritishlari mumkin.",
-      author: "Ma'muriyat", date: "2026-11-18", views: ["u_admin"]
+      author: "Ma'muriyat", date: "2026-11-23", views: ["u_admin"]
     }
   ],
-  certificates: [],
-  tests: buildInitialTests()
+  certificates: []
 };
 
-let DB = JSON.parse(localStorage.getItem("maktabos_db_v3")) || DEFAULT_DB;
+let STATIC_TESTS = buildInitialTests();
+let DB = JSON.parse(localStorage.getItem("maktabos_db_v4")) || JSON.parse(JSON.stringify(DEFAULT_DB));
+if (!DB.customTests) DB.customTests = [];
+
 let currentUser = null;
 let currentView = "dashboard";
 let activeRoomId = "r_general";
 let replyTarget = null;
 let rankingTab = "weekly";
-
-// Admin UI states
 let adminTab = "users";
 let adminSearch = "";
 let adminRoleFilter = "all";
 
+/* =========================================================================
+   BULUTLI SINXRONIZATSIYA FUNKSIYALARI
+   ========================================================================= */
+function normalizeDB(data) {
+  if (!data || typeof data !== "object") return JSON.parse(JSON.stringify(DEFAULT_DB));
+  if (!Array.isArray(data.users) || data.users.length === 0) data.users = DEFAULT_DB.users;
+  if (!data.users.some(u => u.id === "u_admin")) data.users.unshift(DEFAULT_DB.users[0]);
+  if (!Array.isArray(data.rooms) || data.rooms.length === 0) data.rooms = DEFAULT_DB.rooms;
+  if (!data.messages || typeof data.messages !== "object") data.messages = DEFAULT_DB.messages;
+  if (!data.messages["r_general"]) data.messages["r_general"] = [];
+  if (!Array.isArray(data.tasks)) data.tasks = [];
+  if (!Array.isArray(data.announcements)) data.announcements = DEFAULT_DB.announcements;
+  if (!Array.isArray(data.certificates)) data.certificates = [];
+  if (!Array.isArray(data.customTests)) data.customTests = [];
+
+  data.users.forEach(u => {
+    if (!Array.isArray(u.owned)) u.owned = [];
+    if (!Array.isArray(u.solvedTests)) u.solvedTests = [];
+    if (!Array.isArray(u.claimedMissions)) u.claimedMissions = [];
+  });
+  return data;
+}
+
+async function pullFromCloud(silent = true) {
+  try {
+    const res = await fetch(CLOUD_DB_URL + "?t=" + Date.now());
+    if (!res.ok) return false;
+    const remote = await res.json();
+    if (remote && Array.isArray(remote.users)) {
+      DB = normalizeDB(remote);
+      localStorage.setItem("maktabos_db_v4", JSON.stringify(DB));
+      return true;
+    } else {
+      await pushToCloud();
+      return true;
+    }
+  } catch (err) {
+    if (!silent) notify("Internet aloqasini tekshiring", "error");
+    return false;
+  }
+}
+
+async function pushToCloud() {
+  localStorage.setItem("maktabos_db_v4", JSON.stringify(DB));
+  try {
+    await fetch(CLOUD_DB_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(DB)
+    });
+  } catch (e) {
+    console.warn("Cloud sync error:", e);
+  }
+}
+
 function saveDB() {
-  localStorage.setItem("maktabos_db_v3", JSON.stringify(DB));
+  pushToCloud();
+}
+
+async function manualCloudPull() {
+  const ok = await pullFromCloud(false);
+  if (ok) {
+    notify("Baza eng so'nggi holatga yangilandi!", "success");
+    if (currentUser) navigate(currentView);
+  }
+}
+
+// Har 4 soniyada fonda yangi foydalanuvchilar va xabarlarni olib kelish
+setInterval(async () => {
+  if (!currentUser) return;
+  const oldUsersCount = DB.users.length;
+  const oldMsgCount = (DB.messages[activeRoomId] || []).length;
+  const updated = await pullFromCloud(true);
+  if (updated && currentUser) {
+    const stillExists = DB.users.find(u => u.id === currentUser.id);
+    if (!stillExists || stillExists.banned) {
+      logout();
+      return;
+    }
+    currentUser = stillExists;
+    updateTopbar();
+    if (currentView === "chats" && (DB.messages[activeRoomId] || []).length !== oldMsgCount) {
+      renderChats(document.getElementById("mainContent"));
+    } else if (currentView === "admin" && DB.users.length !== oldUsersCount) {
+      renderAdmin(document.getElementById("mainContent"));
+    }
+  }
+}, 4000);
+
+// Sahifa ochilganda darhol bulutdan yuklash
+pullFromCloud(true);
+
+function getAllTests() {
+  return [...(DB.customTests || []), ...STATIC_TESTS];
 }
 
 function renderAvatarHTML(user, sizePx = 42, fontPx = 16) {
@@ -818,8 +1035,14 @@ function toggleRegFields() {
   document.getElementById("regSubjectWrap").classList.toggle("hidden", role !== "teacher");
 }
 
-function handleRegister(e) {
+async function handleRegister(e) {
   e.preventDefault();
+  const btn = document.getElementById("regSubmitBtn");
+  btn.disabled = true;
+  btn.textContent = "Saqlanmoqda...";
+
+  await pullFromCloud(true);
+
   const name = document.getElementById("regName").value.trim();
   const role = document.getElementById("regRole").value;
   const grade = document.getElementById("regClass").value;
@@ -829,6 +1052,8 @@ function handleRegister(e) {
 
   if (DB.users.some(u => u.login.toLowerCase() === login.toLowerCase())) {
     notify("Bu login band! Boshqa login tanlang.", "error");
+    btn.disabled = false;
+    btn.textContent = "MaktabOS ga Qo'shilish";
     return;
   }
 
@@ -852,7 +1077,9 @@ function handleRegister(e) {
   };
 
   DB.users.push(newUser);
-  DB.rooms[0].members.push(newUser.id);
+  if (!DB.rooms[0].members.includes(newUser.id)) {
+    DB.rooms[0].members.push(newUser.id);
+  }
 
   if (role === "homeroom") {
     const roomId = "r_class_" + grade.replace(/\W/g, "");
@@ -877,17 +1104,30 @@ function handleRegister(e) {
     }
   }
 
-  saveDB();
+  await pushToCloud();
+  btn.disabled = false;
+  btn.textContent = "MaktabOS ga Qo'shilish";
+
   currentUser = newUser;
-  notify(`Xush kelibsiz, ${name}! Hisobingiz yaratildi.`, "success");
+  notify(`Xush kelibsiz, ${name}! Hisobingiz tizimga qo'shildi.`, "success");
   enterApp();
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
   e.preventDefault();
+  const btn = document.getElementById("loginSubmitBtn");
+  btn.disabled = true;
+  btn.textContent = "Tekshirilmoqda...";
+
+  await pullFromCloud(true);
+
   const login = document.getElementById("loginUser").value.trim();
   const pass = document.getElementById("loginPass").value.trim();
   const found = DB.users.find(u => u.login === login && u.pass === pass);
+
+  btn.disabled = false;
+  btn.textContent = "Kabinetga Kirish";
+
   if (!found) {
     notify("Login yoki parol noto'g'ri!", "error");
     return;
@@ -900,7 +1140,7 @@ function handleLogin(e) {
   if (found.lastLoginDate !== today) {
     found.streak = (found.streak || 0) + 1;
     found.lastLoginDate = today;
-    saveDB();
+    await pushToCloud();
   }
   currentUser = found;
   notify(`Xush kelibsiz, ${found.name}!`, "success");
@@ -929,7 +1169,7 @@ function toggleMobileSidebar() {
 }
 
 function updateTopbar() {
-  currentUser = DB.users.find(u => u.id === currentUser.id);
+  currentUser = DB.users.find(u => u.id === currentUser.id) || currentUser;
   document.getElementById("topUserName").textContent = currentUser.name;
   let sub = "";
   let roleTxt = "";
@@ -979,7 +1219,7 @@ function renderSidebarMenu() {
   items.push({ id: "announcements", label: "Maktab E'lonlari", icon: ICONS.news });
   items.push({ id: "profile", label: "Profil va Mukofotlarim", icon: ICONS.user });
   if (r === "admin") {
-    items.push({ id: "admin", label: "Super Admin Paneli", icon: ICONS.admin });
+    items.push({ id: "admin", label: "Super Admin Paneli", icon: ICONS.admin, badge: DB.users.length });
   }
 
   nav.innerHTML = items.map(it => `
@@ -1128,7 +1368,7 @@ function renderDashboard(box) {
     const myTasks = DB.tasks.filter(t => t.teacherId === currentUser.id);
     let ungraded = 0;
     myTasks.forEach(t => t.submissions.forEach(s => { if (s.grade === null) ungraded++; }));
-    const myTests = DB.tests.filter(t => t.authorId === currentUser.id).length;
+    const myTests = (DB.customTests || []).filter(t => t.authorId === currentUser.id).length;
     const pendingCerts = DB.certificates.filter(c => !c.delivered).length;
 
     box.innerHTML = `
@@ -1165,7 +1405,7 @@ function renderDashboard(box) {
     const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
     box.innerHTML = `
       <h2 class="page-title">MaktabOS Boshqaruv Markazi</h2>
-      <p class="page-sub">Super Administrator nazorat paneli</p>
+      <p class="page-sub">Super Administrator nazorat paneli (Jonli sinxronizatsiya ulangan)</p>
       <div class="grid-3">
         <div class="card"><div class="stat-label">${ICONS.user} Jami Foydalanuvchilar</div><div class="stat-val">${DB.users.length} nafar</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">${studentsCount} o'quvchi • ${teachersCount} ustoz</div></div>
         <div class="card"><div class="stat-label">${ICONS.chat} Faol Guruh va Kanallar</div><div class="stat-val">${DB.rooms.length} ta</div></div>
@@ -1210,10 +1450,10 @@ function renderChats(box) {
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
       <div>
         <h2 class="page-title">${ICONS.chat} Chatlar va Kanallar</h2>
-        <p class="page-sub" style="margin:0;">Sinfdoshlar, ustozlar va rasmiy maktab kanallari</p>
+        <p class="page-sub" style="margin:0;">Barcha foydalanuvchilar bilan jonli muloqot (${DB.users.length} nafar a'zo tizimda)</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn-secondary" onclick="openDirectChatModal()">+ Shaxsiy Chat</button>
+        <button class="btn-secondary" onclick="openDirectChatModal()">+ Shaxsiy Chat (${DB.users.length - 1})</button>
         <button class="btn-primary" style="width:auto;margin:0;padding:10px 14px;" onclick="openCreateRoomModal()">+ Guruh / Kanal</button>
       </div>
     </div>
@@ -1228,7 +1468,7 @@ function renderChats(box) {
             <div class="chat-room-item ${r.id === activeRoomId ? 'active' : ''}" onclick="selectRoom('${r.id}')">
               <div style="font-weight:800;font-size:14px;">${r.name}</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px;">
-                ${r.type === 'channel' ? 'Kanal' : r.type === 'direct' ? 'Shaxsiy suhbat' : 'Guruh'} • ${r.members.length} a'zo
+                ${r.type === 'channel' ? 'Kanal' : r.type === 'direct' ? 'Shaxsiy suhbat' : 'Guruh'} • ${r.id === 'r_general' ? DB.users.length : r.members.length} a'zo
               </div>
             </div>
           `).join("")}
@@ -1240,7 +1480,7 @@ function renderChats(box) {
           <div class="chat-header">
             <div>
               <div style="font-weight:900;font-size:15px;color:var(--primary);">${activeRoom.name}</div>
-              <div style="font-size:11px;color:var(--muted);">${activeRoom.desc || ''} • ${activeRoom.members.length} a'zo</div>
+              <div style="font-size:11px;color:var(--muted);">${activeRoom.desc || ''} • ${activeRoom.id === 'r_general' ? DB.users.length : activeRoom.members.length} a'zo</div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
               <button class="btn-secondary" style="padding:7px 10px;font-size:12px;" onclick="viewRoomMembers('${activeRoom.id}')">A'zolar</button>
@@ -1466,7 +1706,7 @@ function startDirectChat(targetId) {
 
 function viewRoomMembers(roomId) {
   const room = DB.rooms.find(r => r.id === roomId);
-  const members = DB.users.filter(u => room.members.includes(u.id));
+  const members = room.id === "r_general" ? DB.users : DB.users.filter(u => room.members.includes(u.id));
   openModal(`
     <h3 style="margin-bottom:12px;color:var(--primary);">${room.name} (${members.length} a'zo)</h3>
     ${members.map(m => `
@@ -1475,7 +1715,7 @@ function viewRoomMembers(roomId) {
           ${renderAvatarHTML(m, 32, 13)}
           <strong>${m.name}</strong>
         </div>
-        <span class="badge">${m.role === 'student' ? m.grade : m.role}</span>
+        <span class="badge">${m.role === 'student' ? m.grade : m.subject || m.role}</span>
       </div>
     `).join("")}
     <div style="margin-top:14px;text-align:right;"><button class="btn-secondary" onclick="closeModal()">Yopish</button></div>
@@ -1645,19 +1885,20 @@ function gradeTask(taskId, studentId) {
   renderTasks(document.getElementById("mainContent"));
 }
 
-/* ================= 4. FAN TESTLARI ================= */
+/* ================= 4. FAN TESTLARI (HAQIQIY FAN SAVOLLARI) ================= */
 let filterTestGrade = "9-sinf";
 let filterTestSubj = "Matematika";
 
 function renderTests(box) {
   const canCreate = currentUser.role === "teacher" || currentUser.role === "homeroom" || currentUser.role === "admin";
-  const filtered = DB.tests.filter(t => t.grade === filterTestGrade && t.subject === filterTestSubj);
+  const allTests = getAllTests();
+  const filtered = allTests.filter(t => t.grade === filterTestGrade && t.subject === filterTestSubj);
 
   box.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
       <div>
         <h2 class="page-title">${ICONS.test} Fan Testlari</h2>
-        <p class="page-sub" style="margin:0;">Har bir test faqat bir marta yechiladi (Max: 60 ball)</p>
+        <p class="page-sub" style="margin:0;">Har bir fanning o'ziga xos nazorat testlari (Max: 60 ball)</p>
       </div>
       ${canCreate ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openCreateTestModal()">+ Test Tuzish</button>` : ''}
     </div>
@@ -1684,7 +1925,7 @@ function renderTests(box) {
           <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
               <div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:8px;">
-                <span class="badge">${t.grade}</span>
+                <span class="badge">${t.subject} • ${t.grade}</span>
                 <span class="badge badge-gold">Max: ${t.maxPoints} ball</span>
               </div>
               <h4 style="color:var(--primary);margin-bottom:6px;font-size:15px;">${t.title}</h4>
@@ -1706,7 +1947,7 @@ function renderTests(box) {
 }
 
 function startTestModal(testId) {
-  const test = DB.tests.find(t => t.id === testId);
+  const test = getAllTests().find(t => t.id === testId);
   if (!test) return;
   openModal(`
     <h3 style="color:var(--primary);margin-bottom:4px;">${test.title}</h3>
@@ -1730,7 +1971,7 @@ function startTestModal(testId) {
 }
 
 function finishTest(testId) {
-  const test = DB.tests.find(t => t.id === testId);
+  const test = getAllTests().find(t => t.id === testId);
   let correctCount = 0;
   test.questions.forEach((qObj, idx) => {
     const sel = document.querySelector(`input[name="q_${idx}"]:checked`);
@@ -1779,7 +2020,8 @@ function saveTeacherTest() {
   const o3 = document.getElementById("ctOpt3").value.trim();
   if (!title || !q1 || !o1) return;
 
-  DB.tests.unshift({
+  if (!DB.customTests) DB.customTests = [];
+  DB.customTests.unshift({
     id: "tch_t_" + Date.now(),
     subject: document.getElementById("ctSubj").value,
     grade: document.getElementById("ctGrade").value,
@@ -1858,7 +2100,7 @@ function renderRanking(box) {
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
       <div>
         <h2 class="page-title">${ICONS.rank} Maktab Top Reytingi</h2>
-        <p class="page-sub" style="margin:0;">Haftalik va barcha davrlar bo'yicha eng faol o'quvchilar</p>
+        <p class="page-sub" style="margin:0;">Haftalik va barcha davrlar bo'yicha eng faol o'quvchilar (${students.length} o'quvchi)</p>
       </div>
       <div class="tabs" style="margin:0;width:260px;">
         <button class="tab-btn ${rankingTab === 'weekly' ? 'active' : ''}" onclick="rankingTab='weekly';renderRanking(document.getElementById('mainContent'))">Haftalik</button>
@@ -2006,7 +2248,7 @@ function buyItem(itemId) {
       id: "m_" + Date.now(),
       senderId: "u_admin",
       senderName: "MaktabOS Tizimi",
-      text: `YANGI SERTIFIKAT! ${currentUser.grade} o'quvchisi ${currentUser.name} 1200 ball evaziga "${item.name}" rasmiy sertifikatini qo'lga kiritdi (ID: ${certRecord.id}). O'qituvchilar bo'limiga yuborildi.`,
+      text: `YANGI SERTIFIKAT! ${currentUser.grade} o'quvchisi ${currentUser.name} 1200 ball evaziga "${item.name}" rasmiy sertifikatini qo'lga kiritdi (ID: ${certRecord.id}).`,
       time: new Date().toTimeString().slice(0,5),
       reactions: { "Tabriklaymiz": 1 }
     });
@@ -2018,7 +2260,7 @@ function buyItem(itemId) {
   renderStore(document.getElementById("mainContent"));
 }
 
-/* ================= 8. PROFIL, RASM QO'YISH VA MEN OLGAN MUKOFOTLAR ================= */
+/* ================= 8. PROFIL ================= */
 function renderProfile(box) {
   const ownedFrames = STORE_CATALOG.filter(i => i.type === "frame" && (currentUser.owned || []).includes(i.id));
   const ownedTitles = STORE_CATALOG.filter(i => i.type === "title" && (currentUser.owned || []).includes(i.id));
@@ -2333,7 +2575,7 @@ function deleteAnn(id) {
   renderAnnouncements(document.getElementById("mainContent"));
 }
 
-/* ================= 11. KENGAYTIRILGAN SUPER ADMIN PANELI ================= */
+/* ================= 11. SUPER ADMIN PANELI ================= */
 function renderAdmin(box) {
   const studentsCount = DB.users.filter(u => u.role === "student").length;
   const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
@@ -2350,15 +2592,15 @@ function renderAdmin(box) {
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
       <div>
         <h2 class="page-title">${ICONS.admin} Super Admin Boshqaruv Paneli</h2>
-        <p class="page-sub" style="margin:0;">To'liq nazorat: Foydalanuvchilar, Ballar, Sertifikatlar, Guruhlar va Tizim Zaxirasi</p>
+        <p class="page-sub" style="margin:0;">Barcha qurilmalardan ro'yxatdan o'tgan foydalanuvchilar jonli ro'yxati</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-secondary" onclick="manualCloudPull()">Bazani Yangilash</button>
         <button class="btn-gold" onclick="openAdminCreateUserModal()">+ Yangi Foydalanuvchi</button>
         <button class="btn-primary" style="width:auto;margin:0;" onclick="openAdminBroadcastModal()">Ommaviy E'lon</button>
       </div>
     </div>
 
-    <!-- ADMIN STATISTIKA -->
     <div class="grid-3">
       <div class="card">
         <div class="stat-label">Jami Foydalanuvchilar</div>
@@ -2368,7 +2610,7 @@ function renderAdmin(box) {
       <div class="card">
         <div class="stat-label">Tizim Faolligi</div>
         <div class="stat-val">${DB.rooms.length} kanal / ${DB.tasks.length} vazifa</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Testlar bazasi: ${DB.tests.length} ta</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Testlar bazasi: ${getAllTests().length} ta</div>
       </div>
       <div class="card">
         <div class="stat-label">Tezkor Amallar</div>
@@ -2379,7 +2621,6 @@ function renderAdmin(box) {
       </div>
     </div>
 
-    <!-- ADMIN BO'LIM TABLARI -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
       <button class="${adminTab === 'users' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;margin:0;" onclick="adminTab='users';renderAdmin(document.getElementById('mainContent'))">Foydalanuvchilar (${DB.users.length})</button>
       <button class="${adminTab === 'rooms' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;margin:0;" onclick="adminTab='rooms';renderAdmin(document.getElementById('mainContent'))">Guruh va Kanallar (${DB.rooms.length})</button>
@@ -2451,7 +2692,7 @@ function renderAdmin(box) {
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;">
             <div>
               <strong>${r.name}</strong> <span class="badge">${r.type}</span>
-              <div style="font-size:12px;color:var(--muted);">Yaratuvchi: ${r.creator} • A'zolar: ${r.members.length} nafar</div>
+              <div style="font-size:12px;color:var(--muted);">Yaratuvchi: ${r.creator} • A'zolar: ${r.id === 'r_general' ? DB.users.length : r.members.length} nafar</div>
             </div>
             ${r.id !== 'r_general' ? `<button class="btn-accent" onclick="adminDeleteRoom('${r.id}')">Guruhni O'chirish</button>` : `<span class="badge badge-green">Asosiy kanal</span>`}
           </div>
@@ -2540,7 +2781,7 @@ function adminCreateUser() {
     avatarImg: "", owned: [], activeFrame: "", activeTitle: "", solvedTests: [], claimedMissions: [], banned: false
   };
   DB.users.push(newU);
-  DB.rooms[0].members.push(newU.id);
+  if (!DB.rooms[0].members.includes(newU.id)) DB.rooms[0].members.push(newU.id);
   saveDB();
   closeModal();
   notify(`${name} muvaffaqiyatli qo'shildi!`, "success");

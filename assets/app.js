@@ -1,199 +1,6 @@
 const CLOUD_DB_URL = "https://maktabos-7172b-default-rtdb.firebaseio.com/maktabos_db.json";
 const SESSION_KEY = "maktabos_active_uid_v1";
 
-/* ================= ANIMATED GIF FRAME GENERATOR (REAL TRANSPARENT GIF89a) ================= */
-const GIF_FRAME_CACHE = {};
-
-function encodeAnimatedGif89a(width, height, framesIndices, paletteRGB, delayCs = 7) {
-  const bytes = [];
-  const pushStr = s => { for (let i = 0; i < s.length; i++) bytes.push(s.charCodeAt(i)); };
-  const push16 = v => { bytes.push(v & 0xFF, (v >> 8) & 0xFF); };
-
-  pushStr("GIF89a");
-  push16(width);
-  push16(height);
-  bytes.push(0xF7, 0, 0); // Global Color Table (256 colors), transparent idx 0
-
-  for (let i = 0; i < 256; i++) {
-    const c = paletteRGB[i] || [0, 0, 0];
-    bytes.push(c[0], c[1], c[2]);
-  }
-
-  // NETSCAPE2.0 Infinite Loop
-  bytes.push(0x21, 0xFF, 0x0B);
-  pushStr("NETSCAPE2.0");
-  bytes.push(0x03, 0x01, 0x00, 0x00, 0x00);
-
-  framesIndices.forEach(idxArr => {
-    // Graphic Control Extension: disposal = 2 (restore transparent bg), transparent = true (idx 0)
-    bytes.push(0x21, 0xF9, 0x04, 0x09);
-    push16(delayCs);
-    bytes.push(0x00, 0x00);
-
-    // Image Descriptor
-    bytes.push(0x2C);
-    push16(0); push16(0); push16(width); push16(height);
-    bytes.push(0x00);
-
-    // LZW Compression (minCodeSize = 8)
-    bytes.push(8);
-    const sub = [];
-    let bitBuf = 0, bitCnt = 0;
-    const emit = (code, size) => {
-      bitBuf |= (code << bitCnt);
-      bitCnt += size;
-      while (bitCnt >= 8) {
-        sub.push(bitBuf & 0xFF);
-        bitBuf >>= 8;
-        bitCnt -= 8;
-      }
-    };
-
-    const clearCode = 256, endCode = 257;
-    let codeSize = 9, nextCode = 258;
-    let dict = new Map();
-    emit(clearCode, codeSize);
-
-    let prefix = idxArr[0];
-    for (let i = 1; i < idxArr.length; i++) {
-      const k = idxArr[i];
-      const key = (prefix << 8) | k;
-      const found = dict.get(key);
-      if (found !== undefined) {
-        prefix = found;
-      } else {
-        emit(prefix, codeSize);
-        dict.set(key, nextCode++);
-        if (nextCode > (1 << codeSize)) {
-          if (codeSize < 12) {
-            codeSize++;
-          } else {
-            emit(clearCode, codeSize);
-            dict.clear();
-            codeSize = 9;
-            nextCode = 258;
-          }
-        }
-        prefix = k;
-      }
-    }
-    emit(prefix, codeSize);
-    emit(endCode, codeSize);
-    if (bitCnt > 0) sub.push(bitBuf & 0xFF);
-
-    for (let i = 0; i < sub.length; i += 255) {
-      const chunk = sub.slice(i, i + 255);
-      bytes.push(chunk.length, ...chunk);
-    }
-    bytes.push(0x00);
-  });
-
-  bytes.push(0x3B);
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  return "data:image/gif;base64," + btoa(bin);
-}
-
-function getGifFrameDataUrl(key) {
-  if (GIF_FRAME_CACHE[key]) return GIF_FRAME_CACHE[key];
-  const size = 80;
-  const cx = size / 2, cy = size / 2;
-  const rInner = 27.5; // Shaffof markaz (avatar yopilmaydi)
-  const rOuter = 38.5;
-
-  const palettes = {
-    gif_crown: [[0,0,0], [254,240,138], [250,204,21], [245,158,11], [217,119,6], [255,255,255]],
-    gif_lightning: [[0,0,0], [186,230,253], [56,189,248], [37,99,235], [99,102,241], [255,255,255]],
-    gif_fire: [[0,0,0], [254,240,138], [251,146,60], [239,68,68], [225,29,72], [255,255,255]],
-    gif_emerald: [[0,0,0], [167,243,208], [52,211,153], [16,185,129], [5,150,105], [255,255,255]],
-    gif_galaxy: [[0,0,0], [233,213,255], [192,132,252], [236,72,153], [59,130,246], [255,255,255]],
-    gif_diamond: [[0,0,0], [255,255,255], [125,211,252], [253,224,71], [244,114,182], [167,139,250]]
-  };
-
-  const pal = palettes[key] || palettes.gif_crown;
-  const totalFrames = 12;
-  const frames = [];
-
-  for (let f = 0; f < totalFrames; f++) {
-    const phase = (f / totalFrames) * Math.PI * 2;
-    const grid = new Uint8Array(size * size);
-
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
-        const dx = x - cx + 0.5;
-        const dy = y - cy + 0.5;
-        const dist = Math.hypot(dx, dy);
-        if (dist < rInner || dist > rOuter) continue;
-
-        const ang = Math.atan2(dy, dx);
-        let colorIdx = 0;
-
-        if (key === "gif_crown") {
-          // Aylanuvchi oltin uzuk + yuqorida toj uchlari + uchqunlar
-          const wave = Math.sin(ang * 6 - phase);
-          const crownTop = (ang > -2.35 && ang < -0.78) ? Math.abs(Math.sin((ang + 1.57) * 5)) * 4.5 : 0;
-          if (dist >= rInner && dist <= rInner + 3.2 + crownTop) {
-            colorIdx = wave > 0.4 ? 1 : wave > -0.2 ? 2 : 3;
-          }
-          const sparkAngle = (ang - phase) * 4;
-          if (Math.sin(sparkAngle) > 0.88 && Math.abs(dist - (rInner + 5.8 + Math.sin(phase + ang * 3) * 1.6)) < 1.5) {
-            colorIdx = 5;
-          }
-        } else if (key === "gif_lightning") {
-          // Chaqmoq razryadlari va energiya halqasi
-          const zig = Math.sin(ang * 9 + phase * 2) * 2.2 + Math.cos(ang * 5 - phase) * 1.4;
-          const ringCenter = rInner + 4.2 + zig;
-          const dRing = Math.abs(dist - ringCenter);
-          if (dRing < 1.3) colorIdx = 5;
-          else if (dRing < 2.6) colorIdx = 2;
-          else if (dRing < 3.8 && Math.sin(ang * 7 - phase) > 0.2) colorIdx = 3;
-        } else if (key === "gif_fire") {
-          // Olov tillari halqasi
-          const flame = Math.sin(ang * 8 + phase) * 2.5 + Math.cos(ang * 13 - phase * 2) * 1.8;
-          const maxFlame = rInner + 5.5 + flame;
-          if (dist <= maxFlame) {
-            const ratio = (dist - rInner) / Math.max(1, maxFlame - rInner);
-            colorIdx = ratio < 0.35 ? 1 : ratio < 0.65 ? 2 : ratio < 0.88 ? 3 : 4;
-          }
-        } else if (key === "gif_emerald") {
-          // Zumrad plazma to'lqini
-          const pulse = Math.sin(ang * 4 - phase * 2) * 2.0;
-          if (dist <= rInner + 4.5 + pulse) {
-            colorIdx = Math.sin(ang * 8 + phase) > 0.3 ? 1 : 3;
-          }
-          if (Math.abs(dist - (rInner + 7.2)) < 1.2 && Math.cos(ang * 6 - phase) > 0.7) {
-            colorIdx = 5;
-          }
-        } else if (key === "gif_galaxy") {
-          // Binafsha-pushti galaktika spirali
-          const spiral = Math.sin(ang * 3 - phase + (dist - rInner) * 0.45);
-          if (dist <= rInner + 5.2 && spiral > -0.3) {
-            colorIdx = spiral > 0.55 ? 1 : spiral > 0.15 ? 3 : 2;
-          }
-          if (Math.sin(ang * 7 + phase) > 0.85 && Math.abs(dist - (rInner + 6.8)) < 1.5) {
-            colorIdx = 5;
-          }
-        } else {
-          // Imperator olmos qirralari va yulduzli jilo
-          const facets = Math.abs(Math.sin(ang * 8 + phase));
-          const outerEdge = rInner + 3.8 + facets * 4.2;
-          if (dist <= outerEdge) {
-            const band = Math.floor(((ang + Math.PI + phase) / (Math.PI * 2)) * 4) % 4;
-            colorIdx = facets > 0.75 ? 1 : band + 2;
-          }
-        }
-
-        grid[y * size + x] = colorIdx;
-      }
-    }
-    frames.push(grid);
-  }
-
-  const url = encodeAnimatedGif89a(size, size, frames, pal, 7);
-  GIF_FRAME_CACHE[key] = url;
-  return url;
-}
-
 const ICONS = {
   home: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   chat: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
@@ -329,12 +136,12 @@ const STORE_CATALOG = [
   { id: "cert_director_award", type: "certificate", name: "Maktab Direktori Tashakkurnomasi", price: 1200, tier: "Oliy Maqom", desc: "Maktab hayotidagi faollik uchun direktor imzosi tushirilgan rasmiy PDF hujjat" },
   { id: "cert_grand_scholar", type: "certificate", name: "Yilning Eng Yaxshi Bilimdoni", price: 1200, tier: "Grand Sertifikat", desc: "1200+ ball to'plagan mutlaq yetakchi o'quvchi uchun maxsus PDF sertifikat" },
 
-  { id: "fr_gif_emerald", type: "frame", gifKey: "gif_emerald", name: "Zumrad Plazma (GIF Ramka)", price: 200, desc: "Avatar atrofida jonli to'lqinlanuvchi zumrad animatsiyali GIF ramka" },
-  { id: "fr_gif_lightning", type: "frame", gifKey: "gif_lightning", name: "Moviy Chaqmoq (GIF Ramka)", price: 320, desc: "Elektr razryadlari bilan charaqlovchi jonli GIF ramka" },
-  { id: "fr_gif_crown", type: "frame", gifKey: "gif_crown", name: "Oltin Qirollik Toji (GIF Ramka)", price: 450, desc: "Yuqori qismida oltin toj va uchqunlar aylanuvchi GIF ramka" },
-  { id: "fr_gif_fire", type: "frame", gifKey: "gif_fire", name: "Olovli Chempion (GIF Ramka)", price: 600, desc: "Jonli alanga tillari bilan yonib turuvchi GIF ramka" },
-  { id: "fr_gif_galaxy", type: "frame", gifKey: "gif_galaxy", name: "Galaktika Yulduzlari (GIF Ramka)", price: 750, desc: "Binafsha va pushti spiral nurlar bilan aylanuvchi GIF ramka" },
-  { id: "fr_gif_diamond", type: "frame", gifKey: "gif_diamond", name: "Imperator Olmosi (GIF Ramka)", price: 1000, desc: "Eng yuqori maqomdagi ko'p qirrali jilolanuvchi GIF ramka" },
+  { id: "fr_gif_emerald", type: "frame", gifKey: "gif_emerald", name: "Zumrad", price: 200, desc: "To‘q yashil va kumush hoshiyalar." },
+  { id: "fr_gif_lightning", type: "frame", gifKey: "gif_lightning", name: "Safir", price: 320, desc: "Ko‘k emal va nafis ichki chiziq." },
+  { id: "fr_gif_crown", type: "frame", gifKey: "gif_crown", name: "Zarhal", price: 450, desc: "Ikki qator zarhal hoshiya." },
+  { id: "fr_gif_fire", type: "frame", gifKey: "gif_fire", name: "Bronza", price: 600, desc: "Mis va bronza rangli hoshiya." },
+  { id: "fr_gif_galaxy", type: "frame", gifKey: "gif_galaxy", name: "Ametist", price: 750, desc: "Binafsha emal, och kumush qirra." },
+  { id: "fr_gif_diamond", type: "frame", gifKey: "gif_diamond", name: "Platina", price: 1000, desc: "Grafit va platina rangli qo‘sh hoshiya." },
 
   { id: "ti_1", type: "title", name: "Yosh Tadqiqotchi", price: 120, desc: "Ismingiz yonida ko'rinadigan maxsus unvon" },
   { id: "ti_2", type: "title", name: "Aniq Fanlar Ustasi", price: 220, desc: "Matematika va fizika bilimdonlari unvoni" },
@@ -380,13 +187,7 @@ function buildInitialTests() {
 }
 
 const DEFAULT_DB = {
-  users: [
-    {
-      id: "u_admin", name: "Bosh Administrator", login: "admin", pass: "777",
-      role: "admin", points: 0, spentPoints: 0, weeklyPoints: 0, streak: 1, lastLoginDate: "",
-      avatarImg: "", owned: [], activeFrame: "", activeTitle: "Tizim Boshqaruvchisi", solvedTests: [], claimedMissions: [], banned: false
-    }
-  ],
+  users: [],
   rooms: [
     {
       id: "r_general", name: "MaktabOS Rasmiy Kanali", type: "channel",
@@ -409,7 +210,7 @@ const DEFAULT_DB = {
     {
       id: "ann_1",
       title: "MaktabOS Raqamli Ekotizimi Ishga Tushdi",
-      body: "O'quvchilar kunlik missiyalar, fan testlari (har bir savolga 10 ball) va vazifalarni bajarib ball to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlar hamda animatsiyali GIF ramkalarni qo'lga kiritishlari mumkin.",
+      body: "O'quvchilar kunlik missiyalar, fan testlari (har bir savolga 10 ball) va vazifalarni bajarib ball to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlar hamda ramkalarni qo'lga kiritishlari mumkin.",
       author: "Ma'muriyat", date: "2026-11-25", views: ["u_admin"]
     }
   ],
@@ -445,8 +246,7 @@ function getTotalEarnedPoints(user) {
 
 function normalizeDB(data) {
   if (!data || typeof data !== "object") return JSON.parse(JSON.stringify(DEFAULT_DB));
-  if (!Array.isArray(data.users) || data.users.length === 0) data.users = JSON.parse(JSON.stringify(DEFAULT_DB.users));
-  if (!data.users.some(u => u.id === "u_admin")) data.users.unshift(JSON.parse(JSON.stringify(DEFAULT_DB.users[0])));
+  if (!Array.isArray(data.users)) data.users = [];
   if (!Array.isArray(data.rooms) || data.rooms.length === 0) data.rooms = JSON.parse(JSON.stringify(DEFAULT_DB.rooms));
   if (!data.messages || typeof data.messages !== "object") data.messages = JSON.parse(JSON.stringify(DEFAULT_DB.messages));
   if (!data.messages["r_general"]) data.messages["r_general"] = [];
@@ -646,23 +446,56 @@ function getAllTests() {
   return [...(DB.customTests || []), ...STATIC_TESTS];
 }
 
-function renderAvatarHTML(user, sizePx = 42, fontPx = 16) {
-  const gifKey = user.activeFrame || "";
-  const inner = user.avatarImg
-    ? `<img src="${user.avatarImg}" alt="${user.name}" />`
-    : `${user.name.charAt(0).toUpperCase()}`;
-
-  if (gifKey && gifKey.startsWith("gif_")) {
-    const gifSrc = getGifFrameDataUrl(gifKey);
-    return `
-      <div class="avatar-wrap" style="width:${sizePx}px;height:${sizePx}px;">
-        <div class="avatar-circle" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px;">${inner}</div>
-        <img class="avatar-gif-overlay" src="${gifSrc}" alt="GIF Ramka" />
-      </div>
-    `;
-  }
-  return `<div class="avatar-circle" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px;">${inner}</div>`;
+function safeText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[ch]));
 }
+
+function memberLink(id, label) {
+  const matches = id ? DB.users.filter(u => u.id === id) : DB.users.filter(u => u.name === label);
+  if (matches.length !== 1) return safeText(label);
+  return `<button type="button" class="member-name" data-member="${safeText(matches[0].id)}">${safeText(matches[0].name)}</button>`;
+}
+
+function renderAvatarHTML(user, sizePx = 42, fontPx = 16, interactive = true) {
+  const frame = STORE_CATALOG.find(i => i.type === "frame" && i.gifKey === user.activeFrame);
+  const inner = user.avatarImg
+    ? `<img src="${safeText(user.avatarImg)}" alt="" />` : safeText(user.name.charAt(0).toUpperCase());
+  const tag = interactive ? "button" : "span";
+  const attrs = interactive ? `type="button" data-member="${safeText(user.id)}" aria-label="${safeText(user.name)} profilini ochish"` : "";
+  return `<${tag} ${attrs} class="avatar-circle member-avatar ${frame ? frame.gifKey : ""}" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px">${inner}</${tag}>`;
+}
+
+const profileFields = [
+  ["school", "Maktab"], ["interests", "Qiziqishlar"], ["subjects", "Sevimli fanlar"],
+  ["goals", "O‘quv maqsadlari"], ["about", "O‘zim haqimda"]
+];
+
+function openMember(id) {
+  if (!currentUser) return;
+  const u = DB.users.find(person => person.id === id);
+  if (!u) return;
+  const awards = STORE_CATALOG.filter(item => item.type !== "certificate" && u.owned?.includes(item.id)).map(item => item.name);
+  const certificates = DB.certificates.filter(c => c.studentId === id);
+  const info = profileFields.filter(([key]) => u.profileInfo?.[key]);
+  const role = {student:"O‘quvchi",teacher:"O‘qituvchi",homeroom:"Sinf rahbari",admin:"Administrator"}[u.role];
+  openModal(`<header class="member-head">${renderAvatarHTML(u,64,24,false)}<div><h2>${safeText(u.name)}</h2>
+    <p>${[role,u.grade,u.subject,u.activeTitle].filter(Boolean).map(safeText).join(" · ")}</p></div></header>
+    <dl class="member-stats"><div><dt>Ball</dt><dd>${Number(u.points)||0}</dd></div><div><dt>Yechilgan testlar</dt><dd>${u.solvedTests?.length||0}</dd></div></dl>
+    ${info.length ? `<dl class="member-info">${info.map(([k,l]) => `<div><dt>${l}</dt><dd>${safeText(u.profileInfo[k])}</dd></div>`).join("")}</dl>` : ""}
+    <h3>Mukofotlar</h3><div class="award-list">${awards.map(a=>`<span class="badge">${safeText(a)}</span>`).join("")}
+    ${certificates.map(c=>`<button class="btn-secondary" data-certificate="${safeText(c.id)}">${safeText(c.title)}</button>`).join("")}
+    ${!awards.length && !certificates.length ? "<p>Hali mukofot olinmagan.</p>" : ""}</div>
+    <div class="member-actions"><button class="btn-secondary" onclick="closeModal()">Yopish</button>
+    ${id === currentUser.id ? '<button class="btn-primary" onclick="openEditProfileModal()">Ma’lumot kiritish</button>' : `<button class="btn-primary" data-chat="${safeText(id)}">Chat yozish</button>`}</div>`);
+}
+
+document.addEventListener("click", event => {
+  const button = event.target.closest("[data-member],[data-chat],[data-certificate]");
+  if (!button || !currentUser) return;
+  if (button.dataset.member) openMember(button.dataset.member);
+  else if (button.dataset.chat) startDirectChat(button.dataset.chat);
+  else openCertPdfModal(button.dataset.certificate);
+});
 
 (function initSelects() {
   const sel = document.getElementById("regSubject");
@@ -802,6 +635,8 @@ async function handleLogin(e) {
 }
 
 function logout() {
+  window.disconnectPhoneAlerts?.();
+  closeModal();
   currentUser = null;
   localStorage.removeItem(SESSION_KEY);
   document.getElementById("appScreen").classList.add("hidden");
@@ -810,6 +645,7 @@ function logout() {
 }
 
 function enterApp() {
+  queueMicrotask(() => window.openPendingAnnouncements?.());
   document.getElementById("authScreen").classList.add("hidden");
   document.getElementById("appScreen").classList.remove("hidden");
   updateTopbar();
@@ -825,7 +661,7 @@ function toggleMobileSidebar() {
 
 function updateTopbar() {
   currentUser = DB.users.find(u => u.id === currentUser.id) || currentUser;
-  document.getElementById("topUserName").textContent = currentUser.name;
+  document.getElementById("topUserName").innerHTML = memberLink(currentUser.id, currentUser.name);
   let sub = "";
   let roleTxt = "";
   if (currentUser.role === "student") {
@@ -1012,7 +848,7 @@ function renderDashboard(box) {
             <div style="padding:10px 0;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;">
               <div>
                 <strong style="font-size:13.5px;">${t.title}</strong>
-                <div style="font-size:12px;color:var(--muted);">${t.subject} • ${t.teacherName}</div>
+                <div style="font-size:12px;color:var(--muted);">${t.subject} • ${memberLink(t.teacherId,t.teacherName)}</div>
               </div>
               <button class="btn-primary" style="width:auto;margin:0;padding:7px 13px;font-size:12px;" onclick="navigate('tasks')">Topshirish</button>
             </div>
@@ -1135,7 +971,7 @@ function renderChats(box) {
         ${activeRoom ? `
           <div class="chat-header">
             <div>
-              <div style="font-weight:700;font-size:14.5px;color:var(--text);">${activeRoom.name}</div>
+              <div style="font-weight:700;font-size:14.5px;color:var(--text);">${activeRoom.type === "direct" ? memberLink(activeRoom.members.find(id => id !== currentUser.id), activeRoom.name) : safeText(activeRoom.name)}</div>
               <div style="font-size:11.5px;color:var(--muted);">${activeRoom.desc || ''} • ${activeRoom.id === 'r_general' ? DB.users.length : activeRoom.members.length} a'zo</div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -1162,7 +998,7 @@ function renderChats(box) {
               return `
               <div class="msg-bubble ${m.senderId === currentUser.id ? 'mine' : ''}">
                 <div class="msg-meta">
-                  <span>${m.senderName}</span>
+                  <span>${memberLink(m.senderId,m.senderName)}</span>
                   <span style="color:var(--muted);font-weight:500;">${m.time}</span>
                 </div>
                 ${m.replyTo ? `<div style="font-size:11.5px;background:rgba(37,99,235,0.05);padding:4px 9px;border-left:2.5px solid var(--primary);margin-bottom:6px;border-radius:6px;color:var(--muted);">Javob: ${m.replyTo}</div>` : ''}
@@ -1329,7 +1165,7 @@ function createRoom() {
     id, name,
     type: document.getElementById("newRoomType").value,
     desc: document.getElementById("newRoomDesc").value.trim(),
-    creator: currentUser.name,
+    creatorId: currentUser.id, creator: currentUser.name,
     members: DB.users.map(u => u.id),
     pinned: ""
   });
@@ -1350,7 +1186,7 @@ function openDirectChatModal() {
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-soft);">
         <div style="display:flex;align-items:center;gap:10px;">
           ${renderAvatarHTML(u, 34, 13)}
-          <div><strong style="font-size:13.5px;">${u.name}</strong> <span class="badge">${u.role === 'student' ? u.grade : u.subject || u.role}</span></div>
+          <div><strong style="font-size:13.5px;">${memberLink(u.id, u.name)}</strong> <span class="badge">${u.role === 'student' ? u.grade : u.subject || u.role}</span></div>
         </div>
         <button class="btn-primary" style="width:auto;margin:0;padding:7px 14px;font-size:12px;" onclick="startDirectChat('${u.id}')">Yozish</button>
       </div>
@@ -1369,7 +1205,7 @@ function startDirectChat(targetId) {
       name: `${currentUser.name} & ${target.name}`,
       type: "direct",
       desc: "Shaxsiy suhbat",
-      creator: currentUser.name,
+      creatorId: currentUser.id, creator: currentUser.name,
       members: [currentUser.id, targetId],
       pinned: ""
     });
@@ -1378,7 +1214,7 @@ function startDirectChat(targetId) {
   activeRoomId = pairId;
   saveDB();
   closeModal();
-  renderChats(document.getElementById("mainContent"));
+  navigate("chats");
 }
 
 function viewRoomMembers(roomId) {
@@ -1390,7 +1226,7 @@ function viewRoomMembers(roomId) {
       <div style="padding:9px 0;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;">
         <div style="display:flex;align-items:center;gap:10px;">
           ${renderAvatarHTML(m, 32, 13)}
-          <strong style="font-size:13.5px;">${m.name}</strong>
+          <strong style="font-size:13.5px;">${memberLink(m.id, m.name)}</strong>
         </div>
         <span class="badge">${m.role === 'student' ? m.grade : m.subject || m.role}</span>
       </div>
@@ -1453,7 +1289,7 @@ function renderTasks(box) {
               <h3 style="margin-top:8px;color:var(--text);font-size:16px;">${t.title}</h3>
             </div>
             <div style="font-size:12px;color:var(--muted);">
-              <div><strong>Ustoz:</strong> ${t.teacherName}</div>
+              <div><strong>Ustoz:</strong> ${memberLink(t.teacherId,t.teacherName)}</div>
               <div>Muddat: ${t.deadline}</div>
             </div>
           </div>
@@ -1476,7 +1312,7 @@ function renderTasks(box) {
               <strong style="font-size:12.5px;color:var(--muted);">Topshirilgan ishlar (${t.submissions.length}):</strong>
               ${t.submissions.map(s => `
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft);gap:8px;flex-wrap:wrap;">
-                  <div style="font-size:13px;"><strong>${s.studentName}:</strong> ${s.answer}</div>
+                  <div style="font-size:13px;"><strong>${memberLink(s.studentId,s.studentName)}:</strong> ${s.answer}</div>
                   ${s.grade !== null ? `<span class="badge badge-green">${s.grade} ball</span>` : `
                     <div style="display:flex;gap:6px;align-items:center;">
                       <input type="number" id="grd_${t.id}_${s.studentId}" min="0" max="${t.maxPoints}" placeholder="0-${t.maxPoints}" style="width:85px;padding:7px;" />
@@ -1634,7 +1470,7 @@ function renderTests(box) {
                 <span class="badge badge-gold">Max: ${totalTestPts} ball</span>
               </div>
               <h4 style="color:var(--text);margin-bottom:6px;font-size:15px;">${t.title}</h4>
-              ${t.authorName ? `<div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px;">Ustoz: ${t.authorName}</div>` : ''}
+              ${t.authorName ? `<div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px;">Ustoz: ${memberLink(t.authorId,t.authorName)}</div>` : ''}
               <p style="font-size:12px;color:var(--muted);">Savollar: ${t.questions.length} ta (har biri 10 ball)</p>
             </div>
             <div style="margin-top:14px;">
@@ -1849,7 +1685,7 @@ function renderRanking(box) {
               <strong style="width:28px;color:${i === 0 ? '#D97706' : i === 1 ? '#2563EB' : 'var(--muted)'};font-size:14px;">#${i + 1}</strong>
               ${renderAvatarHTML(s, 40, 15)}
               <div>
-                <div style="font-weight:700;font-size:14px;">${s.name} ${s.activeTitle ? `<span class="badge badge-gold">${s.activeTitle}</span>` : ''}</div>
+                <div style="font-weight:700;font-size:14px;">${memberLink(s.id, s.name)} ${s.activeTitle ? `<span class="badge badge-gold">${s.activeTitle}</span>` : ''}</div>
                 <div style="font-size:12px;color:var(--muted);">${s.grade}</div>
               </div>
             </div>
@@ -1878,7 +1714,7 @@ function renderStore(box) {
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
       <div>
         <h2 class="page-title">${ICONS.store} Mukofotlar Do'koni</h2>
-        <p class="page-sub" style="margin:0;">Ballaringizga rasmiy PDF sertifikatlar, animatsiyali GIF ramkalar va unvonlar oling</p>
+        <p class="page-sub" style="margin:0;">Ballaringizga rasmiy PDF sertifikatlar, ramkalar va unvonlar oling</p>
       </div>
       <div class="badge badge-gold" style="font-size:13px;padding:7px 14px;">Balansingiz: ${currentUser.points} ball</div>
     </div>
@@ -1906,7 +1742,7 @@ function renderStore(box) {
       }).join("")}
     </div>
 
-    <h3 style="color:var(--text);font-size:16px;margin:18px 0 10px;">Animatsiyali GIF Profil Ramkalari</h3>
+    <h3 style="color:var(--text);font-size:16px;margin:18px 0 10px;">Ramkalar</h3>
     <div class="grid-3">
       ${frames.map(item => {
         const isOwned = (currentUser.owned || []).includes(item.id);
@@ -1914,7 +1750,7 @@ function renderStore(box) {
         return `
           <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:18px;margin-bottom:14px;padding-top:4px;">
-              ${renderAvatarHTML(previewUser, 48, 18)}
+              ${renderAvatarHTML(previewUser, 48, 18, false)}
               <div>
                 <h4 style="color:var(--text);font-size:14.5px;">${item.name}</h4>
                 <div style="font-weight:700;color:var(--gold);font-size:12.5px;">${item.price} ball</div>
@@ -2007,7 +1843,7 @@ function renderProfile(box) {
 
   box.innerHTML = `
     <h2 class="page-title">${ICONS.user} Shaxsiy Profil va Mukofotlarim</h2>
-    <p class="page-sub">Profil rasmi, ma'lumotlar, GIF ramkalar va PDF sertifikatlarni boshqarish</p>
+    <p class="page-sub">Profil rasmi, ma'lumotlar, ramkalar va PDF sertifikatlarni boshqarish</p>
 
     <div class="grid-2">
       <div class="card">
@@ -2020,21 +1856,22 @@ function renderProfile(box) {
           </div>
         </div>
 
+        <dl class="member-info">${profileFields.filter(([k]) => currentUser.profileInfo?.[k]).map(([k,label]) => `<div><dt>${label}</dt><dd>${safeText(currentUser.profileInfo[k])}</dd></div>`).join("")}</dl>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <label class="btn-secondary" style="cursor:pointer;">
             ${ICONS.camera} Rasm Qo'yish
             <input type="file" accept="image/*" class="hidden" onchange="uploadProfilePhoto(event)" />
           </label>
           ${currentUser.avatarImg ? `<button class="btn-accent" onclick="removeProfilePhoto()">Rasmni O'chirish</button>` : ''}
-          <button class="btn-primary" style="width:auto;margin:0;" onclick="openEditProfileModal()">Tahrirlash</button>
+          <button class="btn-primary" style="width:auto;margin:0;" onclick="openEditProfileModal()">Ma’lumot kiritish</button>
         </div>
       </div>
 
       ${currentUser.role === "student" ? `
         <div class="card">
-          <h3 style="margin-bottom:12px;color:var(--text);font-size:16px;">GIF Ramka va Unvonlar</h3>
+          <h3 style="margin-bottom:12px;color:var(--text);font-size:16px;">Ramkalar va unvonlar</h3>
           <div style="margin-bottom:14px;">
-            <strong style="font-size:11px;color:var(--muted);">GIF RAMKALAR:</strong>
+            <strong style="font-size:11px;color:var(--muted);">Ramkalar</strong>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
               <button class="btn-secondary" onclick="equipFrame('')">Oddiy</button>
               ${ownedFrames.map(f => `
@@ -2121,7 +1958,7 @@ function equipFrame(gifKey) {
   currentUser.activeFrame = gifKey;
   saveDB();
   updateTopbar();
-  notify("GIF ramka almashtirildi!", "success");
+  notify("Ramka almashtirildi!", "success");
   renderProfile(document.getElementById("mainContent"));
 }
 function equipTitle(titleName) {
@@ -2135,9 +1972,11 @@ function equipTitle(titleName) {
 function openEditProfileModal() {
   openModal(`
     <h3 style="margin-bottom:12px;color:var(--text);">Profil Ma'lumotlarini O'zgartirish</h3>
-    <div class="form-group"><label>Ism va Familiya</label><input id="edName" value="${currentUser.name}" /></div>
-    <div class="form-group"><label>Login</label><input id="edLogin" value="${currentUser.login}" /></div>
-    <div class="form-group"><label>Yangi Parol</label><input id="edPass" value="${currentUser.pass}" /></div>
+    <p class="page-sub">Qo‘shimcha maydonlar ixtiyoriy. Kiritilgan ma’lumotlar profilingizda ko‘rinadi.</p>
+    ${profileFields.map(([k,label]) => `<div class="form-group"><label for="profile-${k}">${label}</label><textarea rows="2" maxlength="320" id="profile-${k}">${safeText(currentUser.profileInfo?.[k])}</textarea></div>`).join("")}
+    <div class="form-group"><label>Ism va Familiya</label><input id="edName" value="${safeText(currentUser.name)}" /></div>
+    <div class="form-group"><label>Login</label><input id="edLogin" value="${safeText(currentUser.login)}" /></div>
+    <div class="form-group"><label>Yangi Parol</label><input id="edPass" type="password" autocomplete="new-password" placeholder="O‘zgartirish uchun kiriting" /></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
       <button class="btn-primary" style="width:auto;margin:0;" onclick="saveProfileEdit()">Saqlash</button>
@@ -2149,13 +1988,17 @@ function saveProfileEdit() {
   const n = document.getElementById("edName").value.trim();
   const l = document.getElementById("edLogin").value.trim();
   const p = document.getElementById("edPass").value.trim();
-  if (!n || !l || !p) return;
-  currentUser.name = n; currentUser.login = l; currentUser.pass = p;
+  if (l && DB.users.some(u => u.id !== currentUser.id && u.login === l)) return notify("Bu login band.", "error");
+  if (n) currentUser.name = n;
+  if (l) currentUser.login = l;
+  if (p) currentUser.pass = p;
+  currentUser.profileInfo = Object.fromEntries(profileFields.map(([k]) => [k, document.getElementById("profile-" + k).value.trim()]));
+  Object.assign(DB.users.find(u => u.id === currentUser.id), currentUser);
   saveDB();
   closeModal();
   updateTopbar();
   notify("Profil ma'lumotlari saqlandi!", "success");
-  renderProfile(document.getElementById("mainContent"));
+  navigate("profile");
 }
 
 /* ================= PDF SERTIFIKAT MODAL ================= */
@@ -2170,11 +2013,11 @@ function openCertPdfModal(certId) {
         <h1 class="cert-main-title">SERTIFIKAT</h1>
         <p style="font-size:13px;color:#64748B;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
 
-        <div class="cert-recipient">${cert.studentName}</div>
+        <div class="cert-recipient">${safeText(cert.studentName)}</div>
         <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
 
         <p style="font-size:14px;color:#1E293B;max-width:410px;margin:0 auto 18px;line-height:1.5;">
-          MaktabOS platformasida 1200 ball to'plab, <strong>"${cert.title}"</strong> nominatsiyasida g'olib bo'lganligi uchun taqdim etildi.
+          MaktabOS platformasidagi o‘quv yutuqlari uchun <strong>«${safeText(cert.title)}»</strong> mukofoti bilan taqdirlanadi.
         </p>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #D97706;text-align:left;font-size:12px;color:#64748B;">
@@ -2185,8 +2028,7 @@ function openCertPdfModal(certId) {
           </div>
           <div class="cert-gold-seal">
             <span>MAKTABOS</span>
-            <span>RASMIY</span>
-            <span>MUHR</span>
+            <span>AKADEMIK</span>
           </div>
         </div>
       </div>
@@ -2208,7 +2050,7 @@ function renderStudentCertsForTeacher(box) {
       ${DB.certificates.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha sertifikat olgan o'quvchilar yo'q.</p>` : DB.certificates.map(c => `
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:10px;">
           <div>
-            <strong>${c.studentName}</strong> (${c.grade}) — <span style="color:var(--primary);font-weight:700;">${c.title}</span>
+            <strong>${memberLink(c.studentId,c.studentName)}</strong> (${c.grade}) — <span style="color:var(--primary);font-weight:700;">${c.title}</span>
             <div style="font-size:12px;color:var(--muted);">Sana: ${c.date} • ID: ${c.id}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -2249,6 +2091,7 @@ function renderAnnouncements(box) {
         <h2 class="page-title">${ICONS.news} Maktab E'lonlari</h2>
         <p class="page-sub" style="margin:0;">Rasmiy xabarlar va ko'rishlar statistikasi</p>
       </div>
+      <button class="btn-secondary" onclick="configurePhoneAlerts()">${localStorage.getItem("mos_phone_" + currentUser.id) ? "Telefon xabarlarini o‘chirish" : "Telefonda xabar olish"}</button>
       ${canManage ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openAnnModal()">+ E'lon Qo'shish</button>` : ''}
     </div>
 
@@ -2257,7 +2100,7 @@ function renderAnnouncements(box) {
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
           <div>
             <h3 style="color:var(--text);font-size:16px;">${a.title}</h3>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Muallif: ${a.author} • ${a.date}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Muallif: ${memberLink(a.authorId,a.author)} • ${a.date}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <span class="badge">Ko'rildi: ${a.views.length} kishi</span>
@@ -2296,7 +2139,7 @@ function saveAnn(editId) {
   } else {
     DB.announcements.unshift({
       id: "ann_" + Date.now(), title, body,
-      author: currentUser.name, date: new Date().toISOString().slice(0,10),
+      authorId: currentUser.id, author: currentUser.name, date: new Date().toISOString().slice(0,10),
       views: [currentUser.id]
     });
   }
@@ -2395,7 +2238,7 @@ function renderAdmin(box) {
                 <td style="padding:10px;display:flex;align-items:center;gap:8px;">
                   ${renderAvatarHTML(u, 32, 12)}
                   <div>
-                    <strong>${u.name}</strong>
+                    <strong>${memberLink(u.id, u.name)}</strong>
                     ${u.activeTitle ? `<div style="font-size:10px;color:var(--gold);font-weight:700;">${u.activeTitle}</div>` : ''}
                   </div>
                 </td>
@@ -2430,7 +2273,7 @@ function renderAdmin(box) {
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
               <strong>${r.name}</strong> <span class="badge">${r.type}</span>
-              <div style="font-size:12px;color:var(--muted);">Yaratuvchi: ${r.creator} • A'zolar: ${r.id === 'r_general' ? DB.users.length : r.members.length} nafar</div>
+              <div style="font-size:12px;color:var(--muted);">Yaratuvchi: ${memberLink(r.creatorId,r.creator)} • A'zolar: ${r.id === 'r_general' ? DB.users.length : r.members.length} nafar</div>
             </div>
             ${r.id !== 'r_general' ? `<button class="btn-accent" onclick="adminDeleteRoom('${r.id}')">O'chirish</button>` : `<span class="badge badge-green">Asosiy kanal</span>`}
           </div>
@@ -2444,7 +2287,7 @@ function renderAdmin(box) {
         ${DB.certificates.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha sertifikatlar yo'q.</p>` : DB.certificates.map(c => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
-              <strong>${c.studentName}</strong> (${c.grade}) — <strong>${c.title}</strong>
+              <strong>${memberLink(c.studentId,c.studentName)}</strong> (${c.grade}) — <strong>${c.title}</strong>
               <div style="font-size:12px;color:var(--muted);">ID: ${c.id} • Sana: ${c.date}</div>
             </div>
             <div style="display:flex;gap:6px;">
@@ -2463,7 +2306,7 @@ function renderAdmin(box) {
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
               <strong>${t.title}</strong> <span class="badge">${t.subject}</span>
-              <div style="font-size:12px;color:var(--muted);">Ustoz: ${t.teacherName} • Topshirdi: ${t.submissions.length} o'quvchi</div>
+              <div style="font-size:12px;color:var(--muted);">Ustoz: ${memberLink(t.teacherId,t.teacherName)} • Topshirdi: ${t.submissions.length} o'quvchi</div>
             </div>
             <button class="btn-accent" onclick="adminDeleteTask('${t.id}')">O'chirish</button>
           </div>
@@ -2597,7 +2440,7 @@ function openAdminGrantCertModal(uid) {
   const certs = STORE_CATALOG.filter(i => i.type === "certificate");
   openModal(`
     <h3 style="color:var(--text);margin-bottom:8px;">Sertifikat Taqdim Etish</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">O'quvchi: <strong>${u.name}</strong> (${u.grade})</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">O'quvchi: <strong>${memberLink(u.id, u.name)}</strong> (${u.grade})</p>
     <div class="form-group"><label>Sertifikat turini tanlang</label>
       <select id="admCertSelect">
         ${certs.map(c => `<option value="${c.id}">${c.name}</option>`).join("")}

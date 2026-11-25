@@ -1,0 +1,10 @@
+{
+  "name": "MaktabOS — Akademik Raqamli Ekotizim",
+  "short_name": "MaktabOS",
+  "description": "O‘quvchilar, ustozlar va maktab boshqaruvi uchun raqamli platforma.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fc",
+  "theme_color": "#365fe3",
+  "lang": "uz"
+}

@@ -2717,7 +2717,7 @@ function closeModalOnBg(e) { if (e.target.id === "modalBackdrop") closeModal(); 
  root.dataset.theme=stored||preferred;
  function paint(btn){
   const dark=root.dataset.theme==="dark";
-  btn.innerHTML='<span class="theme-toggle-icon" aria-hidden="true">'+(dark?'☀':'☾')+'</span><span class="theme-toggle-copy"><strong>'+(dark?'Yorug‘ rejim':'Tungi rejim')+'</strong><small>'+(dark?'Kunduzgi ko‘rinishga o‘tish':'Tungi ko‘rinishga o‘tish')+'</small></span><span class="theme-toggle-track" aria-hidden="true"><i></i></span>';
+  btn.innerHTML='<span class="theme-toggle-icon" aria-hidden="true">'+(dark?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11z"/></svg>')+'</span><span class="theme-toggle-copy"><strong>'+(dark?'Yorug‘ rejim':'Tungi rejim')+'</strong><small>'+(dark?'Kunduzgi ko‘rinishga o‘tish':'Tungi ko‘rinishga o‘tish')+'</small></span><span class="theme-toggle-track" aria-hidden="true"><i></i></span>';
   btn.setAttribute("aria-label",dark?"Yorug‘ rejimga o‘tish":"Tungi rejimga o‘tish");
   btn.setAttribute("aria-pressed",dark?"true":"false");
   btn.title=dark?"Yorug‘ rejimga o‘tish":"Tungi rejimga o‘tish";

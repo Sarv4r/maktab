@@ -1,5 +1,4 @@
-// The private Web Push signing key lives in Firebase Secret Manager.
-const pushService = "https://us-central1-maktabos-7172b.cloudfunctions.net/announcementDevices";
+const pushService = "https://maktab.sarvarxasanov426.workers.dev/";
 let workerRegistration;
 let pendingAnnouncements = new URLSearchParams(location.search).get("view") === "announcements";
 

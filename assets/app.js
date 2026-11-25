@@ -524,7 +524,12 @@ function mergeDatabases(remoteRaw, localRaw) {
     users: Array.from(userMap.values()),
     rooms: Array.from(roomMap.values()),
     messages: mergedMessages,
-    tasks: mergeById(remote.tasks, local.tasks),
+    tasks: mergeById(remote.tasks, local.tasks).map(task => {
+      const localTask = local.tasks.find(t => t.id === task.id);
+      const submissions = new Map((localTask?.submissions || []).map(s => [s.studentId, s]));
+      for (const submission of task.submissions || []) submissions.set(submission.studentId, submission);
+      return { ...task, submissions: Array.from(submissions.values()) };
+    }),
     announcements: mergeById(remote.announcements, local.announcements),
     certificates: mergeById(remote.certificates, local.certificates),
     customTests: mergeById(remote.customTests, local.customTests)
@@ -1462,9 +1467,9 @@ function renderTasks(box) {
               </div>
             ` : `
               <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                <input id="ans_${t.id}" placeholder="Javobingizni yozing..." style="flex:1;min-width:200px;" />
+                <input data-task-draft="${t.id}" id="ans_${t.id}" placeholder="Javobingizni yozing..." style="flex:1;min-width:200px;" />
                 <button class="btn-primary" style="width:auto;margin:0;" onclick="submitTask('${t.id}')">Topshirish</button>
-              </div>
+              </div><small aria-live="polite" class="draft-status"></small>
             `}
           ` : `
             <div style="margin-top:12px;border-top:1px solid var(--border-soft);padding-top:10px;">
@@ -1486,6 +1491,29 @@ function renderTasks(box) {
       `;
     }).join("")}
   `;
+  for (const input of box.querySelectorAll("[data-task-draft]")) {
+    const key = taskDraftKey(input.dataset.taskDraft);
+    const status = input.parentElement.nextElementSibling;
+    try {
+      input.value = localStorage.getItem(key) || "";
+      if (input.value) status.textContent = "Qoralama tiklandi.";
+    } catch {
+      status.textContent = "Brauzer qoralamani saqlay olmayapti.";
+    }
+    input.addEventListener("input", () => {
+      try {
+        if (input.value) localStorage.setItem(key, input.value);
+        else localStorage.removeItem(key);
+        status.textContent = input.value ? "Qoralama shu qurilmada saqlandi." : "";
+      } catch {
+        status.textContent = "Qoralama saqlanmadi.";
+      }
+    });
+  }
+}
+
+function taskDraftKey(taskId) {
+  return "mos_task_draft:" + JSON.stringify([currentUser.id, taskId]);
 }
 
 function openCreateTaskModal() {
@@ -1534,8 +1562,10 @@ function submitTask(taskId) {
   const ans = document.getElementById("ans_" + taskId).value.trim();
   if (!ans) return;
   const task = DB.tasks.find(t => t.id === taskId);
+  if (!task || task.submissions.some(s => s.studentId === currentUser.id)) return;
   task.submissions.push({ studentId: currentUser.id, studentName: currentUser.name, answer: ans, grade: null });
   saveDB();
+  try { localStorage.removeItem(taskDraftKey(taskId)); } catch {}
   notify("Javobingiz ustozga yuborildi!", "success");
   renderTasks(document.getElementById("mainContent"));
 }
@@ -1594,6 +1624,7 @@ function renderTests(box) {
     <div class="grid-3">
       ${filtered.map(t => {
         const solved = (currentUser.solvedTests || []).includes(t.id);
+        const missed = currentUser.testMistakes?.[t.id] || [];
         const totalTestPts = t.questions.length * 10;
         return `
           <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
@@ -1608,7 +1639,9 @@ function renderTests(box) {
             </div>
             <div style="margin-top:14px;">
               ${currentUser.role === "student" ? (
-                solved
+                solved && missed.length
+                  ? `<button class="btn-secondary" onclick="startTestModal('${t.id}', true)">Xato savollarni qayta yechish (${missed.length})</button>`
+                  : solved
                   ? `<button class="btn-secondary" style="width:100%;" disabled>Yechilgan</button>`
                   : `<button class="btn-primary" style="margin:0;" onclick="startTestModal('${t.id}')">Testni Boshlash</button>`
               ) : `<span class="badge badge-green">O'qituvchi ko'rish rejimi</span>`}
@@ -1620,15 +1653,20 @@ function renderTests(box) {
   `;
 }
 
-function startTestModal(testId) {
+function startTestModal(testId, practice = false) {
   const test = getAllTests().find(t => t.id === testId);
-  if (!test) return;
+  if (!test || currentUser.role !== "student") return;
+  const solved = (currentUser.solvedTests || []).includes(testId);
+  const indices = practice ? currentUser.testMistakes?.[testId] : test.questions.map((_, i) => i);
+  if (solved !== practice || !indices?.length) return;
   openModal(`
     <h3 style="color:var(--text);margin-bottom:4px;">${test.title}</h3>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Har bir to'g'ri savol uchun <strong>10 ball</strong> beriladi. Test faqat bir marta topshiriladi.</p>
-    ${test.questions.map((qObj, idx) => `
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">${practice ? "Xato savollar ustida mashq. Ball o‘zgarmaydi." : "Har bir to‘g‘ri javob uchun 10 ball beriladi. Test bir marta topshiriladi."}</p>
+    ${indices.map(idx => {
+      const qObj = test.questions[idx];
+      return `
       <div style="margin-bottom:12px;padding:12px;background:#F8FAFC;border-radius:12px;border:1px solid var(--border);">
-        <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${idx + 1}. ${qObj.q} <span class="badge badge-gold" style="margin-left:4px;">10 ball</span></div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${idx + 1}. ${qObj.q}</div>
         ${qObj.options.map((opt, oIdx) => `
           <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:6px;cursor:pointer;">
             <input type="radio" name="q_${idx}" value="${oIdx}" style="width:auto;" />
@@ -1636,31 +1674,41 @@ function startTestModal(testId) {
           </label>
         `).join("")}
       </div>
-    `).join("")}
+    `; }).join("")}
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
-      <button class="btn-primary" style="width:auto;margin:0;" onclick="finishTest('${test.id}')">Yakunlash</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="finishTest('${test.id}', ${practice})">Yakunlash</button>
     </div>
   `);
 }
 
-function finishTest(testId) {
+function finishTest(testId, practice = false) {
   const test = getAllTests().find(t => t.id === testId);
-  let correctCount = 0;
-  test.questions.forEach((qObj, idx) => {
-    const sel = document.querySelector(`input[name="q_${idx}"]:checked`);
-    if (sel && parseInt(sel.value, 10) === qObj.correct) correctCount++;
+  if (!test || currentUser.role !== "student") return;
+  const solved = currentUser.solvedTests ||= [];
+  if (solved.includes(testId) !== practice) return;
+  const mistakes = currentUser.testMistakes ||= {};
+  const indices = practice ? mistakes[testId] : test.questions.map((_, i) => i);
+  if (!indices?.length) return;
+  const missed = indices.filter(i => {
+    const selected = document.querySelector(`input[name="q_${i}"]:checked`);
+    return !selected || Number(selected.value) !== test.questions[i].correct;
   });
-  const earned = correctCount * 10;
-  if (!currentUser.solvedTests) currentUser.solvedTests = [];
-  currentUser.solvedTests.push(test.id);
-  currentUser.points += earned;
-  currentUser.weeklyPoints = (currentUser.weeklyPoints || 0) + earned;
+  mistakes[testId] = missed;
+  const correct = indices.length - missed.length;
+  if (!practice) {
+    solved.push(testId);
+    currentUser.points += correct * 10;
+    currentUser.weeklyPoints = (currentUser.weeklyPoints || 0) + correct * 10;
+  }
   saveDB();
-  updateTopbar();
-  closeModal();
-  notify(`Test yakunlandi! To'g'ri: ${correctCount}/${test.questions.length}. +${earned} ball qo'shildi!`, "success");
   navigate("tests");
+  openModal(`
+    <h3>${practice ? "Mashq natijasi" : "Test natijasi"}</h3>
+    <p>To‘g‘ri javoblar: ${correct}/${indices.length}. ${practice ? "Ball o‘zgarmadi." : "+" + correct * 10 + " ball."}</p>
+    ${missed.length ? `<button class="btn-primary" onclick="startTestModal('${testId}', true)">${missed.length} ta xato savolni qayta yechish</button>` : ""}
+    <button class="btn-secondary" onclick="closeModal()">Yopish</button>
+  `);
 }
 
 function openCreateTestModal() {

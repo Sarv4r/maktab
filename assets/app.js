@@ -2708,23 +2708,31 @@ function openModal(html) {
 function closeModal() { document.getElementById("modalBackdrop").classList.add("hidden"); }
 function closeModalOnBg(e) { if (e.target.id === "modalBackdrop") closeModal(); }
 
-/* MaktabOS theme preference */
+/* MaktabOS premium theme switch */
 (function(){
  const root=document.documentElement;
- const stored=localStorage.getItem("maktabos_theme_v1");
+ let stored=null;
+ try{stored=localStorage.getItem("maktabos_theme_v1");}catch(e){}
  const preferred=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
  root.dataset.theme=stored||preferred;
+ function paint(btn){
+  const dark=root.dataset.theme==="dark";
+  btn.innerHTML='<span class="theme-toggle-icon" aria-hidden="true">'+(dark?'☀':'☾')+'</span><span class="theme-toggle-copy"><strong>'+(dark?'Yorug‘ rejim':'Tungi rejim')+'</strong><small>'+(dark?'Kunduzgi ko‘rinishga o‘tish':'Tungi ko‘rinishga o‘tish')+'</small></span><span class="theme-toggle-track" aria-hidden="true"><i></i></span>';
+  btn.setAttribute("aria-label",dark?"Yorug‘ rejimga o‘tish":"Tungi rejimga o‘tish");
+  btn.setAttribute("aria-pressed",dark?"true":"false");
+  btn.title=dark?"Yorug‘ rejimga o‘tish":"Tungi rejimga o‘tish";
+ }
  function mount(){
   const topbar=document.querySelector(".topbar"),right=topbar&&topbar.lastElementChild;
   if(!right||document.getElementById("themeToggleBtn"))return;
   const btn=document.createElement("button");
   btn.type="button";btn.id="themeToggleBtn";btn.className="theme-toggle";
-  btn.title="Light / Dark mode";btn.setAttribute("aria-label","Rang rejimini almashtirish");
-  btn.textContent=root.dataset.theme==="dark"?"☀️":"🌙";
+  paint(btn);
   btn.addEventListener("click",function(){
    const next=root.dataset.theme==="dark"?"light":"dark";
-   root.dataset.theme=next;localStorage.setItem("maktabos_theme_v1",next);
-   btn.textContent=next==="dark"?"☀️":"🌙";
+   root.dataset.theme=next;
+   try{localStorage.setItem("maktabos_theme_v1",next);}catch(e){}
+   paint(btn);
   });
   right.insertBefore(btn,right.firstChild);
  }

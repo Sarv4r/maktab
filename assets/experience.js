@@ -32,7 +32,45 @@ const originalEnter=window.enterApp;if(typeof originalEnter==="function")window.
 document.addEventListener("keydown",e=>{const t=e.target,typing=t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable);if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openSearch();}if(e.key==="/"&&!typing&&user()){e.preventDefault();openSearch();}if(e.key==="Escape"&&$("#modalBackdrop")&&!$("#modalBackdrop").classList.contains("hidden"))window.closeModal();});
 window.mosOpenSearch=openSearch;window.mosOpenNotices=openNotices;window.mosSearchOpen=i=>{const x=searchResults[i];if(x){window.closeModal();if(x.memberId)openMember(x.memberId);else window.navigate(x.view);}};window.mosNoticeOpen=i=>{const x=noticeItems[i];if(x){window.closeModal();window.navigate(x.view);}};window.mosExportCSV=exportCSV;
 window.addEventListener("online",()=>window.notify&&notify("Internet aloqasi tiklandi.","success"));window.addEventListener("offline",()=>window.notify&&notify("Internet aloqasi uzildi. Oflayn rejimda davom etishingiz mumkin."));
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();const prompt=e;const right=$(".topbar")?.lastElementChild;if(right&&!$("#mosInstallBtn")){const b=document.createElement("button");b.id="mosInstallBtn";b.className="mos-tool-btn";b.textContent="⬇ Ilovani o‘rnatish";b.onclick=async()=>{prompt.prompt();await prompt.userChoice;b.remove();};right.insertBefore(b,right.firstChild);}});
+let installEvent;
+let installedThisSession = false;
+window.appInstalled = () => installedThisSession || matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+window.installMaktabApp = async function() {
+  if (appInstalled()) return;
+  if (installEvent) {
+    const prompt = installEvent;
+    installEvent = null;
+    document.getElementById("mosInstallBtn")?.remove();
+    try {
+      await prompt.prompt();
+      await prompt.userChoice;
+      return;
+    } catch { /* Offer the browser menu when the native prompt expires. */ }
+  }
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const instruction = ios ? "Safari’da Ulashish tugmasini bosing, so‘ng «Bosh ekranga qo‘shish»ni tanlang." :
+    "Brauzer menyusini oching va «Ilovani o‘rnatish» yoki «Bosh ekranga qo‘shish»ni tanlang. Bu band ko‘rinmasa, saytni Chrome yoki Edge’da oching.";
+  openModal('<h3>Ilovani o‘rnatish</h3><p class="page-sub">'+instruction+'</p><button class="btn-secondary" onclick="closeModal()">Yopish</button>');
+};
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  installEvent = event;
+  const toolbar = $(".topbar")?.lastElementChild;
+  if (!toolbar || $("#mosInstallBtn") || appInstalled()) return;
+  const button = document.createElement("button");
+  button.id = "mosInstallBtn";
+  button.className = "mos-tool-btn";
+  button.textContent = "Ilovani o‘rnatish";
+  button.onclick = installMaktabApp;
+  toolbar.prepend(button);
+});
+window.addEventListener("appinstalled", () => {
+  installedThisSession = true;
+  installEvent = null;
+  $("#mosInstallBtn")?.remove();
+  const button = $("#profileInstallBtn");
+  if (button) { button.disabled = true; button.lastElementChild.textContent = "Ilova o‘rnatilgan"; }
+});
 function adaptTables(){document.querySelectorAll("#mainContent table,#modalCard table").forEach(table=>{if(table.parentElement.classList.contains("mos-table-scroll"))return;const wrap=document.createElement("div");wrap.className="mos-table-scroll";wrap.tabIndex=0;wrap.setAttribute("role","region");wrap.setAttribute("aria-label","Jadval");table.before(wrap);wrap.append(table)});const meta=document.querySelector("meta[name=theme-color]");if(meta)meta.content=document.documentElement.dataset.theme==="dark"?"#182235":"#ffffff";}
 let iconQueued=false;const iconObserver=new MutationObserver(()=>{if(iconQueued)return;iconQueued=true;requestAnimationFrame(()=>{iconQueued=false;replaceIcons();adaptTables()})});iconObserver.observe(document.documentElement,{childList:true,subtree:true,characterData:true});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{mountNav();mountTools();},{once:true});else{mountNav();mountTools();}

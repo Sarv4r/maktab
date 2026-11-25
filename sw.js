@@ -1,4 +1,4 @@
-const CACHE = "maktabos-public-shell-v11";
+const CACHE = "maktabos-public-shell-v12";
 const files = ["./", "./index.html", "./assets/css/styles.css", "./assets/css/experience.css",
   "./assets/app.js", "./assets/experience.js", "./assets/phone.js", "./favicon.svg", "./assets/icon-192.png", "./assets/icon-512.png", "./manifest.webmanifest"];
 self.addEventListener("install", event => {

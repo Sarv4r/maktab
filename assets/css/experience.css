@@ -229,3 +229,27 @@ button.member-avatar {cursor:pointer}
 
 #phonePrompt:not([hidden]) {display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);color:var(--text)}
 #phonePrompt strong {flex:1 1 210px}
+
+.account-profile {max-width:720px;margin:0 auto;color:var(--text)}
+.account-profile>h2 {text-align:center;font-size:1.4rem;letter-spacing:-.035em;margin:0 0 18px}
+.account-id {display:flex;align-items:center;gap:16px;padding:8px 8px 24px}
+.account-id h3,.account-id p {margin:0;overflow-wrap:anywhere}
+.account-id p,.account-id small {color:var(--muted)}
+.account-id .member-avatar:not([class*=" gif_"]) {border:2px solid #478086}
+.account-panel {margin-bottom:16px;padding:18px 18px 4px;border:1px solid var(--border-soft);background:var(--surface);border-radius:14px;box-shadow:0 3px 12px #19384209}
+.account-panel h3 {font-size:1rem;margin:0 0 8px}
+.account-heading,.account-row,.account-row dt,.account-action {display:flex;align-items:center}
+.account-heading,.account-row {justify-content:space-between;gap:10px}
+.account-heading button {font-size:.85rem;color:var(--primary)}
+.account-panel dl {margin:0}
+.account-row,.account-action {min-height:60px;padding:8px 0;border-bottom:1px solid var(--border-soft);font-size:.94rem}
+.account-row:last-child,.account-action:last-child {border:0}
+.account-row dt,.account-action {gap:12px;font-weight:600}
+.account-row dd {margin:0;color:var(--muted);text-align:right;overflow-wrap:anywhere;max-width:52%;white-space:pre-wrap}
+.account-icon {flex:none;width:36px;height:38px;border-radius:9px;background:#deeff0;color:#245e66;display:inline-grid;place-items:center}
+.account-action {position:relative;width:100%;background:transparent;color:inherit;border-radius:0;border-width:0 0 1px;text-align:left;cursor:pointer}
+.account-action:disabled {color:var(--muted);cursor:default}
+.account-action input {position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.account-action:focus-within {outline:2px solid var(--primary)}
+.account-profile>.card {margin-bottom:16px}
+@media(max-width:520px){.account-panel {padding-inline:14px}.account-row dt {gap:8px}.account-profile>h2 {margin-bottom:12px}}

@@ -1841,32 +1841,36 @@ function renderProfile(box) {
   const myCerts = DB.certificates.filter(c => c.studentId === currentUser.id);
   const myAllItems = STORE_CATALOG.filter(i => (currentUser.owned || []).includes(i.id));
 
+  const roles = {student:"O‘quvchi", teacher:"O‘qituvchi", homeroom:"Sinf rahbari", admin:"Administrator"};
+  const detailIcons = {school:"home", interests:"fire", subjects:"test", goals:"rank", about:"user"};
+  const rows = [
+    ["user","Vazifasi",roles[currentUser.role]],
+    ...(currentUser.grade ? [["cert","Sinf",currentUser.grade]] : []),
+    ...(currentUser.subject ? [["test","Fan",currentUser.subject]] : []),
+    ...profileFields.map(([key,label]) => [detailIcons[key],label,currentUser.profileInfo?.[key]])
+  ];
   box.innerHTML = `
-    <h2 class="page-title">${ICONS.user} Shaxsiy Profil va Mukofotlarim</h2>
-    <p class="page-sub">Profil rasmi, ma'lumotlar, ramkalar va PDF sertifikatlarni boshqarish</p>
-
-    <div class="grid-2">
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:20px;margin-bottom:18px;">
-          ${renderAvatarHTML(currentUser, 72, 26)}
-          <div>
-            <h3 style="color:var(--text);font-size:17px;">${currentUser.name}</h3>
-            <div style="font-size:13px;color:var(--muted);margin-top:2px;">Login: <strong>${currentUser.login}</strong></div>
-            ${currentUser.activeTitle ? `<span class="badge badge-gold" style="margin-top:6px;">${currentUser.activeTitle}</span>` : ''}
-          </div>
-        </div>
-
-        <dl class="member-info">${profileFields.filter(([k]) => currentUser.profileInfo?.[k]).map(([k,label]) => `<div><dt>${label}</dt><dd>${safeText(currentUser.profileInfo[k])}</dd></div>`).join("")}</dl>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <label class="btn-secondary" style="cursor:pointer;">
-            ${ICONS.camera} Rasm Qo'yish
-            <input type="file" accept="image/*" class="hidden" onchange="uploadProfilePhoto(event)" />
-          </label>
-          ${currentUser.avatarImg ? `<button class="btn-accent" onclick="removeProfilePhoto()">Rasmni O'chirish</button>` : ''}
-          <button class="btn-primary" style="width:auto;margin:0;" onclick="openEditProfileModal()">Ma’lumot kiritish</button>
-        </div>
-      </div>
-
+    <article class="account-profile">
+      <h2>Profil</h2>
+      <header class="account-id">
+        ${renderAvatarHTML(currentUser, 64, 24)}
+        <div><h3>${safeText(currentUser.name)}</h3><p>@${safeText(currentUser.login)}</p>
+        ${currentUser.activeTitle ? `<small>${safeText(currentUser.activeTitle)}</small>` : ""}</div>
+      </header>
+      <section class="account-panel"><div class="account-heading"><h3>Profil ma’lumotlari</h3>
+        <button class="member-name" onclick="openEditProfileModal()">Tahrirlash</button></div>
+        <dl>${rows.map(([icon,label,value]) => `<div class="account-row"><dt><span class="account-icon">${ICONS[icon]}</span>${label}</dt><dd>${safeText(value || "—")}</dd></div>`).join("")}</dl>
+      </section>
+      <section class="account-panel"><h3>Umumiy</h3>
+        <button class="account-action" id="profileInstallBtn" onclick="installMaktabApp()" ${appInstalled() ? "disabled" : ""}>
+          <span class="account-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg></span>
+          <span>${appInstalled() ? "Ilova o‘rnatilgan" : "Ilovani o‘rnatish"}</span>
+        </button>
+        <label class="account-action"><span class="account-icon">${ICONS.camera}</span>
+          ${currentUser.avatarImg ? "Profil rasmini almashtirish" : "Profil rasmini qo‘yish"}
+          <input type="file" accept="image/*" onchange="uploadProfilePhoto(event)" /></label>
+        ${currentUser.avatarImg ? '<button class="account-action" onclick="removeProfilePhoto()">Profil rasmini o‘chirish</button>' : ""}
+      </section>
       ${currentUser.role === "student" ? `
         <div class="card">
           <h3 style="margin-bottom:12px;color:var(--text);font-size:16px;">Ramkalar va unvonlar</h3>
@@ -1895,7 +1899,6 @@ function renderProfile(box) {
           </div>
         </div>
       ` : ''}
-    </div>
 
     ${currentUser.role === "student" ? `
       <div class="card" style="margin-bottom:16px;">
@@ -1929,6 +1932,7 @@ function renderProfile(box) {
         `}
       </div>
     ` : ''}
+    </article>
   `;
 }
 

@@ -6,21 +6,22 @@
   <title>MaktabOS — Akademik Raqamli Ekotizim</title>
   <style>
     :root {
-      --bg: #F9FAFB;
+      --bg: #F4F7FB;
       --surface: #FFFFFF;
-      --primary: #0F172A;
-      --primary-hover: #1E293B;
-      --navy-soft: #1D4ED8;
-      --accent: #DC2626;
-      --gold: #B45309;
-      --gold-bright: #D97706;
-      --text: #111827;
-      --muted: #6B7280;
-      --border: #E5E7EB;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --navy-soft: #2563EB;
+      --accent: #E11D48;
+      --gold: #D97706;
+      --gold-bright: #F59E0B;
+      --text: #1E293B;
+      --muted: #64748B;
+      --border: #E2E8F0;
       --border-soft: #F1F5F9;
-      --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.03);
-      --shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
-      --shadow-lg: 0 20px 40px -12px rgba(15, 23, 42, 0.14);
+      --shadow-xs: 0 1px 2px rgba(37, 99, 235, 0.04);
+      --shadow: 0 6px 24px -4px rgba(148, 163, 184, 0.14), 0 2px 6px -1px rgba(148, 163, 184, 0.06);
+      --shadow-lg: 0 20px 40px -12px rgba(100, 116, 139, 0.18);
       --radius: 16px;
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -44,7 +45,7 @@
 
     .hidden { display: none !important; }
 
-    /* Custom Minimal Scrollbar */
+    /* Custom Light Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
@@ -65,40 +66,40 @@
       letter-spacing: -0.005em;
     }
     button:active { transform: scale(0.97); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
     .btn-primary {
-      background: var(--primary);
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
       color: #fff;
       padding: 11px 18px;
       width: 100%;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
     }
-    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-primary:hover { background: linear-gradient(135deg, #2563EB, #1D4ED8); transform: translateY(-1px); }
 
     .btn-secondary {
       background: #F8FAFC;
-      color: var(--primary);
+      color: var(--text);
       padding: 9px 14px;
       border: 1px solid var(--border);
     }
-    .btn-secondary:hover { background: #F1F5F9; border-color: #D1D5DB; }
+    .btn-secondary:hover { background: #EFF6FF; border-color: #BFDBFE; color: var(--primary); }
 
     .btn-gold {
-      background: linear-gradient(135deg, #B45309, #D97706);
+      background: linear-gradient(135deg, #F59E0B, #D97706);
       color: #fff;
       padding: 10px 15px;
-      box-shadow: 0 2px 10px rgba(180, 83, 9, 0.18);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.22);
     }
-    .btn-gold:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    .btn-gold:hover { filter: brightness(1.04); transform: translateY(-1px); }
 
     .btn-accent {
-      background: #FEF2F2;
-      color: #B91C1C;
+      background: #FFF1F2;
+      color: #E11D48;
       padding: 9px 12px;
-      border: 1px solid #FECACA;
+      border: 1px solid #FECDD3;
     }
-    .btn-accent:hover { background: #FEE2E2; }
+    .btn-accent:hover { background: #FFE4E6; }
 
     input, select, textarea {
       width: 100%;
@@ -113,7 +114,7 @@
     }
     input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
     /* Toast Notifications */
@@ -129,18 +130,19 @@
       pointer-events: none;
     }
     .toast {
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(8px);
-      color: #fff;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      color: var(--text);
+      border: 1px solid var(--border);
       padding: 12px 16px;
       border-radius: 12px;
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       box-shadow: var(--shadow-lg);
       animation: slideIn 0.28s var(--ease);
     }
-    .toast.success { background: rgba(6, 78, 59, 0.96); }
-    .toast.error { background: rgba(127, 29, 29, 0.96); }
+    .toast.success { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+    .toast.error { background: #FFF1F2; color: #9F1239; border-color: #FECDD3; }
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(-8px) scale(0.98); }
       to { opacity: 1; transform: translateY(0) scale(1); }
@@ -153,16 +155,16 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: radial-gradient(circle at top right, #F1F5F9 0%, #F9FAFB 60%, #EFF6FF 100%);
+      background: radial-gradient(circle at top left, #E0F2FE 0%, #F4F7FB 50%, #EEF2FF 100%);
     }
     .auth-card {
       background: var(--surface);
       width: 100%;
       max-width: 420px;
       padding: 36px 32px;
-      border-radius: 22px;
+      border-radius: 24px;
       box-shadow: var(--shadow-lg);
-      border: 1px solid var(--border);
+      border: 1px solid #E2E8F0;
     }
     .brand-logo {
       display: flex;
@@ -170,26 +172,26 @@
       gap: 10px;
       font-size: 20px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--text);
       margin-bottom: 6px;
       letter-spacing: -0.025em;
     }
     .brand-crest {
-      width: 30px;
-      height: 30px;
-      border-radius: 9px;
-      background: var(--primary);
-      border: 1px solid rgba(217, 119, 6, 0.5);
-      color: #FDE68A;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #FFFFFF;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 800;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
     }
     .tabs {
       display: flex;
-      background: #F3F4F6;
+      background: #F1F5F9;
       padding: 4px;
       border-radius: 12px;
       margin: 22px 0;
@@ -205,7 +207,7 @@
     .tab-btn.active {
       background: #fff;
       color: var(--primary);
-      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 1px 4px rgba(100, 116, 139, 0.12);
     }
     .form-group { margin-bottom: 15px; }
     .form-group label {
@@ -217,13 +219,13 @@
       letter-spacing: 0.01em;
     }
 
-    /* App Layout */
+    /* App Layout - Light Airy Sidebar */
     .app-shell { display: flex; min-height: 100vh; }
     .sidebar {
       width: 256px;
-      background: #0F172A;
-      color: #E2E8F0;
-      border-right: 1px solid #1E293B;
+      background: #FFFFFF;
+      color: var(--text);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -235,30 +237,29 @@
       z-index: 100;
       transition: transform 0.28s var(--ease);
     }
-    .sidebar .brand-logo { color: #FFFFFF; }
-    .nav-menu { display: flex; flex-direction: column; gap: 3px; margin-top: 22px; overflow-y: auto; }
+    .nav-menu { display: flex; flex-direction: column; gap: 4px; margin-top: 22px; overflow-y: auto; }
     .nav-item {
       width: 100%;
       justify-content: space-between;
       padding: 10px 12px;
       background: transparent;
-      color: #94A3B8;
-      border-radius: 10px;
+      color: var(--muted);
+      border-radius: 11px;
       font-size: 13.5px;
       font-weight: 500;
     }
-    .nav-item:hover { background: rgba(255, 255, 255, 0.06); color: #F8FAFC; }
+    .nav-item:hover { background: #F8FAFC; color: var(--primary); }
     .nav-item.active {
-      background: rgba(255, 255, 255, 0.11);
-      color: #FFFFFF;
-      font-weight: 600;
+      background: #EFF6FF;
+      color: var(--primary);
+      font-weight: 700;
     }
     .nav-item-left { display: flex; align-items: center; gap: 11px; }
     .nav-pill {
-      background: rgba(217, 119, 6, 0.9);
-      color: #FFFFFF;
+      background: #DBEAFE;
+      color: #1D4ED8;
       font-size: 11px;
-      padding: 1px 7px;
+      padding: 1px 8px;
       border-radius: 20px;
       font-weight: 700;
     }
@@ -272,7 +273,7 @@
       padding-bottom: 76px;
     }
     .topbar {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
@@ -287,7 +288,7 @@
     .menu-toggle {
       display: none;
       background: #F8FAFC;
-      color: var(--primary);
+      color: var(--text);
       padding: 8px 11px;
       border: 1px solid var(--border);
     }
@@ -307,7 +308,7 @@
     .page-title {
       font-size: 21px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 9px;
@@ -336,7 +337,7 @@
     .stat-val {
       font-size: 26px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--text);
       margin-top: 6px;
       letter-spacing: -0.03em;
     }
@@ -350,41 +351,126 @@
       border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
-      background: #F3F4F6;
-      color: #374151;
+      background: #F1F5F9;
+      color: #475569;
     }
-    .badge-gold { background: #FEF3C7; color: #92400E; }
-    .badge-green { background: #ECFDF5; color: #065F46; }
-    .badge-blue { background: #EFF6FF; color: #1E40AF; }
-    .badge-red { background: #FEF2F2; color: #991B1B; }
+    .badge-gold { background: #FEF3C7; color: #B45309; }
+    .badge-green { background: #DCFCE7; color: #15803D; }
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+    .badge-red { background: #FFE4E6; color: #BE123C; }
 
-    /* Avatars & Animated Frames */
+    /* Avatars & Animated Frames (including Bokeh Dotted Halo from image) */
+    .avatar-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
     .avatar-circle {
       border-radius: 50%;
-      background: linear-gradient(135deg, #0F172A, #1E3A8A);
-      color: #FDE68A;
-      font-weight: 700;
+      background: linear-gradient(135deg, #DBEAFE, #EFF6FF);
+      color: #1D4ED8;
+      font-weight: 800;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       overflow: hidden;
       position: relative;
-      border: 2px solid #E5E7EB;
+      z-index: 2;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.14);
     }
     .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
 
-    @keyframes pulseEmerald { 0%,100% { box-shadow: 0 0 0 2.5px #10B981, 0 0 10px rgba(16,185,129,0.5); } 50% { box-shadow: 0 0 0 3.5px #34D399, 0 0 16px rgba(16,185,129,0.7); } }
-    @keyframes pulseRoyal { 0%,100% { box-shadow: 0 0 0 2.5px #2563EB, 0 0 10px rgba(37,99,235,0.5); } 50% { box-shadow: 0 0 0 3.5px #60A5FA, 0 0 16px rgba(37,99,235,0.7); } }
-    @keyframes pulseGold { 0%,100% { box-shadow: 0 0 0 2.5px #F59E0B, 0 0 12px rgba(245,158,11,0.5); } 50% { box-shadow: 0 0 0 3.5px #FDE047, 0 0 18px rgba(245,158,11,0.7); } }
-    @keyframes pulseCrimson { 0%,100% { box-shadow: 0 0 0 2.5px #DC2626, 0 0 12px rgba(220,38,38,0.5); } 50% { box-shadow: 0 0 0 3.5px #F87171, 0 0 18px rgba(220,38,38,0.7); } }
-    @keyframes pulseImperial { 0% { box-shadow: 0 0 0 2.5px #F59E0B, 0 0 14px rgba(236,72,153,0.5); } 50% { box-shadow: 0 0 0 3.5px #8B5CF6, 0 0 18px rgba(16,185,129,0.6); } 100% { box-shadow: 0 0 0 2.5px #F59E0B, 0 0 14px rgba(236,72,153,0.5); } }
+    /* Dotted Rainbow Bokeh Halo (inspired by uploaded image) */
+    @keyframes spinHalo {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.06); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    @keyframes spinReverse {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .bokeh-ring {
+      position: absolute;
+      inset: -7px;
+      border-radius: 50%;
+      z-index: 1;
+      pointer-events: none;
+      animation: spinHalo 5s linear infinite;
+    }
+    .bokeh-ring-inner {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      z-index: 1;
+      pointer-events: none;
+      animation: spinReverse 3.5s linear infinite;
+    }
+
+    .frame-bokeh-rainbow .bokeh-ring {
+      background:
+        radial-gradient(circle at 50% 6%, #FACC15 2.5px, transparent 3px),
+        radial-gradient(circle at 78% 15%, #FB923C 3px, transparent 3.5px),
+        radial-gradient(circle at 93% 40%, #F43F5E 2.5px, transparent 3px),
+        radial-gradient(circle at 88% 72%, #EC4899 3.2px, transparent 3.8px),
+        radial-gradient(circle at 66% 92%, #A855F7 2.8px, transparent 3.4px),
+        radial-gradient(circle at 34% 92%, #3B82F6 3.2px, transparent 3.8px),
+        radial-gradient(circle at 12% 72%, #06B6D4 2.8px, transparent 3.4px),
+        radial-gradient(circle at 7% 40%, #10B981 3px, transparent 3.6px),
+        radial-gradient(circle at 22% 15%, #8B5CF6 2.5px, transparent 3px);
+      filter: drop-shadow(0 0 4px rgba(236, 72, 153, 0.35));
+    }
+    .frame-bokeh-rainbow .bokeh-ring-inner {
+      background:
+        radial-gradient(circle at 64% 10%, #FDE047 2px, transparent 2.5px),
+        radial-gradient(circle at 90% 55%, #FB7185 2.2px, transparent 2.7px),
+        radial-gradient(circle at 50% 94%, #60A5FA 2.2px, transparent 2.7px),
+        radial-gradient(circle at 10% 55%, #2DD4BF 2px, transparent 2.5px),
+        radial-gradient(circle at 36% 10%, #C084FC 2px, transparent 2.5px);
+    }
+
+    .frame-bokeh-solar .bokeh-ring {
+      background:
+        radial-gradient(circle at 50% 5%, #F59E0B 3px, transparent 3.6px),
+        radial-gradient(circle at 82% 20%, #FACC15 2.5px, transparent 3px),
+        radial-gradient(circle at 95% 50%, #F97316 3px, transparent 3.6px),
+        radial-gradient(circle at 82% 80%, #EF4444 2.5px, transparent 3px),
+        radial-gradient(circle at 50% 95%, #F59E0B 3px, transparent 3.6px),
+        radial-gradient(circle at 18% 80%, #FBBF24 2.5px, transparent 3px),
+        radial-gradient(circle at 5% 50%, #FB923C 3px, transparent 3.6px),
+        radial-gradient(circle at 18% 20%, #FDE047 2.5px, transparent 3px);
+      filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+    }
+
+    .frame-bokeh-ocean .bokeh-ring {
+      background:
+        radial-gradient(circle at 50% 5%, #06B6D4 3px, transparent 3.6px),
+        radial-gradient(circle at 82% 20%, #3B82F6 2.6px, transparent 3.2px),
+        radial-gradient(circle at 95% 50%, #6366F1 3px, transparent 3.6px),
+        radial-gradient(circle at 82% 80%, #14B8A6 2.6px, transparent 3.2px),
+        radial-gradient(circle at 50% 95%, #38BDF8 3px, transparent 3.6px),
+        radial-gradient(circle at 18% 80%, #818CF8 2.6px, transparent 3.2px),
+        radial-gradient(circle at 5% 50%, #2DD4BF 3px, transparent 3.6px),
+        radial-gradient(circle at 18% 20%, #60A5FA 2.6px, transparent 3.2px);
+      filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.4));
+    }
+
+    @keyframes pulseEmerald { 0%,100% { box-shadow: 0 0 0 2.5px #10B981, 0 0 10px rgba(16,185,129,0.45); } 50% { box-shadow: 0 0 0 3.5px #34D399, 0 0 16px rgba(16,185,129,0.65); } }
+    @keyframes pulseRoyal { 0%,100% { box-shadow: 0 0 0 2.5px #3B82F6, 0 0 10px rgba(59,130,246,0.45); } 50% { box-shadow: 0 0 0 3.5px #60A5FA, 0 0 16px rgba(59,130,246,0.65); } }
+    @keyframes pulseGold { 0%,100% { box-shadow: 0 0 0 2.5px #F59E0B, 0 0 12px rgba(245,158,11,0.45); } 50% { box-shadow: 0 0 0 3.5px #FDE047, 0 0 18px rgba(245,158,11,0.65); } }
+    @keyframes pulseCrimson { 0%,100% { box-shadow: 0 0 0 2.5px #F43F5E, 0 0 12px rgba(244,63,94,0.45); } 50% { box-shadow: 0 0 0 3.5px #FB7185, 0 0 18px rgba(244,63,94,0.65); } }
+    @keyframes pulseImperial { 0% { box-shadow: 0 0 0 2.5px #F59E0B, 0 0 14px rgba(236,72,153,0.45); } 50% { box-shadow: 0 0 0 3.5px #8B5CF6, 0 0 18px rgba(16,185,129,0.55); } 100% { box-shadow: 0 0 0 2.5px #F59E0B, 0 0 14px rgba(236,72,153,0.45); } }
 
     .frame-emerald { animation: pulseEmerald 2.2s infinite; }
     .frame-royal { animation: pulseRoyal 2.2s infinite; }
     .frame-gold { animation: pulseGold 2s infinite; }
     .frame-crimson { animation: pulseCrimson 2s infinite; }
-    .frame-platinum { box-shadow: 0 0 0 2.5px #94A3B8, 0 0 12px rgba(148,163,184,0.6); }
+    .frame-platinum { box-shadow: 0 0 0 2.5px #94A3B8, 0 0 12px rgba(148,163,184,0.5); }
     .frame-celestial { animation: pulseRoyal 1.7s infinite; }
     .frame-phoenix { animation: pulseGold 1.7s infinite; }
     .frame-imperial { animation: pulseImperial 2.8s infinite; }
@@ -400,7 +486,7 @@
       min-height: 540px;
       box-shadow: var(--shadow);
     }
-    .chat-sidebar { border-right: 1px solid var(--border); background: #FAFAFA; }
+    .chat-sidebar { border-right: 1px solid var(--border); background: #F8FAFC; }
     .chat-list { max-height: 470px; overflow-y: auto; }
     .chat-room-item {
       padding: 13px 15px;
@@ -408,8 +494,8 @@
       cursor: pointer;
       transition: background 0.18s var(--ease);
     }
-    .chat-room-item:hover { background: #F3F4F6; }
-    .chat-room-item.active { background: #EFF6FF; border-left: 3px solid var(--navy-soft); }
+    .chat-room-item:hover { background: #F1F5F9; }
+    .chat-room-item.active { background: #EFF6FF; border-left: 3px solid var(--primary); }
     .chat-main { display: flex; flex-direction: column; }
     .chat-header {
       padding: 14px 18px;
@@ -428,7 +514,7 @@
       display: flex;
       flex-direction: column;
       gap: 11px;
-      background: #F9FAFB;
+      background: #F8FAFC;
     }
     .msg-bubble {
       max-width: 78%;
@@ -451,12 +537,12 @@
       gap: 12px;
       font-size: 11px;
       font-weight: 700;
-      color: var(--navy-soft);
+      color: var(--primary);
       margin-bottom: 4px;
     }
     .msg-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
     .react-btn {
-      background: #F9FAFB;
+      background: #F8FAFC;
       color: var(--muted);
       padding: 3px 9px;
       font-size: 11px;
@@ -464,10 +550,10 @@
       border-radius: 20px;
       border: 1px solid var(--border);
     }
-    .react-btn:hover { background: #F3F4F6; color: var(--primary); }
+    .react-btn:hover { background: #EFF6FF; color: var(--primary); }
     .react-btn.reacted {
       background: #FEF3C7;
-      color: #92400E;
+      color: #B45309;
       border-color: #FCD34D;
     }
     .chat-input-bar {
@@ -484,9 +570,9 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.45);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+      background: rgba(148, 163, 184, 0.35);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
       z-index: 500;
       display: flex;
       align-items: center;
@@ -507,32 +593,32 @@
     }
 
     /* Certificate Print Styling */
-    .cert-frame-outer { border: 6px double #B45309; padding: 10px; background: #FFFBEB; border-radius: 12px; text-align: center; }
-    .cert-frame-inner { border: 1.5px solid #0F172A; padding: 24px 18px; border-radius: 8px; background: #FFFFFF; }
-    .cert-ribbon { display: inline-block; background: #0F172A; color: #FDE68A; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.05em; }
-    .cert-main-title { font-size: 26px; font-weight: 800; color: #B45309; letter-spacing: 3px; margin: 4px 0; }
-    .cert-recipient { font-size: 21px; font-weight: 800; color: #0F172A; border-bottom: 2px solid #D97706; display: inline-block; padding: 4px 22px; margin: 10px 0 4px; }
-    .cert-gold-seal { width: 66px; height: 66px; border-radius: 50%; background: radial-gradient(circle, #FDE047, #B45309); color: #451A03; font-size: 9px; font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #451A03; }
+    .cert-frame-outer { border: 6px double #D97706; padding: 10px; background: #FFFBEB; border-radius: 12px; text-align: center; }
+    .cert-frame-inner { border: 1.5px solid #2563EB; padding: 24px 18px; border-radius: 8px; background: #FFFFFF; }
+    .cert-ribbon { display: inline-block; background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.05em; }
+    .cert-main-title { font-size: 26px; font-weight: 800; color: #D97706; letter-spacing: 3px; margin: 4px 0; }
+    .cert-recipient { font-size: 21px; font-weight: 800; color: #1E293B; border-bottom: 2px solid #F59E0B; display: inline-block; padding: 4px 22px; margin: 10px 0 4px; }
+    .cert-gold-seal { width: 66px; height: 66px; border-radius: 50%; background: radial-gradient(circle, #FEF08A, #F59E0B); color: #78350F; font-size: 9px; font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #92400E; }
 
-    /* Mobile Bottom Navigation */
+    /* Mobile Bottom Navigation - Light Theme */
     .bottom-nav {
       display: none;
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(15, 23, 42, 0.96);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(10px);
-      border-top: 1px solid #1E293B;
+      border-top: 1px solid var(--border);
       z-index: 90;
       padding: 7px 4px;
       justify-content: space-around;
     }
-    .bnav-btn { background: transparent; color: #94A3B8; flex-direction: column; font-size: 10px; padding: 4px 8px; gap: 3px; position: relative; }
-    .bnav-btn.active { color: #FDE68A; }
+    .bnav-btn { background: transparent; color: var(--muted); flex-direction: column; font-size: 10px; padding: 4px 8px; gap: 3px; position: relative; }
+    .bnav-btn.active { color: var(--primary); font-weight: 700; }
     .bnav-bar { height: 2.5px; width: 16px; border-radius: 3px; background: transparent; }
-    .bnav-btn.active .bnav-bar { background: #F59E0B; }
-    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 95; }
+    .bnav-btn.active .bnav-bar { background: var(--primary); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(148, 163, 184, 0.35); z-index: 95; }
     .sidebar-overlay.show { display: block; }
 
     @media (max-width: 820px) {
@@ -632,7 +718,7 @@
       <div class="brand-logo" style="padding:4px 8px;"><span class="brand-crest">M</span> MaktabOS</div>
       <nav id="navMenu" class="nav-menu"></nav>
     </div>
-    <button class="btn-accent" style="width:100%;background:rgba(239,68,68,0.1);color:#FCA5A5;border-color:rgba(239,68,68,0.2);" onclick="logout()">Tizimdan Chiqish</button>
+    <button class="btn-accent" style="width:100%;" onclick="logout()">Tizimdan Chiqish</button>
   </aside>
 
   <div class="main-wrap">
@@ -640,13 +726,13 @@
       <div style="display:flex;align-items:center;gap:12px;">
         <button class="menu-toggle" onclick="toggleMobileSidebar()">☰</button>
         <div>
-          <div id="topUserName" style="font-weight:700;font-size:15px;color:var(--primary);"></div>
+          <div id="topUserName" style="font-weight:700;font-size:15px;color:var(--text);"></div>
           <div id="topUserSub" style="font-size:11.5px;color:var(--muted);"></div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span id="topRoleBadge" class="badge badge-gold"></span>
-        <div id="topAvatar" class="avatar-circle" style="width:36px;height:36px;font-size:14px;"></div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="topRoleBadge" class="badge badge-blue"></span>
+        <div id="topAvatarHolder"></div>
       </div>
     </header>
 
@@ -800,13 +886,13 @@ const STORE_CATALOG = [
   { id: "cert_director_award", type: "certificate", name: "Maktab Direktori Tashakkurnomasi", price: 1200, tier: "Oliy Maqom", desc: "Maktab hayotidagi faollik uchun direktor imzosi tushirilgan rasmiy PDF hujjat" },
   { id: "cert_grand_scholar", type: "certificate", name: "Yilning Eng Yaxshi Bilimdoni", price: 1200, tier: "Grand Sertifikat", desc: "1200+ ball to'plagan mutlaq yetakchi o'quvchi uchun maxsus PDF sertifikat" },
 
-  { id: "fr_emerald", type: "frame", frameClass: "frame-emerald", name: "Zumrad Nurli Ramka", price: 150, desc: "Jonli zumrad pulsatsiya beruvchi hashamatli ramka" },
-  { id: "fr_royal", type: "frame", frameClass: "frame-royal", name: "Qirollik Moviy Halosi", price: 250, desc: "Chuqur moviy nur taratuvchi animatsiyali ramka" },
+  { id: "fr_bokeh_rainbow", type: "frame", frameClass: "frame-bokeh-rainbow", isBokeh: true, name: "Kamalak Zarrachalari Halosi", price: 650, desc: "Avatar atrofida aylanuvchi ko'p rangli yorqin nuqtali bokeh ramka" },
+  { id: "fr_bokeh_solar", type: "frame", frameClass: "frame-bokeh-solar", isBokeh: true, name: "Quyosh Zarralari Halosi", price: 500, desc: "Oltin va olovrang nuqtalar bilan aylanuvchi yorqin ramka" },
+  { id: "fr_bokeh_ocean", type: "frame", frameClass: "frame-bokeh-ocean", isBokeh: true, name: "Moviy Koinot Zarrachalari", price: 500, desc: "Havorang va feruza nuqtalar bilan aylanuvchi nafis halo" },
+  { id: "fr_emerald", type: "frame", frameClass: "frame-emerald", name: "Zumrad Nurli Ramka", price: 150, desc: "Jonli zumrad pulsatsiya beruvchi yorqin ramka" },
+  { id: "fr_royal", type: "frame", frameClass: "frame-royal", name: "Qirollik Moviy Halosi", price: 250, desc: "Moviy nur taratuvchi animatsiyali ramka" },
   { id: "fr_gold", type: "frame", frameClass: "frame-gold", name: "Oltin Yulduz Jilosi", price: 400, desc: "Tilla rangda tovlanuvchi nufuzli profil hoshiyasi" },
   { id: "fr_crimson", type: "frame", frameClass: "frame-crimson", name: "Yoqut Chempion Ramkasi", price: 550, desc: "Qirmizi olovli pulsatsiya beruvchi g'oliblar ramkasi" },
-  { id: "fr_platinum", type: "frame", frameClass: "frame-platinum", name: "Platina Elita Qalqoni", price: 700, desc: "Kumush-platina jiloli maxsus dizayn" },
-  { id: "fr_celestial", type: "frame", frameClass: "frame-celestial", name: "Koinot Nuri Ramkasi", price: 850, desc: "Kuchli moviy impulsli tadqiqotchilar ramkasi" },
-  { id: "fr_phoenix", type: "frame", frameClass: "frame-phoenix", name: "Oltin Qanot Ramkasi", price: 950, desc: "Qirmizi va oltin uyg'unligidagi hashamatli ramka" },
   { id: "fr_imperial", type: "frame", frameClass: "frame-imperial", name: "Imperator Toji (Kamalak Jilo)", price: 1100, desc: "Eng yuqori maqomdagi ko'p rangli animatsiyali toj ramka" },
 
   { id: "ti_1", type: "title", name: "Yosh Tadqiqotchi", price: 120, desc: "Ismingiz yonida ko'rinadigan maxsus unvon" },
@@ -843,7 +929,7 @@ function buildInitialTests() {
           grade: cls,
           title: `${sub} — ${topic}-mavzu nazorat testi`,
           authorName: null,
-          maxPoints: 60,
+          maxPoints: picked.length * 10,
           questions: picked
         });
       }
@@ -856,7 +942,7 @@ const DEFAULT_DB = {
   users: [
     {
       id: "u_admin", name: "Bosh Administrator", login: "admin", pass: "777",
-      role: "admin", points: 0, weeklyPoints: 0, streak: 1, lastLoginDate: "",
+      role: "admin", points: 0, spentPoints: 0, weeklyPoints: 0, streak: 1, lastLoginDate: "",
       avatarImg: "", owned: [], activeFrame: "", activeTitle: "Tizim Boshqaruvchisi", solvedTests: [], claimedMissions: [], banned: false
     }
   ],
@@ -882,8 +968,8 @@ const DEFAULT_DB = {
     {
       id: "ann_1",
       title: "MaktabOS Raqamli Ekotizimi Ishga Tushdi",
-      body: "O'quvchilar kunlik missiyalar, fan testlari va vazifalarni bajarib maksimal 60 ballgacha to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlarni qo'lga kiritishlari mumkin.",
-      author: "Ma'muriyat", date: "2026-11-23", views: ["u_admin"]
+      body: "O'quvchilar kunlik missiyalar, fan testlari (har bir savolga 10 ball) va vazifalarni bajarib ball to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlarni qo'lga kiritishlari mumkin.",
+      author: "Ma'muriyat", date: "2026-11-25", views: ["u_admin"]
     }
   ],
   certificates: [],
@@ -901,6 +987,20 @@ let rankingTab = "weekly";
 let adminTab = "users";
 let adminSearch = "";
 let adminRoleFilter = "all";
+
+function calculateSpentPoints(user) {
+  if (typeof user.spentPoints === "number" && user.spentPoints > 0) return user.spentPoints;
+  let sum = 0;
+  (user.owned || []).forEach(id => {
+    const it = STORE_CATALOG.find(x => x.id === id);
+    if (it) sum += it.price;
+  });
+  return sum;
+}
+
+function getTotalEarnedPoints(user) {
+  return (user.points || 0) + calculateSpentPoints(user);
+}
 
 function normalizeDB(data) {
   if (!data || typeof data !== "object") return JSON.parse(JSON.stringify(DEFAULT_DB));
@@ -920,6 +1020,7 @@ function normalizeDB(data) {
     if (!Array.isArray(u.claimedMissions)) u.claimedMissions = [];
     if (typeof u.points !== "number") u.points = 0;
     if (typeof u.weeklyPoints !== "number") u.weeklyPoints = 0;
+    if (typeof u.spentPoints !== "number") u.spentPoints = calculateSpentPoints(u);
   });
   return data;
 }
@@ -939,7 +1040,8 @@ function mergeDatabases(remoteRaw, localRaw) {
         userMap.set(lu.id, {
           ...ru,
           ...lu,
-          points: Math.max(ru.points || 0, lu.points || 0),
+          points: lu.points,
+          spentPoints: Math.max(ru.spentPoints || 0, lu.spentPoints || 0),
           weeklyPoints: Math.max(ru.weeklyPoints || 0, lu.weeklyPoints || 0),
           owned: Array.from(new Set([...(ru.owned || []), ...(lu.owned || [])])),
           solvedTests: Array.from(new Set([...(ru.solvedTests || []), ...(lu.solvedTests || [])])),
@@ -1099,9 +1201,20 @@ function getAllTests() {
 
 function renderAvatarHTML(user, sizePx = 42, fontPx = 16) {
   const frame = user.activeFrame || "";
+  const isBokeh = frame.startsWith("frame-bokeh");
   const inner = user.avatarImg
     ? `<img src="${user.avatarImg}" alt="${user.name}" />`
     : `${user.name.charAt(0).toUpperCase()}`;
+
+  if (isBokeh) {
+    return `
+      <div class="avatar-wrap ${frame}" style="width:${sizePx}px;height:${sizePx}px;">
+        <span class="bokeh-ring"></span>
+        <span class="bokeh-ring-inner"></span>
+        <div class="avatar-circle" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px;">${inner}</div>
+      </div>
+    `;
+  }
   return `<div class="avatar-circle ${frame}" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px;">${inner}</div>`;
 }
 
@@ -1156,6 +1269,7 @@ async function handleRegister(e) {
     grade: role !== "teacher" ? grade : "",
     subject: role === "teacher" ? subject : "",
     points: 0,
+    spentPoints: 0,
     weeklyPoints: 0,
     streak: 1,
     lastLoginDate: today,
@@ -1283,12 +1397,7 @@ function updateTopbar() {
   }
   document.getElementById("topUserSub").textContent = sub;
   document.getElementById("topRoleBadge").textContent = roleTxt;
-
-  const av = document.getElementById("topAvatar");
-  av.className = "avatar-circle " + (currentUser.activeFrame || "");
-  av.innerHTML = currentUser.avatarImg
-    ? `<img src="${currentUser.avatarImg}" alt="${currentUser.name}" />`
-    : currentUser.name.charAt(0).toUpperCase();
+  document.getElementById("topAvatarHolder").innerHTML = renderAvatarHTML(currentUser, 36, 14);
 }
 
 function renderSidebarMenu() {
@@ -1383,11 +1492,12 @@ function renderDashboard(box) {
   const r = currentUser.role;
 
   if (r === "student") {
-    const allStudents = DB.users.filter(u => u.role === "student").sort((a,b) => b.points - a.points);
+    const allStudents = DB.users.filter(u => u.role === "student").sort((a,b) => getTotalEarnedPoints(b) - getTotalEarnedPoints(a));
     const rank = allStudents.findIndex(s => s.id === currentUser.id) + 1;
     const pendingTasks = DB.tasks.filter(t => !t.submissions.some(s => s.studentId === currentUser.id));
+    const totalEarned = getTotalEarnedPoints(currentUser);
     const progressToCert = Math.min(100, Math.round((currentUser.points / 1200) * 100));
-    const level = Math.floor(currentUser.points / 150) + 1;
+    const level = Math.floor(totalEarned / 150) + 1;
     const today = new Date().toISOString().slice(0, 10);
 
     const missions = [
@@ -1409,27 +1519,27 @@ function renderDashboard(box) {
 
       <div class="grid-3">
         <div class="card">
-          <div class="stat-label">${ICONS.cert} Umumiy Ballarim</div>
+          <div class="stat-label">${ICONS.cert} Joriy Balansim</div>
           <div class="stat-val">${currentUser.points} ball</div>
-          <div style="font-size:12px;color:var(--gold);margin-top:4px;font-weight:600;">Haftalik: +${currentUser.weeklyPoints || 0} ball</div>
+          <div style="font-size:12px;color:var(--primary);margin-top:4px;font-weight:600;">Jami yig'ilgan: ${totalEarned} ball</div>
         </div>
         <div class="card">
-          <div class="stat-label">${ICONS.rank} Reytingdagi O'rnim</div>
+          <div class="stat-label">${ICONS.rank} Umumiy Reytingdagi O'rnim</div>
           <div class="stat-val">#${rank}</div>
           <div style="font-size:12px;color:var(--muted);margin-top:4px;">Jami ${allStudents.length} o'quvchi orasida</div>
         </div>
         <div class="card">
           <div class="stat-label">${ICONS.store} 1200 Ballik Sertifikat</div>
           <div class="stat-val">${progressToCert}%</div>
-          <div style="height:6px;background:#F3F4F6;border-radius:10px;margin-top:10px;overflow:hidden;">
-            <div style="height:100%;width:${progressToCert}%;background:linear-gradient(90deg, #B45309, #D97706);border-radius:10px;transition:width 0.4s var(--ease);"></div>
+          <div style="height:6px;background:#EFF6FF;border-radius:10px;margin-top:10px;overflow:hidden;">
+            <div style="height:100%;width:${progressToCert}%;background:linear-gradient(90deg, #3B82F6, #2563EB);border-radius:10px;transition:width 0.4s var(--ease);"></div>
           </div>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="card">
-          <h3 style="color:var(--primary);font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.ai} Kunlik Missiyalar</h3>
+          <h3 style="color:var(--text);font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.ai} Kunlik Missiyalar</h3>
           <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Topshiriqlarni bajaring va qo'shimcha ball oling</p>
           ${missions.map(ms => {
             const claimed = (currentUser.claimedMissions || []).includes(ms.id);
@@ -1451,7 +1561,7 @@ function renderDashboard(box) {
         </div>
 
         <div class="card">
-          <h3 style="color:var(--primary);font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">${ICONS.task} Bajarilmagan Vazifalar (${pendingTasks.length})</h3>
+          <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">${ICONS.task} Bajarilmagan Vazifalar (${pendingTasks.length})</h3>
           ${pendingTasks.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Ajoyib! Barcha berilgan vazifalarni topshirgansiz.</p>` : pendingTasks.slice(0, 4).map(t => `
             <div style="padding:10px 0;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;">
               <div>
@@ -1491,7 +1601,7 @@ function renderDashboard(box) {
       </div>
 
       <div class="card">
-        <h3 style="color:var(--primary);font-size:16px;margin-bottom:12px;">Tezkor Boshqaruv</h3>
+        <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;">Tezkor Boshqaruv</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:10px;">
           <button class="btn-primary" style="margin:0;" onclick="navigate('tasks')">${ICONS.task} Vazifa Berish</button>
           <button class="btn-gold" onclick="navigate('tests')">${ICONS.test} Test Tuzish</button>
@@ -1512,7 +1622,7 @@ function renderDashboard(box) {
         <div class="card"><div class="stat-label">${ICONS.cert} Berilgan Sertifikatlar</div><div class="stat-val">${DB.certificates.length} ta</div></div>
       </div>
       <div class="card">
-        <h3 style="color:var(--primary);font-size:16px;margin-bottom:12px;">Tezkor Admin Vositalari</h3>
+        <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;">Tezkor Admin Vositalari</h3>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn-primary" style="width:auto;margin:0;" onclick="navigate('admin')">${ICONS.admin} To'liq Admin Panelini Ochish</button>
           <button class="btn-gold" onclick="openAdminCreateUserModal()">+ Yangi Foydalanuvchi Qo'shish</button>
@@ -1566,7 +1676,7 @@ function renderChats(box) {
         <div class="chat-list">
           ${accessibleRooms.map(r => `
             <div class="chat-room-item ${r.id === activeRoomId ? 'active' : ''}" onclick="selectRoom('${r.id}')">
-              <div style="font-weight:700;font-size:13.5px;color:var(--primary);">${r.name}</div>
+              <div style="font-weight:700;font-size:13.5px;color:var(--text);">${r.name}</div>
               <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">
                 ${r.type === 'channel' ? 'Kanal' : r.type === 'direct' ? 'Shaxsiy suhbat' : 'Guruh'} • ${r.id === 'r_general' ? DB.users.length : r.members.length} a'zo
               </div>
@@ -1579,7 +1689,7 @@ function renderChats(box) {
         ${activeRoom ? `
           <div class="chat-header">
             <div>
-              <div style="font-weight:700;font-size:14.5px;color:var(--primary);">${activeRoom.name}</div>
+              <div style="font-weight:700;font-size:14.5px;color:var(--text);">${activeRoom.name}</div>
               <div style="font-size:11.5px;color:var(--muted);">${activeRoom.desc || ''} • ${activeRoom.id === 'r_general' ? DB.users.length : activeRoom.members.length} a'zo</div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -1589,7 +1699,7 @@ function renderChats(box) {
           </div>
 
           ${activeRoom.pinned ? `
-            <div style="background:#FFFBEB;padding:8px 16px;font-size:12px;color:#92400E;border-bottom:1px solid #FEF3C7;">
+            <div style="background:#FFFBEB;padding:8px 16px;font-size:12px;color:#B45309;border-bottom:1px solid #FEF3C7;">
               <strong>Mahkamlangan:</strong> ${activeRoom.pinned}
             </div>
           ` : ''}
@@ -1609,7 +1719,7 @@ function renderChats(box) {
                   <span>${m.senderName}</span>
                   <span style="color:var(--muted);font-weight:500;">${m.time}</span>
                 </div>
-                ${m.replyTo ? `<div style="font-size:11.5px;background:rgba(15,23,42,0.04);padding:4px 9px;border-left:2.5px solid var(--navy-soft);margin-bottom:6px;border-radius:6px;color:var(--muted);">Javob: ${m.replyTo}</div>` : ''}
+                ${m.replyTo ? `<div style="font-size:11.5px;background:rgba(37,99,235,0.05);padding:4px 9px;border-left:2.5px solid var(--primary);margin-bottom:6px;border-radius:6px;color:var(--muted);">Javob: ${m.replyTo}</div>` : ''}
                 ${m.mediaType === 'image' ? `<img src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;" />` : ''}
                 ${m.mediaType === 'audio' ? `<audio controls src="${m.mediaUrl}" style="max-width:220px;margin-bottom:6px;display:block;"></audio>` : ''}
                 ${m.mediaType === 'video' ? `<video controls src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;"></video>` : ''}
@@ -1619,7 +1729,7 @@ function renderChats(box) {
                   <button class="react-btn ${hasFoydali ? 'reacted' : ''}" onclick="reactMsg('${m.id}', 'Foydali')">Foydali (${foydaliCount})</button>
                   <button class="react-btn" onclick="setReply('${m.text.replace(/'/g, '')}')">Javob</button>
                   <button class="react-btn" onclick="pinMsg('${m.text.replace(/'/g, '')}')">Mahkamlash</button>
-                  ${(m.senderId === currentUser.id || currentUser.role === 'admin') ? `<button class="react-btn" style="color:#B91C1C;" onclick="deleteMsg('${m.id}')">O'chirish</button>` : ''}
+                  ${(m.senderId === currentUser.id || currentUser.role === 'admin') ? `<button class="react-btn" style="color:#E11D48;" onclick="deleteMsg('${m.id}')">O'chirish</button>` : ''}
                 </div>
               </div>
             `;
@@ -1703,7 +1813,6 @@ function sendMediaFile(e, type) {
   reader.readAsDataURL(file);
 }
 
-// BIR MARTA BOSILADIGAN REAKSIYA (Toggle)
 function reactMsg(msgId, key) {
   const msg = (DB.messages[activeRoomId] || []).find(m => m.id === msgId);
   if (!msg) return;
@@ -1750,7 +1859,7 @@ function deleteMsg(msgId) {
 
 function openCreateRoomModal() {
   openModal(`
-    <h3 style="margin-bottom:14px;color:var(--primary);">Yangi Guruh yoki Kanal</h3>
+    <h3 style="margin-bottom:14px;color:var(--text);">Yangi Guruh yoki Kanal</h3>
     <div class="form-group"><label>Nomi</label><input id="newRoomName" placeholder="Masalan: 9-sinf Fizika klubi" /></div>
     <div class="form-group"><label>Turi</label>
       <select id="newRoomType">
@@ -1789,7 +1898,7 @@ function createRoom() {
 function openDirectChatModal() {
   const others = DB.users.filter(u => u.id !== currentUser.id);
   openModal(`
-    <h3 style="margin-bottom:6px;color:var(--primary);">Shaxsiy Chat Boshlash</h3>
+    <h3 style="margin-bottom:6px;color:var(--text);">Shaxsiy Chat Boshlash</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Sinfdoshlar yoki o'qituvchilar bilan 1-ga-1 muloqot</p>
     ${others.length === 0 ? '<p style="font-size:13px;">Hozircha boshqa foydalanuvchilar ro\'yxatdan o\'tmagan.</p>' : others.map(u => `
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-soft);">
@@ -1830,7 +1939,7 @@ function viewRoomMembers(roomId) {
   const room = DB.rooms.find(r => r.id === roomId);
   const members = room.id === "r_general" ? DB.users : DB.users.filter(u => room.members.includes(u.id));
   openModal(`
-    <h3 style="margin-bottom:12px;color:var(--primary);">${room.name} (${members.length} a'zo)</h3>
+    <h3 style="margin-bottom:12px;color:var(--text);">${room.name} (${members.length} a'zo)</h3>
     ${members.map(m => `
       <div style="padding:9px 0;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -1846,7 +1955,7 @@ function viewRoomMembers(roomId) {
 
 function openPollModal() {
   openModal(`
-    <h3 style="margin-bottom:12px;color:var(--primary);">So'rovnoma Yaratish</h3>
+    <h3 style="margin-bottom:12px;color:var(--text);">So'rovnoma Yaratish</h3>
     <div class="form-group"><label>Savol matni</label><input id="pollQ" placeholder="Masalan: Ertaga qo'shimcha dars soat nechada bo'lsin?" /></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
@@ -1895,14 +2004,14 @@ function renderTasks(box) {
             <div>
               <span class="badge badge-blue">${t.subject}</span>
               <span class="badge badge-gold">Max: ${t.maxPoints} ball</span>
-              <h3 style="margin-top:8px;color:var(--primary);font-size:16px;">${t.title}</h3>
+              <h3 style="margin-top:8px;color:var(--text);font-size:16px;">${t.title}</h3>
             </div>
             <div style="font-size:12px;color:var(--muted);">
               <div><strong>Ustoz:</strong> ${t.teacherName}</div>
               <div>Muddat: ${t.deadline}</div>
             </div>
           </div>
-          <p style="font-size:13.5px;margin:10px 0;color:#374151;">${t.desc}</p>
+          <p style="font-size:13.5px;margin:10px 0;color:#334155;">${t.desc}</p>
 
           ${currentUser.role === "student" ? `
             ${mySub ? `
@@ -1941,7 +2050,7 @@ function renderTasks(box) {
 function openCreateTaskModal() {
   const defaultSubj = currentUser.role === "teacher" ? currentUser.subject : SUBJECTS[0];
   openModal(`
-    <h3 style="margin-bottom:12px;color:var(--primary);">Yangi Vazifa Berish</h3>
+    <h3 style="margin-bottom:12px;color:var(--text);">Yangi Vazifa Berish</h3>
     <div class="form-group"><label>Fan</label>
       <select id="taskSubj" ${currentUser.role === 'teacher' ? 'disabled' : ''}>
         ${SUBJECTS.map(s => `<option value="${s}" ${s === defaultSubj ? 'selected' : ''}>${s}</option>`).join("")}
@@ -2008,7 +2117,7 @@ function gradeTask(taskId, studentId) {
   renderTasks(document.getElementById("mainContent"));
 }
 
-/* ================= 4. FAN TESTLARI ================= */
+/* ================= 4. FAN TESTLARI (HAR BIR SAVOLGA 10 BALL) ================= */
 let filterTestGrade = "9-sinf";
 let filterTestSubj = "Matematika";
 
@@ -2021,7 +2130,7 @@ function renderTests(box) {
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
       <div>
         <h2 class="page-title">${ICONS.test} Fan Testlari</h2>
-        <p class="page-sub" style="margin:0;">Har bir fanning nazorat testlari (Max: 60 ball)</p>
+        <p class="page-sub" style="margin:0;">Har bir to'g'ri savolga <strong>10 ball</strong> beriladi</p>
       </div>
       ${canCreate ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openCreateTestModal()">+ Test Tuzish</button>` : ''}
     </div>
@@ -2044,16 +2153,17 @@ function renderTests(box) {
     <div class="grid-3">
       ${filtered.map(t => {
         const solved = (currentUser.solvedTests || []).includes(t.id);
+        const totalTestPts = t.questions.length * 10;
         return `
           <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
               <div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:10px;">
                 <span class="badge badge-blue">${t.subject} • ${t.grade}</span>
-                <span class="badge badge-gold">Max: ${t.maxPoints} ball</span>
+                <span class="badge badge-gold">Max: ${totalTestPts} ball</span>
               </div>
-              <h4 style="color:var(--primary);margin-bottom:6px;font-size:15px;">${t.title}</h4>
+              <h4 style="color:var(--text);margin-bottom:6px;font-size:15px;">${t.title}</h4>
               ${t.authorName ? `<div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px;">Ustoz: ${t.authorName}</div>` : ''}
-              <p style="font-size:12px;color:var(--muted);">Savollar: ${t.questions.length} ta</p>
+              <p style="font-size:12px;color:var(--muted);">Savollar: ${t.questions.length} ta (har biri 10 ball)</p>
             </div>
             <div style="margin-top:14px;">
               ${currentUser.role === "student" ? (
@@ -2073,11 +2183,11 @@ function startTestModal(testId) {
   const test = getAllTests().find(t => t.id === testId);
   if (!test) return;
   openModal(`
-    <h3 style="color:var(--primary);margin-bottom:4px;">${test.title}</h3>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Diqqat! Test faqat bir marta topshiriladi.</p>
+    <h3 style="color:var(--text);margin-bottom:4px;">${test.title}</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Har bir to'g'ri savol uchun <strong>10 ball</strong> beriladi. Test faqat bir marta topshiriladi.</p>
     ${test.questions.map((qObj, idx) => `
-      <div style="margin-bottom:12px;padding:12px;background:#F9FAFB;border-radius:12px;border:1px solid var(--border);">
-        <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${idx + 1}. ${qObj.q}</div>
+      <div style="margin-bottom:12px;padding:12px;background:#F8FAFC;border-radius:12px;border:1px solid var(--border);">
+        <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${idx + 1}. ${qObj.q} <span class="badge badge-gold" style="margin-left:4px;">10 ball</span></div>
         ${qObj.options.map((opt, oIdx) => `
           <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:6px;cursor:pointer;">
             <input type="radio" name="q_${idx}" value="${oIdx}" style="width:auto;" />
@@ -2100,7 +2210,7 @@ function finishTest(testId) {
     const sel = document.querySelector(`input[name="q_${idx}"]:checked`);
     if (sel && parseInt(sel.value, 10) === qObj.correct) correctCount++;
   });
-  const earned = Math.round((correctCount / test.questions.length) * test.maxPoints);
+  const earned = correctCount * 10;
   if (!currentUser.solvedTests) currentUser.solvedTests = [];
   currentUser.solvedTests.push(test.id);
   currentUser.points += earned;
@@ -2115,7 +2225,7 @@ function finishTest(testId) {
 function openCreateTestModal() {
   const defaultSubj = currentUser.role === "teacher" ? currentUser.subject : SUBJECTS[0];
   openModal(`
-    <h3 style="margin-bottom:12px;color:var(--primary);">Yangi Test Tuzish</h3>
+    <h3 style="margin-bottom:12px;color:var(--text);">Yangi Test Tuzish (10 ball/savol)</h3>
     <div class="form-group"><label>Sinf</label>
       <select id="ctGrade">${CLASSES.map(c => `<option value="${c}">${c}</option>`).join("")}</select>
     </div>
@@ -2125,7 +2235,7 @@ function openCreateTestModal() {
       </select>
     </div>
     <div class="form-group"><label>Test Nomi</label><input id="ctTitle" placeholder="Test sarlavhasi" /></div>
-    <div class="form-group"><label>Savol</label><input id="ctQ1" placeholder="Savol matni" /></div>
+    <div class="form-group"><label>Savol (10 ball)</label><input id="ctQ1" placeholder="Savol matni" /></div>
     <div class="form-group"><label>To'g'ri javob</label><input id="ctOpt1" placeholder="To'g'ri variant" /></div>
     <div class="form-group"><label>Noto'g'ri variant 1</label><input id="ctOpt2" placeholder="Variant 2" /></div>
     <div class="form-group"><label>Noto'g'ri variant 2</label><input id="ctOpt3" placeholder="Variant 3" /></div>
@@ -2152,7 +2262,7 @@ function saveTeacherTest() {
     title,
     authorId: currentUser.id,
     authorName: currentUser.name,
-    maxPoints: 60,
+    maxPoints: 10,
     questions: [{ q: q1, options: [o1, o2 || "Variant B", o3 || "Variant C"], correct: 0 }]
   });
   saveDB();
@@ -2170,7 +2280,7 @@ function renderAI(box) {
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
         ${AI_PRESETS.map(p => `<button class="react-btn" onclick="document.getElementById('aiPrompt').value='${p}'">${p}</button>`).join("")}
       </div>
-      <div id="aiHistory" style="min-height:220px;max-height:360px;overflow-y:auto;padding:14px;background:#F9FAFB;border-radius:14px;border:1px solid var(--border);margin-bottom:12px;display:flex;flex-direction:column;gap:10px;">
+      <div id="aiHistory" style="min-height:220px;max-height:360px;overflow-y:auto;padding:14px;background:#F8FAFC;border-radius:14px;border:1px solid var(--border);margin-bottom:12px;display:flex;flex-direction:column;gap:10px;">
         <div class="msg-bubble">
           <div class="msg-meta"><span>MaktabOS AI</span></div>
           <div>Assalomu alaykum, ${currentUser.name}! Qanday savol yoki misol bor?</div>
@@ -2204,7 +2314,7 @@ function askAI(e) {
   } else if (q.toLowerCase().includes("pifagor")) {
     answer = "<strong>Pifagor teoremasi:</strong> To'g'ri burchakli uchburchakda gipotenuzaning kvadrati katetlar kvadratlari yig'indisiga teng: c² = a² + b².";
   } else {
-    answer = `<strong>"${q}"</strong> bo'yicha tahlil: Mavzuning asosiy qoidalarini ko'rib chiqing, so'ngra Fan Testlari bo'limida 60 ballik sinovni yeching.`;
+    answer = `<strong>"${q}"</strong> bo'yicha tahlil: Mavzuning asosiy qoidalarini ko'rib chiqing, so'ngra Fan Testlari bo'limida savollarni yechib ball to'plang.`;
   }
 
   hist.innerHTML += `<div class="msg-bubble"><div class="msg-meta"><span>MaktabOS AI</span></div><div>${answer}</div></div>`;
@@ -2212,19 +2322,23 @@ function askAI(e) {
   hist.scrollTop = hist.scrollHeight;
 }
 
-/* ================= 6. TOP REYTING ================= */
+/* ================= 6. TOP REYTING (UMUMIYDA ISHLATILGAN BALLAR HAM QO'SHILADI) ================= */
 function renderRanking(box) {
   const students = DB.users.filter(u => u.role === "student");
   const sorted = [...students].sort((a, b) => {
     if (rankingTab === "weekly") return (b.weeklyPoints || 0) - (a.weeklyPoints || 0);
-    return b.points - a.points;
+    return getTotalEarnedPoints(b) - getTotalEarnedPoints(a);
   });
 
   box.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
       <div>
         <h2 class="page-title">${ICONS.rank} Maktab Top Reytingi</h2>
-        <p class="page-sub" style="margin:0;">Haftalik va barcha davrlar bo'yicha eng faol o'quvchilar (${students.length} nafar)</p>
+        <p class="page-sub" style="margin:0;">
+          ${rankingTab === 'all'
+            ? "Umumiy reytingda joriy balans va do'konda ishlatilgan barcha ballar qo'shib ko'rsatiladi"
+            : `Haftalik eng faol o'quvchilar (${students.length} nafar)`}
+        </p>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <button class="btn-secondary" style="padding:8px 12px;" onclick="manualCloudPull()">Yangilash</button>
@@ -2237,20 +2351,26 @@ function renderRanking(box) {
 
     <div class="card">
       ${sorted.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha ro'yxatdan o'tgan o'quvchilar yo'q.</p>` : sorted.map((s, i) => {
-        const score = rankingTab === "weekly" ? (s.weeklyPoints || 0) : s.points;
+        const spent = calculateSpentPoints(s);
+        const totalAll = getTotalEarnedPoints(s);
+        const score = rankingTab === "weekly" ? (s.weeklyPoints || 0) : totalAll;
         return `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <strong style="width:28px;color:${i === 0 ? '#D97706' : 'var(--muted)'};font-size:14px;">#${i + 1}</strong>
-              ${renderAvatarHTML(s, 38, 14)}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border-soft);gap:10px;">
+            <div style="display:flex;align-items:center;gap:14px;">
+              <strong style="width:28px;color:${i === 0 ? '#D97706' : i === 1 ? '#2563EB' : 'var(--muted)'};font-size:14px;">#${i + 1}</strong>
+              ${renderAvatarHTML(s, 40, 15)}
               <div>
                 <div style="font-weight:700;font-size:14px;">${s.name} ${s.activeTitle ? `<span class="badge badge-gold">${s.activeTitle}</span>` : ''}</div>
                 <div style="font-size:12px;color:var(--muted);">${s.grade}</div>
               </div>
             </div>
             <div style="text-align:right;">
-              <strong style="color:var(--primary);font-size:15px;">${score} ball</strong>
-              <div style="font-size:11px;color:var(--muted);">${rankingTab === 'weekly' ? 'shu hafta' : 'jami'}</div>
+              <strong style="color:var(--primary);font-size:15.5px;">${score} ball</strong>
+              <div style="font-size:11px;color:var(--muted);">
+                ${rankingTab === 'weekly'
+                  ? 'shu hafta'
+                  : `Balans: ${s.points} • Ishlatilgan: ${spent}`}
+              </div>
             </div>
           </div>
         `;
@@ -2269,12 +2389,12 @@ function renderStore(box) {
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
       <div>
         <h2 class="page-title">${ICONS.store} Mukofotlar Do'koni</h2>
-        <p class="page-sub" style="margin:0;">Ballaringizga rasmiy PDF sertifikatlar, ramkalar va unvonlar oling</p>
+        <p class="page-sub" style="margin:0;">Ballaringizga rasmiy PDF sertifikatlar, harakatli ramkalar va unvonlar oling</p>
       </div>
       <div class="badge badge-gold" style="font-size:13px;padding:7px 14px;">Balansingiz: ${currentUser.points} ball</div>
     </div>
 
-    <h3 style="color:var(--primary);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">${ICONS.cert} Rasmiy PDF Sertifikatlar (1200 ball)</h3>
+    <h3 style="color:var(--text);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">${ICONS.cert} Rasmiy PDF Sertifikatlar (1200 ball)</h3>
     <div class="grid-2">
       ${certs.map(item => {
         const isOwned = (currentUser.owned || []).includes(item.id);
@@ -2285,11 +2405,11 @@ function renderStore(box) {
                 <span class="badge badge-gold">${item.tier}</span>
                 <strong style="color:var(--gold);font-size:14px;">1200 ball</strong>
               </div>
-              <h3 style="color:var(--primary);margin-bottom:6px;font-size:16px;">${item.name}</h3>
+              <h3 style="color:var(--text);margin-bottom:6px;font-size:16px;">${item.name}</h3>
               <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">${item.desc}</p>
             </div>
             ${isOwned
-              ? `<button class="btn-secondary" style="width:100%;background:#ECFDF5;color:#065F46;border-color:#A7F3D0;" disabled>Olingan</button>`
+              ? `<button class="btn-secondary" style="width:100%;background:#DCFCE7;color:#15803D;border-color:#86EFAC;" disabled>Olingan</button>`
               : `<button class="btn-gold" style="width:100%;padding:11px;" onclick="buyItem('${item.id}')">Sotib Olish (1200 ball)</button>`
             }
           </div>
@@ -2297,23 +2417,23 @@ function renderStore(box) {
       }).join("")}
     </div>
 
-    <h3 style="color:var(--primary);font-size:16px;margin:18px 0 10px;">Animatsiyali Profil Ramkalari</h3>
+    <h3 style="color:var(--text);font-size:16px;margin:18px 0 10px;">Harakatli Nuqtali va Nurli Profil Ramkalari</h3>
     <div class="grid-3">
       ${frames.map(item => {
         const isOwned = (currentUser.owned || []).includes(item.id);
         const previewUser = { ...currentUser, activeFrame: item.frameClass };
         return `
           <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
-              ${renderAvatarHTML(previewUser, 46, 17)}
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+              ${renderAvatarHTML(previewUser, 48, 18)}
               <div>
-                <h4 style="color:var(--primary);font-size:14.5px;">${item.name}</h4>
+                <h4 style="color:var(--text);font-size:14.5px;">${item.name}</h4>
                 <div style="font-weight:700;color:var(--gold);font-size:12.5px;">${item.price} ball</div>
               </div>
             </div>
             <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">${item.desc}</p>
             ${isOwned
-              ? `<button class="btn-secondary" style="width:100%;background:#ECFDF5;color:#065F46;border-color:#A7F3D0;" disabled>Olingan</button>`
+              ? `<button class="btn-secondary" style="width:100%;background:#DCFCE7;color:#15803D;border-color:#86EFAC;" disabled>Olingan</button>`
               : `<button class="btn-primary" style="margin:0;" onclick="buyItem('${item.id}')">Olish (${item.price} ball)</button>`
             }
           </div>
@@ -2321,7 +2441,7 @@ function renderStore(box) {
       }).join("")}
     </div>
 
-    <h3 style="color:var(--primary);font-size:16px;margin:18px 0 10px;">Maxsus Unvonlar</h3>
+    <h3 style="color:var(--text);font-size:16px;margin:18px 0 10px;">Maxsus Unvonlar</h3>
     <div class="grid-3">
       ${titles.map(item => {
         const isOwned = (currentUser.owned || []).includes(item.id);
@@ -2329,13 +2449,13 @@ function renderStore(box) {
           <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
               <span class="badge badge-blue">Unvon</span>
-              <h4 style="color:var(--primary);margin:8px 0 4px;font-size:15px;">${item.name}</h4>
+              <h4 style="color:var(--text);margin:8px 0 4px;font-size:15px;">${item.name}</h4>
               <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">${item.desc}</p>
             </div>
             <div>
               <div style="font-weight:700;color:var(--gold);margin-bottom:8px;font-size:13px;">${item.price} ball</div>
               ${isOwned
-                ? `<button class="btn-secondary" style="width:100%;background:#ECFDF5;color:#065F46;border-color:#A7F3D0;" disabled>Olingan</button>`
+                ? `<button class="btn-secondary" style="width:100%;background:#DCFCE7;color:#15803D;border-color:#86EFAC;" disabled>Olingan</button>`
                 : `<button class="btn-primary" style="margin:0;" onclick="buyItem('${item.id}')">Olish (${item.price} ball)</button>`
               }
             </div>
@@ -2354,6 +2474,7 @@ function buyItem(itemId) {
     return;
   }
   currentUser.points -= item.price;
+  currentUser.spentPoints = (currentUser.spentPoints || 0) + item.price;
   if (!currentUser.owned) currentUser.owned = [];
   currentUser.owned.push(item.id);
 
@@ -2397,14 +2518,14 @@ function renderProfile(box) {
 
   box.innerHTML = `
     <h2 class="page-title">${ICONS.user} Shaxsiy Profil va Mukofotlarim</h2>
-    <p class="page-sub">Profil rasmi, ma'lumotlar, ramkalar va PDF sertifikatlarni boshqarish</p>
+    <p class="page-sub">Profil rasmi, ma'lumotlar, harakatli ramkalar va PDF sertifikatlarni boshqarish</p>
 
     <div class="grid-2">
       <div class="card">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
-          ${renderAvatarHTML(currentUser, 70, 26)}
+        <div style="display:flex;align-items:center;gap:18px;margin-bottom:18px;">
+          ${renderAvatarHTML(currentUser, 72, 26)}
           <div>
-            <h3 style="color:var(--primary);font-size:17px;">${currentUser.name}</h3>
+            <h3 style="color:var(--text);font-size:17px;">${currentUser.name}</h3>
             <div style="font-size:13px;color:var(--muted);margin-top:2px;">Login: <strong>${currentUser.login}</strong></div>
             ${currentUser.activeTitle ? `<span class="badge badge-gold" style="margin-top:6px;">${currentUser.activeTitle}</span>` : ''}
           </div>
@@ -2422,13 +2543,13 @@ function renderProfile(box) {
 
       ${currentUser.role === "student" ? `
         <div class="card">
-          <h3 style="margin-bottom:12px;color:var(--primary);font-size:16px;">Ramka va Unvonlar</h3>
+          <h3 style="margin-bottom:12px;color:var(--text);font-size:16px;">Ramka va Unvonlar</h3>
           <div style="margin-bottom:14px;">
             <strong style="font-size:11px;color:var(--muted);">RAMKALAR:</strong>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
               <button class="btn-secondary" onclick="equipFrame('')">Oddiy</button>
               ${ownedFrames.map(f => `
-                <button class="btn-secondary" style="${currentUser.activeFrame === f.frameClass ? 'border:1.5px solid var(--navy-soft);background:#EFF6FF;' : ''}" onclick="equipFrame('${f.frameClass}')">
+                <button class="btn-secondary" style="${currentUser.activeFrame === f.frameClass ? 'border:1.5px solid var(--primary);background:#EFF6FF;color:var(--primary);' : ''}" onclick="equipFrame('${f.frameClass}')">
                   ${f.name}
                 </button>
               `).join("")}
@@ -2440,7 +2561,7 @@ function renderProfile(box) {
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
               <button class="btn-secondary" onclick="equipTitle('')">Unvonsiz</button>
               ${ownedTitles.map(t => `
-                <button class="btn-secondary" style="${currentUser.activeTitle === t.name ? 'border:1.5px solid var(--navy-soft);background:#EFF6FF;' : ''}" onclick="equipTitle('${t.name}')">
+                <button class="btn-secondary" style="${currentUser.activeTitle === t.name ? 'border:1.5px solid var(--primary);background:#EFF6FF;color:var(--primary);' : ''}" onclick="equipTitle('${t.name}')">
                   ${t.name}
                 </button>
               `).join("")}
@@ -2452,14 +2573,14 @@ function renderProfile(box) {
 
     ${currentUser.role === "student" ? `
       <div class="card" style="margin-bottom:16px;">
-        <h3 style="color:var(--primary);font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.cert} PDF Sertifikatlarim (${myCerts.length})</h3>
+        <h3 style="color:var(--text);font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.cert} PDF Sertifikatlarim (${myCerts.length})</h3>
         <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Rasmiy hujjatlarni PDF formatda yuklab oling</p>
         ${myCerts.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Hali sertifikat olmadingiz. 1200 ball yig'ib Mukofotlar do'konidan oling.</p>` : `
           <div class="grid-2" style="margin-bottom:0;">
             ${myCerts.map(c => `
               <div style="padding:14px;border-radius:14px;border:1px solid #FDE68A;background:#FFFDF5;">
                 <span class="badge ${c.delivered ? 'badge-green' : 'badge-gold'}">${c.delivered ? 'Ustoz topshirgan' : 'Ustozga yuborilgan'}</span>
-                <h4 style="margin:8px 0 4px;color:var(--primary);">${c.title}</h4>
+                <h4 style="margin:8px 0 4px;color:var(--text);">${c.title}</h4>
                 <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">ID: ${c.id} • Sana: ${c.date}</div>
                 <button class="btn-gold" style="width:100%;" onclick="openCertPdfModal('${c.id}')">PDF Sertifikatni Ochish / Yuklash</button>
               </div>
@@ -2469,12 +2590,12 @@ function renderProfile(box) {
       </div>
 
       <div class="card">
-        <h3 style="color:var(--primary);font-size:16px;margin-bottom:10px;">Sotib Olingan Mukofotlarim (${myAllItems.length})</h3>
+        <h3 style="color:var(--text);font-size:16px;margin-bottom:10px;">Sotib Olingan Mukofotlarim (${myAllItems.length})</h3>
         ${myAllItems.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Hozircha mukofotlar sotib olinmagan.</p>` : `
           <div class="grid-3" style="margin-bottom:0;">
             ${myAllItems.map(it => `
-              <div style="padding:12px;border-radius:12px;background:#F9FAFB;border:1px solid var(--border-soft);">
-                <strong style="font-size:13.5px;color:var(--primary);">${it.name}</strong>
+              <div style="padding:12px;border-radius:12px;background:#F8FAFC;border:1px solid var(--border-soft);">
+                <strong style="font-size:13.5px;color:var(--text);">${it.name}</strong>
                 <div style="font-size:12px;color:var(--muted);margin-top:4px;">${it.desc}</div>
               </div>
             `).join("")}
@@ -2524,7 +2645,7 @@ function equipTitle(titleName) {
 
 function openEditProfileModal() {
   openModal(`
-    <h3 style="margin-bottom:12px;color:var(--primary);">Profil Ma'lumotlarini O'zgartirish</h3>
+    <h3 style="margin-bottom:12px;color:var(--text);">Profil Ma'lumotlarini O'zgartirish</h3>
     <div class="form-group"><label>Ism va Familiya</label><input id="edName" value="${currentUser.name}" /></div>
     <div class="form-group"><label>Login</label><input id="edLogin" value="${currentUser.login}" /></div>
     <div class="form-group"><label>Yangi Parol</label><input id="edPass" value="${currentUser.pass}" /></div>
@@ -2556,22 +2677,22 @@ function openCertPdfModal(certId) {
     <div id="certPrintArea" class="cert-frame-outer">
       <div class="cert-frame-inner">
         <div class="cert-ribbon">${cert.tier || 'RASMIY HUJJAT'}</div>
-        <div style="font-size:12px;font-weight:700;color:#475569;letter-spacing:1.5px;">MAKTABOS AKADEMIK EKOTIZIMI</div>
+        <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:1.5px;">MAKTABOS AKADEMIK EKOTIZIMI</div>
         <h1 class="cert-main-title">SERTIFIKAT</h1>
-        <p style="font-size:13px;color:#475569;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
+        <p style="font-size:13px;color:#64748B;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
 
         <div class="cert-recipient">${cert.studentName}</div>
-        <div style="font-size:14px;font-weight:700;color:#0F172A;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
 
-        <p style="font-size:14px;color:#0F172A;max-width:410px;margin:0 auto 18px;line-height:1.5;">
+        <p style="font-size:14px;color:#1E293B;max-width:410px;margin:0 auto 18px;line-height:1.5;">
           MaktabOS platformasida 1200 ball to'plab, <strong>"${cert.title}"</strong> nominatsiyasida g'olib bo'lganligi uchun taqdim etildi.
         </p>
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #B45309;text-align:left;font-size:12px;color:#475569;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #D97706;text-align:left;font-size:12px;color:#64748B;">
           <div>
             <div><strong>Berilgan sana:</strong> ${cert.date}</div>
             <div><strong>Seriya raqami:</strong> ${cert.id}</div>
-            <div style="margin-top:4px;color:#0F172A;font-weight:700;">Maktab Ma'muriyati</div>
+            <div style="margin-top:4px;color:#1E293B;font-weight:700;">Maktab Ma'muriyati</div>
           </div>
           <div class="cert-gold-seal">
             <span>MAKTABOS</span>
@@ -2646,7 +2767,7 @@ function renderAnnouncements(box) {
       <div class="card" style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
           <div>
-            <h3 style="color:var(--primary);font-size:16px;">${a.title}</h3>
+            <h3 style="color:var(--text);font-size:16px;">${a.title}</h3>
             <div style="font-size:12px;color:var(--muted);margin-top:2px;">Muallif: ${a.author} • ${a.date}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -2657,7 +2778,7 @@ function renderAnnouncements(box) {
             ` : ''}
           </div>
         </div>
-        <p style="font-size:13.5px;margin-top:12px;line-height:1.55;color:#374151;">${a.body}</p>
+        <p style="font-size:13.5px;margin-top:12px;line-height:1.55;color:#334155;">${a.body}</p>
       </div>
     `).join("")}
   `;
@@ -2666,7 +2787,7 @@ function renderAnnouncements(box) {
 function openAnnModal(editId = null) {
   const item = editId ? DB.announcements.find(a => a.id === editId) : null;
   openModal(`
-    <h3 style="margin-bottom:12px;color:var(--primary);">${item ? "E'lonni Tahrirlash" : "Yangi E'lon"}</h3>
+    <h3 style="margin-bottom:12px;color:var(--text);">${item ? "E'lonni Tahrirlash" : "Yangi E'lon"}</h3>
     <div class="form-group"><label>Sarlavha</label><input id="annTitle" value="${item ? item.title : ''}" /></div>
     <div class="form-group"><label>Matn</label><textarea id="annBody" rows="4">${item ? item.body : ''}</textarea></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
@@ -2774,14 +2895,14 @@ function renderAdmin(box) {
               <th style="padding:10px;">Foydalanuvchi</th>
               <th style="padding:10px;">Rol / Sinf</th>
               <th style="padding:10px;">Login / Parol</th>
-              <th style="padding:10px;">Ball (Haftalik)</th>
+              <th style="padding:10px;">Balans / Jami</th>
               <th style="padding:10px;">Holat</th>
               <th style="padding:10px;">Boshqaruv</th>
             </tr>
           </thead>
           <tbody>
             ${filteredUsers.map(u => `
-              <tr style="border-bottom:1px solid var(--border-soft);${u.banned ? 'background:#FEF2F2;' : ''}">
+              <tr style="border-bottom:1px solid var(--border-soft);${u.banned ? 'background:#FFF1F2;' : ''}">
                 <td style="padding:10px;display:flex;align-items:center;gap:8px;">
                   ${renderAvatarHTML(u, 32, 12)}
                   <div>
@@ -2791,7 +2912,7 @@ function renderAdmin(box) {
                 </td>
                 <td style="padding:10px;">${u.role} ${u.grade || u.subject || ''}</td>
                 <td style="padding:10px;"><code>${u.login}</code> / <code>${u.pass}</code></td>
-                <td style="padding:10px;"><strong>${u.points}</strong> (${u.weeklyPoints || 0})</td>
+                <td style="padding:10px;"><strong>${u.points}</strong> / ${getTotalEarnedPoints(u)}</td>
                 <td style="padding:10px;">
                   ${u.banned ? `<span class="badge badge-red">Bloklangan</span>` : `<span class="badge badge-green">Faol</span>`}
                 </td>
@@ -2815,7 +2936,7 @@ function renderAdmin(box) {
 
     ${adminTab === 'rooms' ? `
       <div class="card">
-        <h3 style="color:var(--primary);font-size:16px;margin-bottom:12px;">Barcha Guruh va Kanallar</h3>
+        <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;">Barcha Guruh va Kanallar</h3>
         ${DB.rooms.map(r => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
@@ -2830,7 +2951,7 @@ function renderAdmin(box) {
 
     ${adminTab === 'certs' ? `
       <div class="card">
-        <h3 style="color:var(--primary);font-size:16px;margin-bottom:12px;">Barcha Sertifikatlar</h3>
+        <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;">Barcha Sertifikatlar</h3>
         ${DB.certificates.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha sertifikatlar yo'q.</p>` : DB.certificates.map(c => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
@@ -2848,7 +2969,7 @@ function renderAdmin(box) {
 
     ${adminTab === 'tasks' ? `
       <div class="card">
-        <h3 style="color:var(--primary);font-size:16px;margin-bottom:12px;">Barcha Berilgan Vazifalar</h3>
+        <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;">Barcha Berilgan Vazifalar</h3>
         ${DB.tasks.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha vazifalar yo'q.</p>` : DB.tasks.map(t => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
@@ -2865,7 +2986,7 @@ function renderAdmin(box) {
 
 function openAdminCreateUserModal() {
   openModal(`
-    <h3 style="color:var(--primary);margin-bottom:12px;">Yangi Foydalanuvchi Qo'shish</h3>
+    <h3 style="color:var(--text);margin-bottom:12px;">Yangi Foydalanuvchi Qo'shish</h3>
     <div class="form-group"><label>Ism va Familiya</label><input id="admNewName" placeholder="To'liq ism" /></div>
     <div class="form-group"><label>Maqomi</label>
       <select id="admNewRole">
@@ -2905,7 +3026,7 @@ function adminCreateUser() {
     id: "u_" + Date.now() + "_" + Math.floor(Math.random() * 1000), name, login, pass, role,
     grade: role !== "teacher" ? grade : "",
     subject: role === "teacher" ? subject : "",
-    points: 0, weeklyPoints: 0, streak: 1, lastLoginDate: "",
+    points: 0, spentPoints: 0, weeklyPoints: 0, streak: 1, lastLoginDate: "",
     avatarImg: "", owned: [], activeFrame: "", activeTitle: "", solvedTests: [], claimedMissions: [], banned: false
   };
   DB.users.push(newU);
@@ -2920,7 +3041,7 @@ function openAdminEditUserModal(uid) {
   const u = DB.users.find(x => x.id === uid);
   if (!u) return;
   openModal(`
-    <h3 style="color:var(--primary);margin-bottom:12px;">Foydalanuvchini Tahrirlash</h3>
+    <h3 style="color:var(--text);margin-bottom:12px;">Foydalanuvchini Tahrirlash</h3>
     <div class="form-group"><label>Ism Familiya</label><input id="admEdName" value="${u.name}" /></div>
     <div class="form-group"><label>Login</label><input id="admEdLogin" value="${u.login}" /></div>
     <div class="form-group"><label>Parol</label><input id="admEdPass" value="${u.pass}" /></div>
@@ -2959,7 +3080,7 @@ function openAdminPointsModal(uid) {
   const u = DB.users.find(x => x.id === uid);
   if (!u) return;
   openModal(`
-    <h3 style="color:var(--primary);margin-bottom:8px;">Ballarni Boshqarish: ${u.name}</h3>
+    <h3 style="color:var(--text);margin-bottom:8px;">Ballarni Boshqarish: ${u.name}</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Hozirgi balans: <strong>${u.points} ball</strong></p>
     <div class="form-group"><label>Qo'shish (+) yoki ayirish (-) miqdori</label><input type="number" id="admPtsDelta" value="200" /></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
@@ -2986,7 +3107,7 @@ function openAdminGrantCertModal(uid) {
   const u = DB.users.find(x => x.id === uid);
   const certs = STORE_CATALOG.filter(i => i.type === "certificate");
   openModal(`
-    <h3 style="color:var(--primary);margin-bottom:8px;">Sertifikat Taqdim Etish</h3>
+    <h3 style="color:var(--text);margin-bottom:8px;">Sertifikat Taqdim Etish</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">O'quvchi: <strong>${u.name}</strong> (${u.grade})</p>
     <div class="form-group"><label>Sertifikat turini tanlang</label>
       <select id="admCertSelect">
@@ -3037,7 +3158,7 @@ function toggleUserBan(uid) {
 
 function openAdminBroadcastModal() {
   openModal(`
-    <h3 style="color:var(--primary);margin-bottom:8px;">Barcha Kanallarga Ommaviy Xabar</h3>
+    <h3 style="color:var(--text);margin-bottom:8px;">Barcha Kanallarga Ommaviy Xabar</h3>
     <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Ushbu xabar tizimdagi barcha guruh va kanallarga bir vaqtda yuboriladi</p>
     <div class="form-group"><label>Xabar matni</label><textarea id="admBroadMsg" rows="3" placeholder="Muhim xabar matnini yozing..."></textarea></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
@@ -3102,7 +3223,7 @@ function exportDatabaseBackup() {
 
 function confirmResetWeekly() {
   openModal(`
-    <h3 style="color:var(--primary);margin-bottom:8px;">Haftalik Reytingni Yangilash</h3>
+    <h3 style="color:var(--text);margin-bottom:8px;">Haftalik Reytingni Yangilash</h3>
     <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Barcha o'quvchilarning haftalik ballarini 0 ga tushirmoqchimisiz? Umumiy ballar saqlanib qoladi.</p>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>

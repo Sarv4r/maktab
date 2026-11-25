@@ -1,0 +1,9 @@
+{
+  "name": "maktabos-bildirishnoma",
+  "main": "cloudflare/notifications.mjs",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  "durable_objects": {"bindings":[{"name":"PHONES","class_name":"PhoneRegistry"}]},
+  "migrations": [{"tag":"v1","new_sqlite_classes":["PhoneRegistry"]}],
+  "triggers": {"crons":["*/5 * * * *"]}
+}

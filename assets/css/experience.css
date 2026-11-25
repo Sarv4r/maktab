@@ -104,3 +104,11 @@
 @media(prefers-reduced-motion:reduce){
  #themeToggleBtn.theme-toggle,.theme-toggle-track,.theme-toggle-track i{transition:none!important}
 }
+
+/* Refined interface */
+.nav-item svg,.mos-tool-btn svg,.mos-search-result-icon svg,.mos-notice-icon svg{flex-shrink:0;vertical-align:middle}
+#themeToggleBtn.theme-toggle{min-width:0;border-radius:12px;box-shadow:none;background:var(--surface);border:1px solid var(--border)}
+.theme-toggle-icon{background:transparent!important;color:var(--text)!important}
+#mosNote,#mosPlanInput{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px;font:inherit}
+#mosPlans .mos-event-row{display:flex;align-items:center;gap:12px}#mosPlans .mos-event-row span{flex:1;overflow-wrap:anywhere}
+#mosClock{font-variant-numeric:tabular-nums;margin:16px 0}

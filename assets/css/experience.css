@@ -226,3 +226,6 @@ button.member-avatar {cursor:pointer}
 }
 
 #appUpdate {position:fixed;z-index:99999;left:50%;bottom:calc(82px + env(safe-area-inset-bottom));transform:translateX(-50%);width:max-content;max-width:92vw;margin:0;box-shadow:0 4px 18px #16253b40}
+
+#phonePrompt:not([hidden]) {display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);color:var(--text)}
+#phonePrompt strong {flex:1 1 210px}

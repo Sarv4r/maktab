@@ -1,0 +1,42 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "maktabos_db": {
+      ".read": false,
+      ".write": false
+    },
+    "ilmnuri_v2": {
+      "profiles": {
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+          ".write": false
+        }
+      },
+      "announcements": {
+        ".read": "auth != null && auth.token.ilmnuriMember === true",
+        ".write": false
+      },
+      "roomMessages": {
+        "$roomId": {
+          ".read": "auth != null && auth.token.ilmnuriMember === true && (auth.token.admin === true || root.child('ilmnuri_v2/roomMembers').child($roomId).child(auth.uid).val() === true)",
+          ".write": false
+        }
+      },
+      "roomMembers": {
+        "$roomId": {
+          "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+            ".write": false
+          }
+        }
+      },
+      "certificates": {
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+          ".write": false
+        }
+      }
+    }
+  }
+}

@@ -21,7 +21,6 @@ function notify(msg, type = "info") {
   const stack = document.getElementById("toastStack");
   if (!stack) return;
   const el = document.createElement("div");
-  el.setAttribute("role", type === "error" ? "alert" : "status");
   el.className = "toast" + (type === "success" ? " success" : type === "error" ? " error" : "");
   el.textContent = msg;
   stack.appendChild(el);
@@ -398,15 +397,8 @@ async function pushToCloud(skipPull = false) {
   }
 }
 
-let saveNoticeAt = 0;
 function saveDB() {
-  return pushToCloud(false).then(ok => {
-    if (!ok && Date.now() - saveNoticeAt > 12000) {
-      saveNoticeAt = Date.now();
-      notify("Serverga saqlanmadi. Internet aloqasini tekshiring.", "error");
-    }
-    return ok;
-  }).catch(() => { notify("Ma’lumotni saqlashda xatolik.", "error"); return false; });
+  pushToCloud(false);
 }
 
 async function manualCloudPull() {
@@ -417,16 +409,10 @@ async function manualCloudPull() {
   }
 }
 
-let pollingCloud = false;
 setInterval(async () => {
-  if (!currentUser || pollingCloud || document.hidden || !navigator.onLine) return;
-  pollingCloud = true;
-  try {
+  if (!currentUser) return;
   const oldUsersCount = DB.users.length;
-  const oldMessages = JSON.stringify(DB.messages[activeRoomId] || []);
-  const oldRooms = JSON.stringify(DB.rooms);
-  const oldAnn = JSON.stringify(DB.announcements);
-  const oldTasks = JSON.stringify(DB.tasks);
+  const oldMsgCount = (DB.messages[activeRoomId] || []).length;
   const updated = await pullFromCloud(true);
   if (updated && currentUser) {
     const stillExists = DB.users.find(u => u.id === currentUser.id);
@@ -436,24 +422,14 @@ setInterval(async () => {
     }
     currentUser = stillExists;
     updateTopbar();
-    if (currentView === "chats" && (oldMessages !== JSON.stringify(DB.messages[activeRoomId] || []) || oldRooms !== JSON.stringify(DB.rooms))) {
-      const draft = document.getElementById("chatInput")?.value || "";
-      const focused = document.activeElement?.id === "chatInput";
+    if (currentView === "chats" && (DB.messages[activeRoomId] || []).length !== oldMsgCount) {
       renderChats(document.getElementById("mainContent"));
-      const input = document.getElementById("chatInput");
-      if (input) { input.value = draft; if (focused) input.focus(); }
-      if (replyTarget && document.getElementById("replyBar")) setReply(replyTarget);
-    } else if (currentView === "announcements" && oldAnn !== JSON.stringify(DB.announcements) && document.getElementById("modalBackdrop").classList.contains("hidden")) {
-      renderAnnouncements(document.getElementById("mainContent"));
-    } else if (currentView === "tasks" && oldTasks !== JSON.stringify(DB.tasks) && document.getElementById("modalBackdrop").classList.contains("hidden") && !document.getElementById("mainContent").contains(document.activeElement)) {
-      renderTasks(document.getElementById("mainContent"));
     } else if (currentView === "ranking" && DB.users.length !== oldUsersCount) {
       renderRanking(document.getElementById("mainContent"));
     } else if (currentView === "admin" && DB.users.length !== oldUsersCount) {
       renderAdmin(document.getElementById("mainContent"));
     }
   }
-  } finally { pollingCloud = false; }
 }, 4000);
 
 (async function restoreSessionOnLoad() {
@@ -794,7 +770,6 @@ async function navigate(viewId) {
 
   if (viewId === "ranking" || viewId === "admin" || viewId === "chats") {
     await pullFromCloud(true);
-    if (!currentUser || currentView !== viewId) return;
     updateTopbar();
   }
 
@@ -889,8 +864,8 @@ function renderDashboard(box) {
           ${pendingTasks.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Ajoyib! Barcha berilgan vazifalarni topshirgansiz.</p>` : pendingTasks.slice(0, 4).map(t => `
             <div style="padding:10px 0;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;">
               <div>
-                <strong style="font-size:13.5px;">${safeText(t.title)}</strong>
-                <div style="font-size:12px;color:var(--muted);">${safeText(t.subject)} • ${memberLink(t.teacherId,t.teacherName)}</div>
+                <strong style="font-size:13.5px;">${t.title}</strong>
+                <div style="font-size:12px;color:var(--muted);">${t.subject} • ${memberLink(t.teacherId,t.teacherName)}</div>
               </div>
               <button class="btn-primary" style="width:auto;margin:0;padding:7px 13px;font-size:12px;" onclick="navigate('tasks')">Topshirish</button>
             </div>
@@ -977,7 +952,7 @@ function renderChats(box) {
   if (!accessibleRooms.some(r => r.id === activeRoomId) && accessibleRooms.length) {
     activeRoomId = accessibleRooms[0].id;
   }
-  const activeRoom = accessibleRooms.find(r => r.id === activeRoomId);
+  const activeRoom = DB.rooms.find(r => r.id === activeRoomId);
   const msgs = DB.messages[activeRoomId] || [];
 
   box.innerHTML = `
@@ -1000,7 +975,7 @@ function renderChats(box) {
         <div class="chat-list">
           ${accessibleRooms.map(r => `
             <div class="chat-room-item ${r.id === activeRoomId ? 'active' : ''}" onclick="selectRoom('${r.id}')">
-              <div style="font-weight:700;font-size:13.5px;color:var(--text);">${safeText(r.name)}</div>
+              <div style="font-weight:700;font-size:13.5px;color:var(--text);">${r.name}</div>
               <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">
                 ${r.type === 'channel' ? 'Kanal' : r.type === 'direct' ? 'Shaxsiy suhbat' : 'Guruh'} • ${r.id === 'r_general' ? DB.users.length : r.members.length} a'zo
               </div>
@@ -1014,7 +989,7 @@ function renderChats(box) {
           <div class="chat-header">
             <div>
               <div style="font-weight:700;font-size:14.5px;color:var(--text);">${activeRoom.type === "direct" ? memberLink(activeRoom.members.find(id => id !== currentUser.id), activeRoom.name) : safeText(activeRoom.name)}</div>
-              <div style="font-size:11.5px;color:var(--muted);">${safeText(activeRoom.desc || '')} • ${activeRoom.id === 'r_general' ? DB.users.length : activeRoom.members.length} a'zo</div>
+              <div style="font-size:11.5px;color:var(--muted);">${activeRoom.desc || ''} • ${activeRoom.id === 'r_general' ? DB.users.length : activeRoom.members.length} a'zo</div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
               <button class="btn-secondary" style="padding:6px 11px;font-size:12px;" onclick="viewRoomMembers('${activeRoom.id}')">A'zolar</button>
@@ -1024,12 +999,11 @@ function renderChats(box) {
 
           ${activeRoom.pinned ? `
             <div style="background:#FFFBEB;padding:8px 16px;font-size:12px;color:#B45309;border-bottom:1px solid #FEF3C7;">
-              <strong>Mahkamlangan:</strong> ${safeText(activeRoom.pinned)}
+              <strong>Mahkamlangan:</strong> ${activeRoom.pinned}
             </div>
           ` : ''}
 
           <div id="chatMsgList" class="chat-messages">
-            ${msgs.length ? "" : '<div class="empty-state">Hozircha xabarlar yo‘q. Suhbatni boshlang.</div>'}
             ${msgs.map(m => {
               const ajoyibUsers = (m.reactedBy && Array.isArray(m.reactedBy["Ajoyib"])) ? m.reactedBy["Ajoyib"] : [];
               const foydaliUsers = (m.reactedBy && Array.isArray(m.reactedBy["Foydali"])) ? m.reactedBy["Foydali"] : [];
@@ -1042,18 +1016,18 @@ function renderChats(box) {
               <div class="msg-bubble ${m.senderId === currentUser.id ? 'mine' : ''}">
                 <div class="msg-meta">
                   <span>${memberLink(m.senderId,m.senderName)}</span>
-                  <span style="color:var(--muted);font-weight:500;">${safeText(m.time)}</span>
+                  <span style="color:var(--muted);font-weight:500;">${m.time}</span>
                 </div>
-                ${m.replyTo ? `<div style="font-size:11.5px;background:rgba(37,99,235,0.05);padding:4px 9px;border-left:2.5px solid var(--primary);margin-bottom:6px;border-radius:6px;color:var(--muted);">Javob: ${safeText(m.replyTo)}</div>` : ''}
-                ${m.mediaType === 'image' ? `<img src="${safeText(m.mediaUrl)}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;" />` : ''}
-                ${m.mediaType === 'audio' ? `<audio controls src="${safeText(m.mediaUrl)}" style="max-width:220px;margin-bottom:6px;display:block;"></audio>` : ''}
-                ${m.mediaType === 'video' ? `<video controls src="${safeText(m.mediaUrl)}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;"></video>` : ''}
-                <div style="font-size:13.5px;line-height:1.45;white-space:pre-wrap;">${safeText(m.text)}</div>
+                ${m.replyTo ? `<div style="font-size:11.5px;background:rgba(37,99,235,0.05);padding:4px 9px;border-left:2.5px solid var(--primary);margin-bottom:6px;border-radius:6px;color:var(--muted);">Javob: ${m.replyTo}</div>` : ''}
+                ${m.mediaType === 'image' ? `<img src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;" />` : ''}
+                ${m.mediaType === 'audio' ? `<audio controls src="${m.mediaUrl}" style="max-width:220px;margin-bottom:6px;display:block;"></audio>` : ''}
+                ${m.mediaType === 'video' ? `<video controls src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;"></video>` : ''}
+                <div style="font-size:13.5px;line-height:1.45;">${m.text}</div>
                 <div class="msg-actions">
                   <button class="react-btn ${hasAjoyib ? 'reacted' : ''}" onclick="reactMsg('${m.id}', 'Ajoyib')">Ajoyib (${ajoyibCount})</button>
                   <button class="react-btn ${hasFoydali ? 'reacted' : ''}" onclick="reactMsg('${m.id}', 'Foydali')">Foydali (${foydaliCount})</button>
-                  <button class="react-btn" data-message="${safeText(m.text)}" onclick="setReply(this.dataset.message)">Javob</button>
-                  <button class="react-btn" data-message="${safeText(m.text)}" onclick="pinMsg(this.dataset.message)">Mahkamlash</button>
+                  <button class="react-btn" onclick="setReply('${m.text.replace(/'/g, '')}')">Javob</button>
+                  <button class="react-btn" onclick="pinMsg('${m.text.replace(/'/g, '')}')">Mahkamlash</button>
                   ${(m.senderId === currentUser.id || currentUser.role === 'admin') ? `<button class="react-btn" style="color:#E11D48;" onclick="deleteMsg('${m.id}')">O'chirish</button>` : ''}
                 </div>
               </div>
@@ -1090,12 +1064,7 @@ function renderChats(box) {
   if (list) list.scrollTop = list.scrollHeight;
 }
 
-function selectRoom(id) {
-  if (!currentUser || !DB.rooms.some(r => r.id === id && (currentUser.role === "admin" || r.id === "r_general" || r.members.includes(currentUser.id)))) return;
-  if (activeRoomId !== id) replyTarget = null;
-  activeRoomId = id;
-  renderChats(document.getElementById("mainContent"));
-}
+function selectRoom(id) { activeRoomId = id; renderChats(document.getElementById("mainContent")); }
 
 function sendMessage(e) {
   e.preventDefault();
@@ -1120,16 +1089,11 @@ function sendMessage(e) {
 
 function sendMediaFile(e, type) {
   const file = e.target.files[0];
-  if (!file || !currentUser) return;
-  if (!["image","audio","video"].includes(type) || !file.type.startsWith(type + "/") || file.type === "image/svg+xml") return notify("Fayl formati mos emas.", "error");
-  if (file.size > 5 * 1024 * 1024) return notify("Fayl hajmi 5 MB dan oshmasligi kerak.", "error");
-  const roomId = activeRoomId, senderId = currentUser.id;
+  if (!file) return;
   const reader = new FileReader();
-  reader.onerror = () => notify("Faylni o‘qib bo‘lmadi.", "error");
   reader.onload = function(ev) {
-    if (currentUser?.id !== senderId || !DB.rooms.some(r => r.id === roomId && (currentUser.role === "admin" || r.id === "r_general" || r.members.includes(senderId)))) return;
-    if (!DB.messages[roomId]) DB.messages[roomId] = [];
-    DB.messages[roomId].push({
+    if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
+    DB.messages[activeRoomId].push({
       id: "m_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
       senderId: currentUser.id,
       senderName: currentUser.name,
@@ -1142,8 +1106,8 @@ function sendMediaFile(e, type) {
       replyTo: null
     });
     saveDB();
-    notify("Media fayl saqlashga yuborildi", "info");
-    if (currentView === "chats" && activeRoomId === roomId) renderChats(document.getElementById("mainContent"));
+    notify("Media fayl yuborildi", "success");
+    renderChats(document.getElementById("mainContent"));
   };
   reader.readAsDataURL(file);
 }
@@ -1337,16 +1301,16 @@ function renderTasks(box) {
         <div class="card" style="margin-bottom:14px;">
           <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
             <div>
-              <span class="badge badge-blue">${safeText(t.subject)}</span>
+              <span class="badge badge-blue">${t.subject}</span>
               <span class="badge badge-gold">Max: ${t.maxPoints} ball</span>
-              <h3 style="margin-top:8px;color:var(--text);font-size:16px;">${safeText(t.title)}</h3>
+              <h3 style="margin-top:8px;color:var(--text);font-size:16px;">${t.title}</h3>
             </div>
             <div style="font-size:12px;color:var(--muted);">
               <div><strong>Ustoz:</strong> ${memberLink(t.teacherId,t.teacherName)}</div>
-              <div>Muddat: ${safeText(t.deadline)}</div>
+              <div>Muddat: ${t.deadline}</div>
             </div>
           </div>
-          <p style="font-size:13.5px;margin:10px 0;color:var(--text);white-space:pre-wrap;">${safeText(t.desc)}</p>
+          <p style="font-size:13.5px;margin:10px 0;color:#334155;">${t.desc}</p>
 
           ${currentUser.role === "student" ? `
             ${mySub ? `
@@ -1519,10 +1483,10 @@ function renderTests(box) {
           <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
               <div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:10px;">
-                <span class="badge badge-blue">${safeText(t.subject)} • ${t.grade}</span>
+                <span class="badge badge-blue">${t.subject} • ${t.grade}</span>
                 <span class="badge badge-gold">Max: ${totalTestPts} ball</span>
               </div>
-              <h4 style="color:var(--text);margin-bottom:6px;font-size:15px;">${safeText(t.title)}</h4>
+              <h4 style="color:var(--text);margin-bottom:6px;font-size:15px;">${t.title}</h4>
               ${t.authorName ? `<div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px;">Ustoz: ${memberLink(t.authorId,t.authorName)}</div>` : ''}
               <p style="font-size:12px;color:var(--muted);">Savollar: ${t.questions.length} ta (har biri 10 ball)</p>
             </div>
@@ -2061,17 +2025,17 @@ function saveProfileEdit() {
 /* ================= PDF SERTIFIKAT MODAL ================= */
 function openCertPdfModal(certId) {
   const cert = DB.certificates.find(c => c.id === certId);
-  if (!cert || !currentUser || (currentUser.role === "student" && cert.studentId !== currentUser.id)) return;
+  if (!cert) return;
   openModal(`
-    <div id="certPrintArea" class="cert-frame-outer" data-cert-id="${safeText(cert.id)}">
+    <div id="certPrintArea" class="cert-frame-outer">
       <div class="cert-frame-inner">
-        <div class="cert-ribbon">${safeText(cert.tier || 'RASMIY HUJJAT')}</div>
+        <div class="cert-ribbon">${cert.tier || 'RASMIY HUJJAT'}</div>
         <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:1.5px;">ILMNURI AKADEMIK EKOTIZIMI</div>
         <h1 class="cert-main-title">SERTIFIKAT</h1>
         <p style="font-size:13px;color:#64748B;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
 
         <div class="cert-recipient">${safeText(cert.studentName)}</div>
-        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${safeText(cert.grade)} o'quvchisiga</div>
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
 
         <p style="font-size:14px;color:#1E293B;max-width:410px;margin:0 auto 18px;line-height:1.5;">
           IlmNuri platformasidagi o‘quv yutuqlari uchun <strong>«${safeText(cert.title)}»</strong> mukofoti bilan taqdirlanadi.
@@ -2079,8 +2043,8 @@ function openCertPdfModal(certId) {
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #D97706;text-align:left;font-size:12px;color:#64748B;">
           <div>
-            <div><strong>Berilgan sana:</strong> ${safeText(cert.date)}</div>
-            <div><strong>Seriya raqami:</strong> ${safeText(cert.id)}</div>
+            <div><strong>Berilgan sana:</strong> ${cert.date}</div>
+            <div><strong>Seriya raqami:</strong> ${cert.id}</div>
             <div style="margin-top:4px;color:#1E293B;font-weight:700;">Maktab Ma'muriyati</div>
           </div>
           <div class="cert-gold-seal">
@@ -2152,13 +2116,12 @@ function renderAnnouncements(box) {
       ${canManage ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openAnnModal()">+ E'lon Qo'shish</button>` : ''}
     </div>
 
-    ${DB.announcements.length ? "" : '<div class="empty-state">Hozircha e’lonlar mavjud emas.</div>'}
     ${DB.announcements.map(a => `
       <div class="card" style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
           <div>
-            <h3 style="color:var(--text);font-size:16px;">${safeText(a.title)}</h3>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Muallif: ${memberLink(a.authorId,a.author)} • ${safeText(a.date)}</div>
+            <h3 style="color:var(--text);font-size:16px;">${a.title}</h3>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Muallif: ${memberLink(a.authorId,a.author)} • ${a.date}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <span class="badge">Ko'rildi: ${a.views.length} kishi</span>
@@ -2168,7 +2131,7 @@ function renderAnnouncements(box) {
             ` : ''}
           </div>
         </div>
-        <p style="font-size:13.5px;margin-top:12px;line-height:1.55;color:var(--text);white-space:pre-wrap;">${safeText(a.body)}</p>
+        <p style="font-size:13.5px;margin-top:12px;line-height:1.55;color:#334155;">${a.body}</p>
       </div>
     `).join("")}
   `;
@@ -2178,8 +2141,8 @@ function openAnnModal(editId = null) {
   const item = editId ? DB.announcements.find(a => a.id === editId) : null;
   openModal(`
     <h3 style="margin-bottom:12px;color:var(--text);">${item ? "E'lonni Tahrirlash" : "Yangi E'lon"}</h3>
-    <div class="form-group"><label>Sarlavha</label><input id="annTitle" value="${safeText(item ? item.title : '')}" /></div>
-    <div class="form-group"><label>Matn</label><textarea id="annBody" rows="4">${safeText(item ? item.body : '')}</textarea></div>
+    <div class="form-group"><label>Sarlavha</label><input id="annTitle" value="${item ? item.title : ''}" /></div>
+    <div class="form-group"><label>Matn</label><textarea id="annBody" rows="4">${item ? item.body : ''}</textarea></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
       <button class="btn-primary" style="width:auto;margin:0;" onclick="saveAnn('${editId || ''}')">Saqlash</button>
@@ -2330,7 +2293,7 @@ function renderAdmin(box) {
         ${DB.rooms.map(r => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
-              <strong>${safeText(r.name)}</strong> <span class="badge">${r.type}</span>
+              <strong>${r.name}</strong> <span class="badge">${r.type}</span>
               <div style="font-size:12px;color:var(--muted);">Yaratuvchi: ${memberLink(r.creatorId,r.creator)} • A'zolar: ${r.id === 'r_general' ? DB.users.length : r.members.length} nafar</div>
             </div>
             ${r.id !== 'r_general' ? `<button class="btn-accent" onclick="adminDeleteRoom('${r.id}')">O'chirish</button>` : `<span class="badge badge-green">Asosiy kanal</span>`}
@@ -2363,7 +2326,7 @@ function renderAdmin(box) {
         ${DB.tasks.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha vazifalar yo'q.</p>` : DB.tasks.map(t => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:8px;">
             <div>
-              <strong>${safeText(t.title)}</strong> <span class="badge">${safeText(t.subject)}</span>
+              <strong>${t.title}</strong> <span class="badge">${t.subject}</span>
               <div style="font-size:12px;color:var(--muted);">Ustoz: ${memberLink(t.teacherId,t.teacherName)} • Topshirdi: ${t.submissions.length} o'quvchi</div>
             </div>
             <button class="btn-accent" onclick="adminDeleteTask('${t.id}')">O'chirish</button>

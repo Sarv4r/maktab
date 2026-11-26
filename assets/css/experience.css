@@ -253,3 +253,89 @@ button.member-avatar {cursor:pointer}
 .account-action:focus-within {outline:2px solid var(--primary)}
 .account-profile>.card {margin-bottom:16px}
 @media(max-width:520px){.account-panel {padding-inline:14px}.account-row dt {gap:8px}.account-profile>h2 {margin-bottom:12px}}
+
+/* IlmNuri responsive design system — 2026-11-26 */
+@media screen {
+:root{--radius:14px;--ui-gap:clamp(12px,1.6vw,24px);--ui-sidebar:264px}
+body{background:var(--bg);line-height:1.55}
+.main-wrap,.content-area,#mainContent,.topbar,.nav-item,.account-id>div,.member-head>div{min-width:0}
+#mainContent{max-width:1600px;padding:clamp(16px,2.5vw,40px);padding-bottom:40px}
+.page-title{font-size:clamp(22px,2.3vw,32px);letter-spacing:-.035em}
+.page-sub{font-size:14px;line-height:1.6;margin-bottom:24px}
+.grid-2,.grid-3{gap:var(--ui-gap)}
+.card,.account-panel,.mos-help-card{border-radius:var(--radius);box-shadow:none;border:1px solid var(--border)}
+.card:hover{transform:none;box-shadow:none}
+.card h2,.card h3,.card h4{overflow-wrap:anywhere;line-height:1.35}
+.stat-val{font-size:clamp(24px,3vw,36px)}
+.stat-label{letter-spacing:.025em}
+.sidebar,.topbar,.bottom-nav{backdrop-filter:none}
+.nav-item{border-radius:9px;min-height:44px;white-space:normal}
+.nav-item-left{min-width:0;overflow-wrap:anywhere}
+.nav-item:hover{transform:none}
+.btn-primary{background:#365fe3;color:white;border-color:#365fe3;box-shadow:none}
+.btn-primary:hover{background:#294fc8;transform:none;box-shadow:none}
+.btn-secondary,.btn-gold,.btn-accent{box-shadow:none}
+button:disabled{cursor:not-allowed;opacity:.65}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
+.card>div,.account-panel>div,.member-info,.award-list,.member-stats{min-width:0}
+.account-profile{max-width:840px}
+.account-row dt{min-width:0;overflow-wrap:anywhere}
+.account-row dd{min-width:0}
+.account-action{min-height:52px}
+.member-stats{flex-wrap:wrap;gap:16px 28px}
+.member-actions{gap:8px}
+.chat-layout{grid-template-columns:minmax(180px,260px) minmax(0,1fr);min-height:0}
+.chat-main{min-height:0}
+.chat-sidebar,.chat-messages{background:var(--bg)}
+.chat-list{max-height:60dvh}
+.chat-messages{min-height:220px;max-height:58dvh}
+.chat-room-item{margin:4px 6px;border-radius:9px;overflow-wrap:anywhere}
+.chat-header,.chat-input-bar{padding:12px;gap:8px}
+.chat-input-bar input,.chat-input-bar textarea{flex:1 1 140px;min-width:0}
+.msg-bubble{box-shadow:none;max-width:85%;word-break:break-word}
+.msg-bubble.mine{background:#365fe3;color:#fff;border-color:#365fe3;box-shadow:none}
+.msg-meta{flex-wrap:wrap;gap:4px 10px}
+.draft-status{overflow-wrap:anywhere;font-size:12px;color:var(--muted)}
+#certPrintArea{max-width:100%;overflow-wrap:anywhere}
+#certPrintArea .cert-recipient{max-width:100%;font-size:clamp(17px,3vw,25px)}
+#certPrintArea .cert-gold-seal{flex-shrink:0}
+.modal-backdrop{backdrop-filter:none;background:rgba(15,23,42,.55)}
+#modalCard{max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain}
+.mos-notice-item,.mos-event-row,.mos-search-result{min-width:0;overflow-wrap:anywhere}
+#toastStack{width:min(360px,calc(100% - 24px))}
+.toast{overflow-wrap:anywhere;backdrop-filter:none}
+[aria-busy=true]{cursor:progress}
+.empty-state,.error-state,.loading-state{padding:clamp(20px,4vw,40px);text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:var(--radius)}
+.error-state{border-color:#dc6b78}
+@media(min-width:821px) and (max-width:1100px){:root{--ui-sidebar:238px}}
+@media(min-width:821px){.sidebar{width:var(--ui-sidebar)}.main-wrap{margin-left:var(--ui-sidebar)}}
+@media(min-width:1600px){:root{--ui-sidebar:280px}}
+@media(max-width:820px){
+#mainContent{padding:16px max(12px,env(safe-area-inset-right)) 24px max(12px,env(safe-area-inset-left))}
+.main-wrap{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+.topbar{flex-wrap:wrap;gap:6px;min-height:60px}
+.topbar>div:last-child{flex-wrap:wrap;justify-content:flex-end;max-width:100%}
+.chat-layout{grid-template-columns:minmax(0,1fr)}
+.chat-sidebar{max-height:190px}
+.chat-list{max-height:150px}
+.chat-messages{min-height:180px;max-height:48dvh}
+.bottom-nav{overflow-x:auto;justify-content:space-around}
+.bnav-btn{min-width:48px;min-height:48px;line-height:1.2}
+#modalCard{max-height:calc(100dvh - max(12px,env(safe-area-inset-top)));border-radius:18px 18px 0 0}
+}
+@media(max-width:480px){
+.grid-2,.grid-3{grid-template-columns:minmax(0,1fr)}
+.card{padding:14px}
+.account-id{gap:12px;padding-inline:0}
+.account-row{gap:8px}
+.account-row dd{max-width:48%}
+.member-actions>*{flex:1 1 120px}
+.msg-bubble{max-width:92%}
+.chat-input-bar{padding:8px}
+#phonePrompt:not([hidden]){padding:12px}
+#phonePrompt button{min-height:44px}
+.mos-hero-actions button{flex:1 1 120px}
+}
+@media(pointer:coarse){.btn-primary,.btn-secondary,.btn-gold,.btn-accent,.menu-toggle,.mos-tool-btn{min-height:44px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+}

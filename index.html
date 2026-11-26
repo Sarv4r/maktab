@@ -1,145 +1,58 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>IlmNuri — Akademik Raqamli Ekotizim</title>
-  <meta name="description" content="IlmNuri — o‘quvchilar, ustozlar va maktab ma’muriyati uchun yagona raqamli ta’lim platformasi. Vazifalar, testlar, chatlar va akademik tahlillar bir joyda.">
-  <meta property="og:title" content="IlmNuri — Raqamli ta’lim platformasi">
-  <meta property="og:description" content="Maktab hayotini boshqarish, o‘rganish va natijalarni kuzatish uchun yagona platforma.">
-  <meta property="og:type" content="website">
-  <meta name="color-scheme" content="light dark">
-  
-
-<!-- IlmNuri Premium Frontend Refresh | visual-only layer -->
-
-
-  <link rel="icon" type="image/png" sizes="48x48" href="./assets/icon-48.png">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" href="./assets/icon-192.png">
-  <meta name="theme-color" content="#365fe3">
-  <link rel="stylesheet" href="./assets/css/styles.css">
-  <link rel="stylesheet" href="./assets/css/experience.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#365fe3">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="IlmNuri — akademik raqamli ekotizim.">
+<title>IlmNuri — Xavfsiz kirish</title>
+<link rel="icon" href="./assets/icon-48.png">
+<link rel="apple-touch-icon" href="./assets/icon-192.png">
+<link rel="manifest" href="./manifest.webmanifest">
+<style>
+:root{color-scheme:light dark;--bg:#f4f6fc;--surface:#fff;--text:#17233d;--muted:#53637c;--border:#d9e1ed;--primary:#3158cf;--error:#a12636}
+@media(prefers-color-scheme:dark){:root{--bg:#101625;--surface:#182235;--text:#edf2ff;--muted:#aebbd0;--border:#34435d;--primary:#3158cf;--error:#ffadb6}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;min-height:100dvh;display:grid;place-items:center;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,sans-serif;padding: max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+main{width:min(100%,460px);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:clamp(20px,5vw,34px);box-shadow:0 8px 32px #17233d0c}
+.brand{display:flex;gap:12px;align-items:center;font-weight:800;font-size:23px}.brand img{border-radius:12px}
+h1{font-size:25px;letter-spacing:-.04em;margin:22px 0 6px;line-height:1.2}
+p{overflow-wrap:anywhere}.muted{color:var(--muted);font-size:14px}
+label{display:block;font-size:14px;font-weight:600;margin-top:15px}input,button{font:inherit;width:100%;min-height:46px;border:1px solid var(--border);border-radius:10px;padding:11px 13px}input{background:var(--bg);color:var(--text);margin-top:6px}
+button{cursor:pointer;background:var(--surface);color:var(--text);font-weight:650;margin-top:12px}
+button.primary{background:var(--primary);border-color:var(--primary);color:white}button:disabled{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:3px solid #7593ef;outline-offset:2px}
+#secureMessage{font-size:14px;min-height:24px;color:var(--muted)}#secureMessage[data-kind=error]{color:var(--error)}
+.notice{margin-top:20px;border-top:1px solid var(--border);padding-top:12px;color:var(--muted);font-size:13px}
+[hidden]{display:none!important}
+</style>
 </head>
 <body>
-
-<div id="toastStack"></div>
-<div id="ilmConnection" hidden role="status" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:90vw;width:max-content;z-index:100;padding:8px 14px;border-radius:10px;background:var(--surface);color:var(--text);border:1px solid var(--border);font-size:13px;"></div>
-
-<!-- ================= AUTH SCREEN ================= -->
-<div id="authScreen" class="auth-wrap">
-  <div class="auth-card">
-    <div class="brand-logo"><img class="brand-crest" src="./assets/icon-192.png" alt=""> IlmNuri</div>
-    <p style="font-size:13px;color:var(--muted);">O'quvchilar, ustozlar va maktab boshqaruvi uchun akademik raqamli ekotizim</p>
-
-    <div class="tabs">
-      <button id="tabLoginBtn" class="tab-btn active" onclick="switchAuthTab('login')">Kirish</button>
-      <button id="tabRegBtn" class="tab-btn" onclick="switchAuthTab('register')">Ro'yxatdan o'tish</button>
-    </div>
-
-    <!-- LOGIN FORM -->
-    <form id="loginForm" onsubmit="handleLogin(event)">
-      <div class="form-group">
-        <label>Login</label>
-        <input type="text" id="loginUser" placeholder="Loginingizni kiriting" required />
-      </div>
-      <div class="form-group">
-        <label>Parol</label>
-        <input type="password" id="loginPass" placeholder="Parolingizni kiriting" required />
-      </div>
-      <button type="submit" id="loginSubmitBtn" class="btn-primary">Kabinetga Kirish</button>
-    </form>
-
-    <!-- REGISTER FORM -->
-    <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
-      <div class="form-group">
-        <label>Ism va Familiya</label>
-        <input type="text" id="regName" placeholder="Masalan: Anvar Karimov" required />
-      </div>
-      <div class="form-group">
-        <label>Maqomingiz</label>
-        <select id="regRole" onchange="toggleRegFields()">
-          <option value="student">O'quvchi</option>
-          <option value="teacher">Fan O'qituvchisi</option>
-          <option value="homeroom">Sinf Rahbari</option>
-        </select>
-      </div>
-      <div id="regClassWrap" class="form-group">
-        <label>Sinfingiz</label>
-        <select id="regClass">
-          <option value="5-sinf">5-sinf</option>
-          <option value="6-sinf">6-sinf</option>
-          <option value="7-sinf">7-sinf</option>
-          <option value="8-sinf">8-sinf</option>
-          <option value="9-sinf" selected>9-sinf</option>
-          <option value="10-sinf">10-sinf</option>
-          <option value="11-sinf">11-sinf</option>
-        </select>
-      </div>
-      <div id="regSubjectWrap" class="form-group hidden">
-        <label>Dars beradigan faningiz</label>
-        <select id="regSubject"></select>
-      </div>
-      <div class="form-group">
-        <label>Login o'ylab toping</label>
-        <input type="text" id="regLogin" placeholder="Masalan: anvar09" required />
-      </div>
-      <div class="form-group">
-        <label>Parol o'ylab toping</label>
-        <input type="password" id="regPass" placeholder="Kamida 4 ta belgi" required />
-      </div>
-      <button type="submit" id="regSubmitBtn" class="btn-primary">IlmNuriga qo‘shilish</button>
-    </form>
-  </div>
-</div>
-
-<!-- ================= APP SCREEN ================= -->
-<div id="appScreen" class="app-shell hidden">
-  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
-
-  <aside id="sidebar" class="sidebar">
-    <div>
-      <div class="brand-logo" style="padding:4px 8px;"><img class="brand-crest" src="./assets/icon-192.png" alt=""> IlmNuri</div>
-      <nav id="navMenu" class="nav-menu"></nav>
-    </div>
-    <button class="btn-accent" style="width:100%;" onclick="logout()">Tizimdan Chiqish</button>
-  </aside>
-
-  <div class="main-wrap">
-    <header class="topbar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button class="menu-toggle" onclick="toggleMobileSidebar()">☰</button>
-        <div>
-          <div id="topUserName" style="font-weight:700;font-size:15px;color:var(--text);"></div>
-          <div id="topUserSub" style="font-size:11.5px;color:var(--muted);"></div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <span id="topRoleBadge" class="badge badge-blue"></span>
-        <div id="topAvatarHolder"></div>
-      </div>
-    </header>
-
-    <aside id="phonePrompt" hidden aria-label="E’lon bildirishnomalari">
-      <strong>Yangi e’lonlar telefonga kelsinmi?</strong>
-      <button type="button" class="btn-secondary" onclick="enablePhoneAlerts(false)">Xabarlarni yoqish</button>
-      <button type="button" class="member-name" onclick="postponePhonePrompt()">Keyinroq</button>
-    </aside>
-    <main id="mainContent" class="content-area"></main>
-  </div>
-
-  <nav id="mobileBottomNav" class="bottom-nav"></nav>
-</div>
-
-<!-- MODAL -->
-<div id="modalBackdrop" class="modal-backdrop hidden" onclick="closeModalOnBg(event)">
-  <div id="modalCard" class="modal-card"></div>
-</div>
-
-<script src="./assets/app.js"></script>
-<script src="./assets/experience.js"></script>
-<script src="./assets/phone.js"></script>
-<script src="./assets/vendor/qrcode.js"></script>
-<script src="./assets/core-ui.js"></script>
+<main>
+<div class="brand"><img src="./assets/icon-192.png" alt="" width="44" height="44">IlmNuri</div>
+<section id="secureAuthView">
+<h1>Xavfsiz kirish</h1>
+<p class="muted">Akademik raqamli ekotizim</p>
+<form id="secureLoginForm">
+<label for="secureEmail">Elektron pochta</label>
+<input id="secureEmail" type="email" autocomplete="username" placeholder="Email manzilingiz" required>
+<label for="securePassword">Parol</label>
+<input id="securePassword" type="password" autocomplete="current-password" required>
+<button class="primary" id="secureLoginButton" type="submit" disabled>Kirish</button>
+<button id="secureResetButton" type="button" disabled>Parolni tiklash</button>
+</form>
+</section>
+<section id="secureAccountView" hidden>
+<h1>Hisob tasdiqlandi</h1>
+<p id="secureAccountEmail"></p>
+<p class="muted">Akademik bo‘limlar ma’lumotlar xavfsizligi uchun vaqtincha yopiq. Hisoblarni maktab ma’lumotlari bilan bog‘lash hali yakunlanmagan.</p>
+<button id="secureLogoutButton" type="button">Chiqish</button>
+</section>
+<p id="secureMessage" role="status">Kirish xizmati yuklanmoqda…</p>
+<div class="notice">Eski login va parollar ishlatilmaydi. Hisobni yangilash uchun administratorga murojaat qiling.</div>
+<button type="button" id="secureUpdate" hidden>Yangi versiyani yuklash</button>
+<noscript>Davom etish uchun JavaScript’ni yoqing.</noscript>
+</main>
+<script type="module" src="./assets/auth-ui.js"></script>
 </body>
 </html>

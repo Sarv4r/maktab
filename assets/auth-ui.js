@@ -12,7 +12,7 @@ const logoutButton = $("secureLogoutButton");
 const message = $("secureMessage");
 const authView = $("secureAuthView");
 const accountView = $("secureAccountView");
-let api, busy = false, user = null;
+let api, initialized = false, busy = false, user = null;
 
 function say(text, error = false) {
   message.textContent = text;
@@ -20,15 +20,20 @@ function say(text, error = false) {
   message.dataset.kind = error ? "error" : "info";
 }
 function refreshControls() {
-  loginButton.disabled = !api || busy || !navigator.onLine;
-  resetButton.disabled = !api || busy || !navigator.onLine;
-  logoutButton.disabled = !api || busy;
-  registerButton.disabled = !api || busy || !navigator.onLine;
-  verifyButton.disabled = !api || busy || !navigator.onLine;
-  checkButton.disabled = !api || busy || !navigator.onLine;
+  loginButton.disabled = !initialized || !api || busy || !navigator.onLine;
+  resetButton.disabled = !initialized || !api || busy || !navigator.onLine;
+  logoutButton.disabled = !initialized || !api || busy;
+  registerButton.disabled = !initialized || !api || busy || !navigator.onLine;
+  verifyButton.disabled = !initialized || !api || busy || !navigator.onLine;
+  checkButton.disabled = !initialized || !api || busy || !navigator.onLine;
 }
 function describeError(error) {
   switch (error?.code) {
+    case "auth/operation-not-allowed": return "Firebase’da Email/Password orqali hisob yaratish ruxsati yoqilmagan.";
+    case "auth/admin-restricted-operation": return "Firebase sozlamalarida yangi hisob yaratish cheklangan.";
+    case "auth/invalid-api-key": return "Firebase konfiguratsiyasi noto‘g‘ri (auth/invalid-api-key).";
+    case "auth/unauthorized-domain": return "Sayt domeniga Firebase’da ruxsat berilmagan.";
+    case "auth/quota-exceeded": return "Firebase ro‘yxatdan o‘tish limiti tugagan.";
     case "auth/network-request-failed": return "Internet aloqasini tekshiring va qayta urining.";
     case "auth/too-many-requests": return "Juda ko‘p urinish. Keyinroq qayta urining.";
     case "auth/invalid-email": return "Elektron pochta manzilini to‘g‘ri kiriting.";
@@ -38,11 +43,11 @@ function describeError(error) {
     case "auth/invalid-credential":
     case "auth/user-not-found":
     case "auth/wrong-password": return "Email yoki parol noto‘g‘ri.";
-    default: return "Amal bajarilmadi. Qayta urining.";
+    default: return "Amal bajarilmadi. " + (/^auth\/[a-z0-9-]+$/.test(error?.code || "") ? "(" + error.code + ")" : "Qayta urining.");
   }
 }
 async function run(action) {
-  if (!api || busy) return;
+  if (!initialized || !api || busy) return;
   busy = true; refreshControls();
   try { await action(); } catch (error) { say(describeError(error),true); }
   finally { busy = false; refreshControls(); }
@@ -68,6 +73,7 @@ registerButton.addEventListener("click", () => {
   if (!loginForm.reportValidity()) return;
   if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{6,}$/.test(password.value)) return say("Parol kamida 6 belgi, katta va kichik harf hamda raqamdan iborat bo‘lsin.",true);
   run(async () => {
+    say("Hisob yaratilmoqda…");
     try { await api.register(email.value,password.value); }
     finally { password.value = ""; }
     try { await api.verifyEmail(); say("Hisob yaratildi. Emailingizga tasdiqlash xati yuborildi."); }
@@ -86,7 +92,9 @@ refreshControls();
 (async () => {
   try {
     api = await import("./firebase-auth.js");
+    await api.initializeSession();
     api.observeSession(next => {
+      initialized = true;
       user = next;
       authView.hidden = Boolean(next);
       accountView.hidden = !next;
@@ -96,9 +104,9 @@ refreshControls();
       checkButton.hidden = !next || next.emailVerified;
       say(next ? "Firebase orqali kirish muvaffaqiyatli. Maktab bo‘limlari xavfsiz migratsiya tugaguncha yopiq." : "Email va yangi parolingiz bilan kiring.");
       refreshControls();
-    }, () => say("Seansni tekshirib bo‘lmadi.",true));
+    }, () => { initialized = false; refreshControls(); say("Seansni tekshirib bo‘lmadi.",true); });
     refreshControls();
-  } catch (_) { api = null; refreshControls(); say("Kirish xizmati yuklanmadi. Internetni tekshirib, sahifani yangilang.",true); }
+  } catch (error) { api = null; refreshControls(); say("Kirish xizmati yuklanmadi. " + (/^auth\/[a-z0-9-]+$/.test(error?.code || "") ? error.code : "Internetni tekshirib, sahifani yangilang."),true); }
 })();
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(reg => {

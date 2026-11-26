@@ -39,17 +39,20 @@ button.primary{background:var(--primary);border-color:var(--primary);color:white
 <label for="securePassword">Parol</label>
 <input id="securePassword" type="password" autocomplete="current-password" required>
 <button class="primary" id="secureLoginButton" type="submit" disabled>Kirish</button>
+<button id="secureRegisterButton" type="button" disabled>Ro‘yxatdan o‘tish</button>
 <button id="secureResetButton" type="button" disabled>Parolni tiklash</button>
 </form>
 </section>
 <section id="secureAccountView" hidden>
-<h1>Hisob tasdiqlandi</h1>
+<h1>Hisobingiz</h1>
 <p id="secureAccountEmail"></p>
 <p class="muted">Akademik bo‘limlar ma’lumotlar xavfsizligi uchun vaqtincha yopiq. Hisoblarni maktab ma’lumotlari bilan bog‘lash hali yakunlanmagan.</p>
+<button id="secureVerifyButton" type="button" hidden>Tasdiqlash xatini yuborish</button>
+<button id="secureCheckButton" type="button" hidden>Emailni tekshirish</button>
 <button id="secureLogoutButton" type="button">Chiqish</button>
 </section>
 <p id="secureMessage" role="status">Kirish xizmati yuklanmoqda…</p>
-<div class="notice">Eski login va parollar ishlatilmaydi. Hisobni yangilash uchun administratorga murojaat qiling.</div>
+<div class="notice">IlmNuri xavfsizlik yangilanishi: yangi hisob yaratish mumkin. Avvalgi hisoblar va maktab ma’lumotlarini bog‘lash hali yakunlanmagan.</div>
 <button type="button" id="secureUpdate" hidden>Yangi versiyani yuklash</button>
 <noscript>Davom etish uchun JavaScript’ni yoqing.</noscript>
 </main>

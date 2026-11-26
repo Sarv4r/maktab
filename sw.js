@@ -1,5 +1,6 @@
-const CACHE = "maktabos-public-shell-v19";
-const files = ["./", "./index.html", "./assets/auth-ui.js", "./assets/firebase-auth.js", "./assets/icon-48.png", "./assets/icon-192.png", "./assets/icon-512.png", "./manifest.webmanifest"];
+const CACHE = "maktabos-public-shell-v20";
+const files = ["./", "./index.html", "./assets/css/styles.css", "./assets/css/experience.css",
+  "./assets/app.js", "./assets/experience.js", "./assets/phone.js", "./assets/vendor/qrcode.js", "./assets/core-ui.js", "./assets/icon-48.png", "./assets/icon-192.png", "./assets/icon-512.png", "./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache =>
     cache.addAll(files.map(path => new Request(path, {cache:"reload"})))));

@@ -436,3 +436,55 @@ button.member-avatar {cursor:pointer}
   #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) > div {flex-wrap:wrap}
 }
 }
+
+/* Admin command center — responsive presentation only, no application logic. */
+@media screen {
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child {
+  border-top:3px solid var(--primary);
+  padding:clamp(18px,2.4vw,30px);
+}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child .page-title {font-size:clamp(22px,2.2vw,32px)}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child .page-title svg {width:24px;height:24px}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card {position:relative;display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:136px}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card .stat-label {font-size:12px;letter-spacing:.025em;font-weight:650}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card:nth-child(3) {background:var(--surface)}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card:nth-child(3) button {flex:1 1 110px;min-height:40px}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:has(> button[onclick^="adminTab="]) {margin-block:6px 16px!important}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:has(> button[onclick^="adminTab="]) > .btn-primary {background:var(--workspace-selected);color:var(--workspace-ink);border-color:var(--workspace-selected);font-weight:700}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:has(> button[onclick^="adminTab="]) > .btn-secondary {border-color:transparent}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(> input[oninput^="adminSearch="]) {background:var(--surface);padding:14px}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(table) {overflow:auto!important}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .mos-table-scroll {scrollbar-width:thin}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) table {font-variant-numeric:tabular-nums}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) th {text-transform:uppercase;letter-spacing:.035em;font-size:11px!important}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:first-child .member-name {font-weight:700;text-align:left}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:last-child .btn-accent {background:transparent;color:#b42337;border:1px solid #e9b0b8}
+:root[data-theme="dark"] #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:last-child .btn-accent {color:#ffb1bd;border-color:#75414d}
+#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) {padding:14px 0!important}
+@media(max-width:1100px) {
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(table) {border:0;background:transparent;box-shadow:none;padding:0!important;overflow:visible!important}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .mos-table-scroll {overflow:visible;border-radius:0}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) table {display:block;width:100%;min-width:0!important;text-align:left}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) thead {position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;background:var(--surface);border:1px solid var(--admin-line)!important;border-radius:15px;padding:14px;box-shadow:var(--workspace-shadow);align-content:start}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr:last-child {border:1px solid var(--admin-line)!important}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td {display:block!important;min-width:0;padding:10px 4px!important;overflow-wrap:anywhere}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:first-child {display:flex!important;align-items:center;grid-column:1/-1;border-bottom:1px solid var(--border-soft);padding:4px 4px 12px!important;gap:10px!important;font-size:15px}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:first-child .member-avatar {width:40px!important;height:40px!important}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:first-child > div {padding-left:0;min-width:0;max-width:100%}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(2)::before {content:"Rol / Sinf"}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(3)::before {content:"Login / Parol"}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(4)::before {content:"Balans / Jami"}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(5)::before {content:"Holat"}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(n+2):nth-child(-n+5)::before {display:block;font-size:11px;font-weight:600;color:var(--workspace-muted);margin-bottom:4px}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:last-child {display:flex!important;grid-column:1/-1;flex-wrap:wrap;gap:6px!important;border-top:1px solid var(--border-soft);padding:12px 0 0!important}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:last-child button {flex:1 1 105px;min-height:44px;margin:0}
+}
+@media(max-width:520px) {
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child > div:last-child > button {flex:1 1 100%;width:100%!important}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card {min-height:104px}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody {grid-template-columns:minmax(0,1fr)}
+  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr {padding:12px}
+}
+}

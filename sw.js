@@ -1,4 +1,4 @@
-const CACHE = "maktabos-public-shell-v17";
+const CACHE = "maktabos-public-shell-v18";
 const files = ["./", "./index.html", "./assets/auth-ui.js", "./assets/firebase-auth.js", "./assets/icon-48.png", "./assets/icon-192.png", "./assets/icon-512.png", "./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache =>

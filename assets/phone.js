@@ -147,7 +147,7 @@ async function deliverAnnouncements() {
   state.seen = items.map(a => a.id);
   localStorage.setItem(key, JSON.stringify(state));
   if (fresh.some(a => a.authorId !== currentUser.id)) {
-    await workerRegistration.showNotification("MaktabOS", {body:"Yangi maktab e’loni bor.", tag:"maktabos-announcement", icon:"./assets/icon-192.png"}).catch(() => {});
+    await workerRegistration.showNotification("IlmNuri", {body:"Yangi maktab e’loni bor.", tag:"maktabos-announcement", icon:"./assets/icon-192.png"}).catch(() => {});
   }
 }
 openPendingAnnouncements();

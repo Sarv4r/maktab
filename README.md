@@ -1,6 +1,6 @@
-# MaktabOS — Akademik raqamli ekotizim
+# IlmNuri — Akademik raqamli ekotizim
 
-MaktabOS o‘quvchilar, ustozlar va maktab ma’muriyati uchun yagona raqamli ta’lim platformasi.
+IlmNuri o‘quvchilar, ustozlar va maktab ma’muriyati uchun yagona raqamli ta’lim platformasi.
 
 ## Imkoniyatlar
 - Rollar bo‘yicha kabinetlar: o‘quvchi, ustoz, sinf rahbari va administrator

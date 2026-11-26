@@ -147,7 +147,7 @@ const STORE_CATALOG = [
   { id: "ti_2", type: "title", name: "Aniq Fanlar Ustasi", price: 220, desc: "Matematika va fizika bilimdonlari unvoni" },
   { id: "ti_3", type: "title", name: "Sinf Sardori", price: 320, desc: "Guruh va sinf yetakchisi maqomi" },
   { id: "ti_4", type: "title", name: "Maktab Faxri", price: 500, desc: "Maktab reytingi yulduzi unvoni" },
-  { id: "ti_5", type: "title", name: "MaktabOS Afsonasi", price: 900, desc: "Eng kamyob oliy darajadagi unvon" }
+  { id: "ti_5", type: "title", name: "IlmNuri Afsonasi", price: 900, desc: "Eng kamyob oliy darajadagi unvon" }
 ];
 
 const AI_PRESETS = [
@@ -190,17 +190,17 @@ const DEFAULT_DB = {
   users: [],
   rooms: [
     {
-      id: "r_general", name: "MaktabOS Rasmiy Kanali", type: "channel",
+      id: "r_general", name: "IlmNuri Rasmiy Kanali", type: "channel",
       desc: "Barcha o'quvchi va ustozlar uchun umumiy axborot kanali",
       creator: "Administrator", members: ["u_admin"],
-      pinned: "MaktabOS platformasiga xush kelibsiz! Kunlik missiyalar va testlar orqali ball yig'ing."
+      pinned: "IlmNuri platformasiga xush kelibsiz! Kunlik missiyalar va testlar orqali ball yig'ing."
     }
   ],
   messages: {
     "r_general": [
       {
         id: "m_1", senderId: "u_admin", senderName: "Bosh Administrator",
-        text: "MaktabOS tizimi ishga tushirildi. Barcha o'quvchilarga omad tilaymiz!",
+        text: "IlmNuri tizimi ishga tushirildi. Barcha o'quvchilarga omad tilaymiz!",
         time: "09:00", reactions: { "Ajoyib": 1, "Foydali": 0 }, reactedBy: { "Ajoyib": ["u_admin"], "Foydali": [] }, replyTo: null
       }
     ]
@@ -209,7 +209,7 @@ const DEFAULT_DB = {
   announcements: [
     {
       id: "ann_1",
-      title: "MaktabOS Raqamli Ekotizimi Ishga Tushdi",
+      title: "IlmNuri Raqamli Ekotizimi Ishga Tushdi",
       body: "O'quvchilar kunlik missiyalar, fan testlari (har bir savolga 10 ball) va vazifalarni bajarib ball to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlar hamda ramkalarni qo'lga kiritishlari mumkin.",
       author: "Ma'muriyat", date: "2026-11-25", views: ["u_admin"]
     }
@@ -255,7 +255,24 @@ function normalizeDB(data) {
   if (!Array.isArray(data.certificates)) data.certificates = [];
   if (!Array.isArray(data.customTests)) data.customTests = [];
 
+  // Update only original, system-authored labels in previously saved records.
+  const general = data.rooms.find(room => room.id === "r_general");
+  const defaults = DEFAULT_DB.rooms[0];
+  for (const field of ["name", "pinned"]) {
+    if (general && general[field] === defaults[field].replace("IlmNuri", "MaktabOS")) general[field] = defaults[field];
+  }
+  const announcement = data.announcements.find(item => item.id === "ann_1");
+  const launchTitle = DEFAULT_DB.announcements[0].title;
+  if (announcement?.title === launchTitle.replace("IlmNuri", "MaktabOS")) announcement.title = launchTitle;
+  for (const message of Object.values(data.messages.r_general)) {
+    if (message?.senderId !== "u_admin") continue;
+    if (message.senderName === "MaktabOS Tizimi") message.senderName = "IlmNuri Tizimi";
+    const welcome = DEFAULT_DB.messages.r_general[0].text;
+    if (message.id === "m_1" && message.text === welcome.replace("IlmNuri", "MaktabOS")) message.text = welcome;
+  }
+
   data.users.forEach(u => {
+    if (u.activeTitle === "MaktabOS Afsonasi") u.activeTitle = "IlmNuri Afsonasi";
     if (!Array.isArray(u.owned)) u.owned = [];
     if (!Array.isArray(u.solvedTests)) u.solvedTests = [];
     if (!Array.isArray(u.claimedMissions)) u.claimedMissions = [];
@@ -537,7 +554,7 @@ async function handleRegister(e) {
   if (DB.users.some(u => u.login.toLowerCase() === login.toLowerCase())) {
     notify("Bu login band! Boshqa login tanlang.", "error");
     btn.disabled = false;
-    btn.textContent = "MaktabOS ga Qo'shilish";
+    btn.textContent = "IlmNuriga qo‘shilish";
     return;
   }
 
@@ -592,7 +609,7 @@ async function handleRegister(e) {
   currentUser = newUser;
   await pushToCloud(false);
   btn.disabled = false;
-  btn.textContent = "MaktabOS ga Qo'shilish";
+  btn.textContent = "IlmNuriga qo‘shilish";
 
   localStorage.setItem(SESSION_KEY, newUser.id);
   notify(`Xush kelibsiz, ${name}!`, "success");
@@ -896,7 +913,7 @@ function renderDashboard(box) {
     const studentsCount = DB.users.filter(u => u.role === "student").length;
     const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
     box.innerHTML = `
-      <h2 class="page-title">MaktabOS Boshqaruv Markazi</h2>
+      <h2 class="page-title">IlmNuri Boshqaruv Markazi</h2>
       <p class="page-sub">Super Administrator nazorat paneli</p>
       <div class="grid-3">
         <div class="card"><div class="stat-label">${ICONS.user} Jami Foydalanuvchilar</div><div class="stat-val">${DB.users.length} nafar</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">${studentsCount} o'quvchi • ${teachersCount} ustoz</div></div>
@@ -1607,7 +1624,7 @@ function renderAI(box) {
       </div>
       <div id="aiHistory" style="min-height:220px;max-height:360px;overflow-y:auto;padding:14px;background:#F8FAFC;border-radius:14px;border:1px solid var(--border);margin-bottom:12px;display:flex;flex-direction:column;gap:10px;">
         <div class="msg-bubble">
-          <div class="msg-meta"><span>MaktabOS AI</span></div>
+          <div class="msg-meta"><span>IlmNuri AI</span></div>
           <div>Assalomu alaykum, ${currentUser.name}! Qanday savol yoki misol bor?</div>
         </div>
       </div>
@@ -1642,7 +1659,7 @@ function askAI(e) {
     answer = `<strong>"${q}"</strong> bo'yicha tahlil: Mavzuning asosiy qoidalarini ko'rib chiqing, so'ngra Fan Testlari bo'limida savollarni yechib ball to'plang.`;
   }
 
-  hist.innerHTML += `<div class="msg-bubble"><div class="msg-meta"><span>MaktabOS AI</span></div><div>${answer}</div></div>`;
+  hist.innerHTML += `<div class="msg-bubble"><div class="msg-meta"><span>IlmNuri AI</span></div><div>${answer}</div></div>`;
   inp.value = "";
   hist.scrollTop = hist.scrollHeight;
 }
@@ -1820,7 +1837,7 @@ function buyItem(itemId) {
     DB.messages["r_general"].push({
       id: "m_" + Date.now(),
       senderId: "u_admin",
-      senderName: "MaktabOS Tizimi",
+      senderName: "IlmNuri Tizimi",
       text: `YANGI SERTIFIKAT! ${currentUser.grade} o'quvchisi ${currentUser.name} 1200 ball evaziga "${item.name}" rasmiy sertifikatini qo'lga kiritdi (ID: ${certRecord.id}).`,
       time: new Date().toTimeString().slice(0,5),
       reactions: { "Ajoyib": 1, "Foydali": 0 },
@@ -2013,7 +2030,7 @@ function openCertPdfModal(certId) {
     <div id="certPrintArea" class="cert-frame-outer">
       <div class="cert-frame-inner">
         <div class="cert-ribbon">${cert.tier || 'RASMIY HUJJAT'}</div>
-        <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:1.5px;">MAKTABOS AKADEMIK EKOTIZIMI</div>
+        <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:1.5px;">ILMNURI AKADEMIK EKOTIZIMI</div>
         <h1 class="cert-main-title">SERTIFIKAT</h1>
         <p style="font-size:13px;color:#64748B;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
 
@@ -2021,7 +2038,7 @@ function openCertPdfModal(certId) {
         <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
 
         <p style="font-size:14px;color:#1E293B;max-width:410px;margin:0 auto 18px;line-height:1.5;">
-          MaktabOS platformasidagi o‘quv yutuqlari uchun <strong>«${safeText(cert.title)}»</strong> mukofoti bilan taqdirlanadi.
+          IlmNuri platformasidagi o‘quv yutuqlari uchun <strong>«${safeText(cert.title)}»</strong> mukofoti bilan taqdirlanadi.
         </p>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #D97706;text-align:left;font-size:12px;color:#64748B;">
@@ -2031,7 +2048,7 @@ function openCertPdfModal(certId) {
             <div style="margin-top:4px;color:#1E293B;font-weight:700;">Maktab Ma'muriyati</div>
           </div>
           <div class="cert-gold-seal">
-            <span>MAKTABOS</span>
+            <span>ILMNURI</span>
             <span>AKADEMIK</span>
           </div>
         </div>
@@ -2550,7 +2567,7 @@ function exportDatabaseBackup() {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB, null, 2));
   const dl = document.createElement("a");
   dl.setAttribute("href", dataStr);
-  dl.setAttribute("download", `MaktabOS_Backup_${new Date().toISOString().slice(0,10)}.json`);
+  dl.setAttribute("download", `IlmNuri_Backup_${new Date().toISOString().slice(0,10)}.json`);
   document.body.appendChild(dl);
   dl.click();
   dl.remove();
@@ -2603,7 +2620,7 @@ function openModal(html) {
 function closeModal() { document.getElementById("modalBackdrop").classList.add("hidden"); }
 function closeModalOnBg(e) { if (e.target.id === "modalBackdrop") closeModal(); }
 
-/* MaktabOS premium theme switch */
+/* IlmNuri premium theme switch */
 (function(){
  const root=document.documentElement;
  let stored=null;

@@ -1,6 +1,6 @@
 {
-  "name": "MaktabOS — Akademik Raqamli Ekotizim",
-  "short_name": "MaktabOS",
+  "name": "IlmNuri — Akademik Raqamli Ekotizim",
+  "short_name": "IlmNuri",
   "description": "O‘quvchilar, ustozlar va maktab boshqaruvi uchun raqamli platforma.",
   "start_url": "./",
   "display": "standalone",

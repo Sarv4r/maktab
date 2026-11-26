@@ -1,4 +1,4 @@
-const CACHE = "maktabos-public-shell-v12";
+const CACHE = "maktabos-public-shell-v13";
 const files = ["./", "./index.html", "./assets/css/styles.css", "./assets/css/experience.css",
   "./assets/app.js", "./assets/experience.js", "./assets/phone.js", "./favicon.svg", "./assets/icon-192.png", "./assets/icon-512.png", "./manifest.webmanifest"];
 self.addEventListener("install", event => {
@@ -22,7 +22,7 @@ self.addEventListener("fetch", event => {
   event.respondWith(caches.open(CACHE).then(async cache => await cache.match(path) || fetch(event.request)));
 });
 self.addEventListener("push", event => {
-  event.waitUntil(self.registration.showNotification("MaktabOS", {
+  event.waitUntil(self.registration.showNotification("IlmNuri", {
     body:"Yangi maktab e’loni bor.", tag:"maktabos-announcement", icon:"./assets/icon-192.png"
   }));
 });

@@ -11,7 +11,7 @@ export default {
   async fetch(request, env) {
     if (new URL(request.url).pathname !== "/") return new Response(null,{status:404});
     if (request.method === "GET" && !request.headers.get("Origin"))
-      return new Response("MaktabOS bildirishnoma xizmati");
+      return new Response("IlmNuri bildirishnoma xizmati");
     if (request.headers.get("Origin") !== site) return new Response(null,{status:403});
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers});
     if (!["GET","POST"].includes(request.method)) return new Response(null,{status:405,headers});

@@ -1,6 +1,6 @@
-const CACHE = "maktabos-public-shell-v20";
+const CACHE = "maktabos-public-shell-v21";
 const files = ["./", "./index.html", "./assets/css/styles.css", "./assets/css/experience.css",
-  "./assets/app.js", "./assets/experience.js", "./assets/phone.js", "./assets/vendor/qrcode.js", "./assets/core-ui.js", "./assets/icon-48.png", "./assets/icon-192.png", "./assets/icon-512.png", "./manifest.webmanifest"];
+  "./assets/app.js", "./assets/experience.js", "./assets/phone.js", "./assets/icon-48.png", "./assets/icon-192.png", "./assets/icon-512.png", "./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache =>
     cache.addAll(files.map(path => new Request(path, {cache:"reload"})))));
@@ -18,16 +18,8 @@ self.addEventListener("activate", event => {
 });
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET" || !event.request.url.startsWith(self.registration.scope)) return;
-  const url = new URL(event.request.url);
-  const shell = files.some(path => new URL(path, self.registration.scope).pathname === url.pathname);
-  if (!shell && event.request.mode !== "navigate") return;
-  const path = event.request.mode === "navigate" ? "./index.html" : url.href;
-  event.respondWith(caches.open(CACHE).then(async cache => {
-    const cached = await cache.match(path, {ignoreSearch:true});
-    if (cached) return cached;
-    try { return await fetch(event.request); }
-    catch { return new Response("Internet aloqasi mavjud emas.", {status:503,headers:{"Content-Type":"text/plain; charset=utf-8"}}); }
-  }));
+  const path = event.request.mode === "navigate" ? "./index.html" : event.request;
+  event.respondWith(caches.open(CACHE).then(async cache => await cache.match(path) || fetch(event.request)));
 });
 self.addEventListener("push", event => {
   event.waitUntil(self.registration.showNotification("IlmNuri", {

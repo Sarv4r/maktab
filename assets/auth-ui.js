@@ -5,6 +5,9 @@ const email = $("secureEmail");
 const password = $("securePassword");
 const loginButton = $("secureLoginButton");
 const resetButton = $("secureResetButton");
+const registerButton = $("secureRegisterButton");
+const verifyButton = $("secureVerifyButton");
+const checkButton = $("secureCheckButton");
 const logoutButton = $("secureLogoutButton");
 const message = $("secureMessage");
 const authView = $("secureAuthView");
@@ -20,17 +23,22 @@ function refreshControls() {
   loginButton.disabled = !api || busy || !navigator.onLine;
   resetButton.disabled = !api || busy || !navigator.onLine;
   logoutButton.disabled = !api || busy;
+  registerButton.disabled = !api || busy || !navigator.onLine;
+  verifyButton.disabled = !api || busy || !navigator.onLine;
+  checkButton.disabled = !api || busy || !navigator.onLine;
 }
 function describeError(error) {
   switch (error?.code) {
     case "auth/network-request-failed": return "Internet aloqasini tekshiring va qayta urining.";
     case "auth/too-many-requests": return "Juda ko‘p urinish. Keyinroq qayta urining.";
     case "auth/invalid-email": return "Elektron pochta manzilini to‘g‘ri kiriting.";
-    case "auth/user-disabled": return "Hisobdan foydalanib bo‘lmaydi. Administratorga murojaat qiling.";
+    case "auth/user-disabled": return "Bu hisob bloklangan.";
+    case "auth/email-already-in-use": return "Bu email bilan hisob bor. Kirish yoki parolni tiklashni tanlang.";
+    case "auth/weak-password": case "auth/password-does-not-meet-requirements": return "Parol kamida 6 belgi, katta va kichik harf hamda raqamdan iborat bo‘lsin.";
     case "auth/invalid-credential":
     case "auth/user-not-found":
     case "auth/wrong-password": return "Email yoki parol noto‘g‘ri.";
-    default: return "Amal bajarilmadi. Qayta urining yoki administratorga murojaat qiling.";
+    default: return "Amal bajarilmadi. Qayta urining.";
   }
 }
 async function run(action) {
@@ -56,6 +64,18 @@ resetButton.addEventListener("click", () => {
     say("Agar ushbu email bilan hisob mavjud bo‘lsa, parolni tiklash xati yuboriladi.");
   });
 });
+registerButton.addEventListener("click", () => {
+  if (!loginForm.reportValidity()) return;
+  if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{6,}$/.test(password.value)) return say("Parol kamida 6 belgi, katta va kichik harf hamda raqamdan iborat bo‘lsin.",true);
+  run(async () => {
+    try { await api.register(email.value,password.value); }
+    finally { password.value = ""; }
+    try { await api.verifyEmail(); say("Hisob yaratildi. Emailingizga tasdiqlash xati yuborildi."); }
+    catch (_) { say("Hisob yaratildi. Tasdiqlash xatini qayta yuborish tugmasidan foydalaning."); }
+  });
+});
+verifyButton.addEventListener("click",()=>run(async()=>{await api.verifyEmail();say("Tasdiqlash xati yuborildi.");}));
+checkButton.addEventListener("click",()=>run(async()=>{const next=await api.refreshUser();verifyButton.hidden=Boolean(next?.emailVerified);checkButton.hidden=Boolean(next?.emailVerified);say(next?.emailVerified?"Email tasdiqlandi. Maktab ma’lumotlari hali ulanmagan.":"Email hali tasdiqlanmagan.");}));
 logoutButton.addEventListener("click", () => run(async () => {
   await api.logout(); say("Hisobdan chiqdingiz.");
 }));
@@ -72,6 +92,8 @@ refreshControls();
       accountView.hidden = !next;
       $("secureAccountEmail").textContent = next?.email || "";
       password.value = "";
+      verifyButton.hidden = !next || next.emailVerified;
+      checkButton.hidden = !next || next.emailVerified;
       say(next ? "Firebase orqali kirish muvaffaqiyatli. Maktab bo‘limlari xavfsiz migratsiya tugaguncha yopiq." : "Email va yangi parolingiz bilan kiring.");
       refreshControls();
     }, () => say("Seansni tekshirib bo‘lmadi.",true));

@@ -21,6 +21,7 @@ function notify(msg, type = "info") {
   const stack = document.getElementById("toastStack");
   if (!stack) return;
   const el = document.createElement("div");
+  el.setAttribute("role", type === "error" ? "alert" : "status");
   el.className = "toast" + (type === "success" ? " success" : type === "error" ? " error" : "");
   el.textContent = msg;
   stack.appendChild(el);
@@ -397,8 +398,15 @@ async function pushToCloud(skipPull = false) {
   }
 }
 
+let saveNoticeAt = 0;
 function saveDB() {
-  pushToCloud(false);
+  return pushToCloud(false).then(ok => {
+    if (!ok && Date.now() - saveNoticeAt > 12000) {
+      saveNoticeAt = Date.now();
+      notify("Serverga saqlanmadi. Internet aloqasini tekshiring.", "error");
+    }
+    return ok;
+  }).catch(() => { notify("Ma’lumotni saqlashda xatolik.", "error"); return false; });
 }
 
 async function manualCloudPull() {
@@ -409,10 +417,14 @@ async function manualCloudPull() {
   }
 }
 
+let pollingCloud = false;
 setInterval(async () => {
-  if (!currentUser) return;
+  if (!currentUser || pollingCloud || document.hidden || !navigator.onLine) return;
+  pollingCloud = true;
+  try {
   const oldUsersCount = DB.users.length;
-  const oldMsgCount = (DB.messages[activeRoomId] || []).length;
+  const oldMessages = JSON.stringify(DB.messages[activeRoomId] || []);
+  const oldRooms = JSON.stringify(DB.rooms);
   const oldAnn = JSON.stringify(DB.announcements);
   const oldTasks = JSON.stringify(DB.tasks);
   const updated = await pullFromCloud(true);
@@ -424,7 +436,7 @@ setInterval(async () => {
     }
     currentUser = stillExists;
     updateTopbar();
-    if (currentView === "chats" && (DB.messages[activeRoomId] || []).length !== oldMsgCount) {
+    if (currentView === "chats" && (oldMessages !== JSON.stringify(DB.messages[activeRoomId] || []) || oldRooms !== JSON.stringify(DB.rooms))) {
       const draft = document.getElementById("chatInput")?.value || "";
       const focused = document.activeElement?.id === "chatInput";
       renderChats(document.getElementById("mainContent"));
@@ -441,6 +453,7 @@ setInterval(async () => {
       renderAdmin(document.getElementById("mainContent"));
     }
   }
+  } finally { pollingCloud = false; }
 }, 4000);
 
 (async function restoreSessionOnLoad() {
@@ -1077,7 +1090,12 @@ function renderChats(box) {
   if (list) list.scrollTop = list.scrollHeight;
 }
 
-function selectRoom(id) { activeRoomId = id; renderChats(document.getElementById("mainContent")); }
+function selectRoom(id) {
+  if (!currentUser || !DB.rooms.some(r => r.id === id && (currentUser.role === "admin" || r.id === "r_general" || r.members.includes(currentUser.id)))) return;
+  if (activeRoomId !== id) replyTarget = null;
+  activeRoomId = id;
+  renderChats(document.getElementById("mainContent"));
+}
 
 function sendMessage(e) {
   e.preventDefault();
@@ -1102,11 +1120,16 @@ function sendMessage(e) {
 
 function sendMediaFile(e, type) {
   const file = e.target.files[0];
-  if (!file) return;
+  if (!file || !currentUser) return;
+  if (!["image","audio","video"].includes(type) || !file.type.startsWith(type + "/") || file.type === "image/svg+xml") return notify("Fayl formati mos emas.", "error");
+  if (file.size > 5 * 1024 * 1024) return notify("Fayl hajmi 5 MB dan oshmasligi kerak.", "error");
+  const roomId = activeRoomId, senderId = currentUser.id;
   const reader = new FileReader();
+  reader.onerror = () => notify("Faylni o‘qib bo‘lmadi.", "error");
   reader.onload = function(ev) {
-    if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
-    DB.messages[activeRoomId].push({
+    if (currentUser?.id !== senderId || !DB.rooms.some(r => r.id === roomId && (currentUser.role === "admin" || r.id === "r_general" || r.members.includes(senderId)))) return;
+    if (!DB.messages[roomId]) DB.messages[roomId] = [];
+    DB.messages[roomId].push({
       id: "m_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
       senderId: currentUser.id,
       senderName: currentUser.name,
@@ -1119,8 +1142,8 @@ function sendMediaFile(e, type) {
       replyTo: null
     });
     saveDB();
-    notify("Media fayl yuborildi", "success");
-    renderChats(document.getElementById("mainContent"));
+    notify("Media fayl saqlashga yuborildi", "info");
+    if (currentView === "chats" && activeRoomId === roomId) renderChats(document.getElementById("mainContent"));
   };
   reader.readAsDataURL(file);
 }
@@ -2038,17 +2061,17 @@ function saveProfileEdit() {
 /* ================= PDF SERTIFIKAT MODAL ================= */
 function openCertPdfModal(certId) {
   const cert = DB.certificates.find(c => c.id === certId);
-  if (!cert) return;
+  if (!cert || !currentUser || (currentUser.role === "student" && cert.studentId !== currentUser.id)) return;
   openModal(`
     <div id="certPrintArea" class="cert-frame-outer">
       <div class="cert-frame-inner">
-        <div class="cert-ribbon">${cert.tier || 'RASMIY HUJJAT'}</div>
+        <div class="cert-ribbon">${safeText(cert.tier || 'RASMIY HUJJAT')}</div>
         <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:1.5px;">ILMNURI AKADEMIK EKOTIZIMI</div>
         <h1 class="cert-main-title">SERTIFIKAT</h1>
         <p style="font-size:13px;color:#64748B;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
 
         <div class="cert-recipient">${safeText(cert.studentName)}</div>
-        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${safeText(cert.grade)} o'quvchisiga</div>
 
         <p style="font-size:14px;color:#1E293B;max-width:410px;margin:0 auto 18px;line-height:1.5;">
           IlmNuri platformasidagi o‘quv yutuqlari uchun <strong>«${safeText(cert.title)}»</strong> mukofoti bilan taqdirlanadi.
@@ -2056,8 +2079,8 @@ function openCertPdfModal(certId) {
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #D97706;text-align:left;font-size:12px;color:#64748B;">
           <div>
-            <div><strong>Berilgan sana:</strong> ${cert.date}</div>
-            <div><strong>Seriya raqami:</strong> ${cert.id}</div>
+            <div><strong>Berilgan sana:</strong> ${safeText(cert.date)}</div>
+            <div><strong>Seriya raqami:</strong> ${safeText(cert.id)}</div>
             <div style="margin-top:4px;color:#1E293B;font-weight:700;">Maktab Ma'muriyati</div>
           </div>
           <div class="cert-gold-seal">

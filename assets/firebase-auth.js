@@ -4,7 +4,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebas
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   sendPasswordResetEmail, signOut, setPersistence, browserSessionPersistence,
-  createUserWithEmailAndPassword, sendEmailVerification, reload
+  createUserWithEmailAndPassword, sendEmailVerification, reload, inMemoryPersistence
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
 export const firebaseConfig = Object.freeze({
@@ -18,7 +18,8 @@ export const firebaseConfig = Object.freeze({
 });
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const ready = setPersistence(auth, browserSessionPersistence);
+const ready = setPersistence(auth, browserSessionPersistence).catch(() => setPersistence(auth, inMemoryPersistence));
+export async function initializeSession() { await ready; await auth.authStateReady(); }
 export function observeSession(callback, onError) {
   return onAuthStateChanged(auth, callback, onError);
 }

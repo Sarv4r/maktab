@@ -3,7 +3,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
-  sendPasswordResetEmail, signOut, setPersistence, browserSessionPersistence
+  sendPasswordResetEmail, signOut, setPersistence, browserSessionPersistence,
+  createUserWithEmailAndPassword, sendEmailVerification, reload
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
 export const firebaseConfig = Object.freeze({
@@ -46,3 +47,20 @@ export async function getSessionIdentity() {
 // No self-assigned roles, no plaintext passwords in the database,
 // and no browser access to the legacy root. Enrollment and migration
 // require verified, owner-authorized provisioning.
+
+export async function register(email, password) {
+  await ready;
+  const credential = await createUserWithEmailAndPassword(auth,email.trim(),password);
+  return credential.user;
+}
+export async function verifyEmail() {
+  await ready;
+  if (!auth.currentUser) throw Error("NO_SESSION");
+  await sendEmailVerification(auth.currentUser);
+}
+export async function refreshUser() {
+  await ready;
+  if (!auth.currentUser) return null;
+  await reload(auth.currentUser);
+  return auth.currentUser;
+}

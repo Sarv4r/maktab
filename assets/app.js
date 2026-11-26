@@ -2063,7 +2063,7 @@ function openCertPdfModal(certId) {
   const cert = DB.certificates.find(c => c.id === certId);
   if (!cert || !currentUser || (currentUser.role === "student" && cert.studentId !== currentUser.id)) return;
   openModal(`
-    <div id="certPrintArea" class="cert-frame-outer">
+    <div id="certPrintArea" class="cert-frame-outer" data-cert-id="${safeText(cert.id)}">
       <div class="cert-frame-inner">
         <div class="cert-ribbon">${safeText(cert.tier || 'RASMIY HUJJAT')}</div>
         <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:1.5px;">ILMNURI AKADEMIK EKOTIZIMI</div>

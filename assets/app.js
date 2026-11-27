@@ -1785,10 +1785,18 @@ function renderRanking(box) {
     <header class="ilm-ranking-head"><h2>Maktab reytingi</h2><p>${weekly ? "Haftalik" : "Jami"} yig‘ilgan ball · ${entries.length} o‘quvchi</p></header>
     <nav class="ilm-ranking-period" aria-label="Reyting davri">${[["weekly","Haftalik"],["all","Umumiy"]].map(([period,label]) =>
       `<button type="button" aria-pressed="${rankingTab === period}" onclick="rankingTab='${period}';renderRanking(document.getElementById('mainContent'))">${label}</button>`).join("")}</nav>
-    ${entries.length ? `<ol class="ilm-ranking-list">${entries.map(({user,score},i) =>
-      `<li><span class="ilm-place">${i+1}</span>${renderAvatarHTML(user,36,14)}
+    ${entries.length ? `<ol class="ilm-podium" aria-label="Birinchi uch o‘rin">${entries.slice(0,3).map(({user,score},i) =>
+      `<li class="ilm-medal medal-${i+1}" aria-label="${i+1}-o‘rin">
+        ${i===0 ? '<svg class="ilm-crown" viewBox="0 0 24 18" aria-hidden="true"><path fill="currentColor" d="m2 3 6 4 4-7 4 7 6-4-3 12H5zM5 16h14v2H5z"/></svg>' : ""}
+        <div class="ilm-medal-avatar">${renderAvatarHTML(user,i===0?62:50,20)}<b aria-hidden="true">${i+1}</b></div>
+        <div class="ilm-medal-name">${memberLink(user.id,user.name)}</div>
+        <strong>${number.format(score)} ball</strong><small>${safeText(user.grade || "")}</small>
+        <div class="ilm-medal-step" aria-hidden="true">${i+1}</div>
+      </li>`).join("")}</ol>` : "<p>Hozircha reytingda o‘quvchilar yo‘q.</p>"}
+    ${entries.length>3 ? `<ol class="ilm-ranking-list" start="4">${entries.slice(3).map(({user,score},i) =>
+      `<li><span class="ilm-place">${i+4}</span>${renderAvatarHTML(user,36,14)}
         <div class="ilm-rank-name">${memberLink(user.id,user.name)}<small>${[user.grade,user.activeTitle].filter(Boolean).map(safeText).join(" · ")}</small></div>
-        <strong class="ilm-rank-score">${number.format(score)} ball</strong></li>`).join("")}</ol>` : "<p>Hozircha reytingda o‘quvchilar yo‘q.</p>"}
+        <strong class="ilm-rank-score">${number.format(score)} ball</strong></li>`).join("")}</ol>` : ""}
   </section>`;
 }
 

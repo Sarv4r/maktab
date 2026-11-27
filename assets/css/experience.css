@@ -523,3 +523,13 @@ button.member-avatar {cursor:pointer}
 .profile-switch::after {content: ""; display: block; width: 14px; height: 14px; border-radius: 50%; background: white}
 [aria-pressed="true"] > .profile-switch {background: #176582}
 [aria-pressed="true"] > .profile-switch::after {transform: translateX(16px)}
+
+/* Keep search controls visible while results scroll. */
+#modalCard:has(#mosSearchInput) {display:flex;flex-direction:column;padding:0;overflow:hidden;max-height:min(80dvh,680px)}
+#modalCard .mos-search-head {flex:none;display:grid;grid-template-columns:24px minmax(0,1fr) 44px;gap:8px;align-items:center;padding:12px 14px}
+#modalCard .mos-search-head input {width:100%;margin:0;box-sizing:border-box}
+#modalCard .mos-search-head button {width:44px;height:44px;padding:0}
+#mosSearchResults {min-height:0;overflow:auto;overscroll-behavior:contain;padding:6px 10px 12px}
+#mosSearchResults h3 {margin:10px 10px 4px;text-align:start;font-size:.8rem;color:var(--muted)}
+#mosSearchResults .mos-search-result {display:grid;grid-template-columns:38px minmax(0,1fr);justify-content:stretch;justify-items:start;align-items:center;gap:12px;width:100%;box-sizing:border-box;margin:0;padding:9px 10px;text-align:start}
+#mosSearchResults .mos-result-copy {min-width:0;width:100%;overflow-wrap:anywhere;white-space:normal}

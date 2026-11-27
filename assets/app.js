@@ -1868,17 +1868,19 @@ function renderProfile(box) {
   ];
   box.innerHTML = `
     <article class="account-profile">
-      <h2>Profil</h2>
-      <header class="account-id">
-        ${renderAvatarHTML(currentUser, 64, 24)}
-        <div><h3>${safeText(currentUser.name)}</h3><p>@${safeText(currentUser.login)}</p>
+      <header class="account-id profile-cover">
+        <div class="profile-toolbar"><h2>Profil</h2><div class="profile-tools">
+          <button type="button" class="profile-tool" aria-label="Profilni tahrirlash" title="Profilni tahrirlash" onclick="openEditProfileModal()"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 12-12a2.8 2.8 0 0 0-4-4l-12 12z"/></svg></button>
+          <button type="button" class="profile-tool" aria-label="Profil sozlamalari" title="Profil sozlamalari" aria-expanded="false" aria-controls="profileSettings" onclick="toggleProfileSettings(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 3 .5-1h4l.7 2.4 1.7 1 2.4-.6 2 3.5-1.7 1.8v2.2l1.7 1.8-2 3.5-2.4-.6-1.7 1-.7 2.4h-4L9.3 18l-1.7-1-2.4.6-2-3.5 1.7-1.8v-2.2L3.2 8.3l2-3.5 2.4.6 1.7-1z"/><circle cx="12" cy="11.3" r="3"/></svg></button>
+        </div></div>
+        ${renderAvatarHTML(currentUser, 84, 32)}
+        <div class="profile-identity"><h3>${safeText(currentUser.name)}</h3><p>@${safeText(currentUser.login)}</p>
         ${currentUser.activeTitle ? `<small>${safeText(currentUser.activeTitle)}</small>` : ""}</div>
       </header>
-      <section class="account-panel"><div class="account-heading"><h3>Profil ma’lumotlari</h3>
-        <button class="member-name" onclick="openEditProfileModal()">Tahrirlash</button></div>
-        <dl>${rows.map(([icon,label,value]) => `<div class="account-row"><dt><span class="account-icon">${ICONS[icon]}</span>${label}</dt><dd>${safeText(value || "—")}</dd></div>`).join("")}</dl>
-      </section>
-      <section class="account-panel"><h3>Umumiy</h3>
+      <section id="profileSettings" class="account-panel" hidden><h3>Sozlamalar</h3>
+        <button type="button" class="account-action" id="profileNightMode" aria-pressed="${document.documentElement.dataset.theme === 'dark'}" onclick="document.getElementById('themeToggleBtn').click()">
+          <span class="account-icon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.7 13A9 9 0 0 1 11 3.3 9 9 0 1 0 20.7 13Z"/></svg></span>Tungi rejim<span class="profile-switch" aria-hidden="true"></span>
+        </button>
         <button class="account-action" id="profileInstallBtn" onclick="installMaktabApp()" ${appInstalled() ? "disabled" : ""}>
           <span class="account-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg></span>
           <span>${appInstalled() ? "Ilova o‘rnatilgan" : "Ilovani o‘rnatish"}</span>
@@ -1887,6 +1889,9 @@ function renderProfile(box) {
           ${currentUser.avatarImg ? "Profil rasmini almashtirish" : "Profil rasmini qo‘yish"}
           <input type="file" accept="image/*" onchange="uploadProfilePhoto(event)" /></label>
         ${currentUser.avatarImg ? '<button class="account-action" onclick="removeProfilePhoto()">Profil rasmini o‘chirish</button>' : ""}
+      </section>
+      <section class="account-panel"><h3>Profil ma’lumotlari</h3>
+        <dl>${rows.filter(([, , value]) => value).map(([icon,label,value]) => `<div class="account-row"><dt><span class="account-icon">${ICONS[icon]}</span>${label}</dt><dd>${safeText(value)}</dd></div>`).join("")}</dl>
       </section>
       ${currentUser.role === "student" ? `
         <div class="card">
@@ -1951,6 +1956,12 @@ function renderProfile(box) {
     ` : ''}
     </article>
   `;
+}
+
+function toggleProfileSettings(button) {
+  const panel = document.getElementById("profileSettings");
+  panel.hidden = !panel.hidden;
+  button.setAttribute("aria-expanded", String(!panel.hidden));
 }
 
 function uploadProfilePhoto(e) {
@@ -2645,6 +2656,7 @@ function closeModalOnBg(e) { if (e.target.id === "modalBackdrop") closeModal(); 
    root.dataset.theme=next;
    try{localStorage.setItem("maktabos_theme_v1",next);}catch(e){}
    paint(btn);
+   document.getElementById("profileNightMode")?.setAttribute("aria-pressed", String(next === "dark"));
   });
   right.insertBefore(btn,right.firstChild);
  }

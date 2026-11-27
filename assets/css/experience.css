@@ -488,3 +488,33 @@ button.member-avatar {cursor:pointer}
   #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr {padding:12px}
 }
 }
+
+/* Personal profile */
+#appScreen .account-id.profile-cover {
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 14px clamp(14px, 4vw, 28px) 28px;
+  background: linear-gradient(125deg, #16476b, #176582 65%, #176f79);
+  border: 0;
+  color: #fff;
+}
+.profile-toolbar, .profile-tools {display: flex; align-items: center}
+.profile-toolbar {width: 100%; justify-content: space-between}
+.profile-toolbar h2 {margin: 0; font-size: 1.05rem; color: inherit}
+.profile-tools {gap: 6px}
+#appScreen .profile-tool {
+  width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  border: 1px solid #ffffff54; border-radius: 50%; background: #ffffff12; color: #fff; cursor: pointer;
+}
+#appScreen .profile-tool:hover, #appScreen .profile-tool[aria-expanded="true"] {background: #ffffff32}
+.profile-tool:focus-visible {outline: 2px solid white; outline-offset: 3px}
+.profile-cover .member-avatar {box-shadow: 0 0 0 3px #ffffff80}
+.profile-identity {max-width: 100%; text-align: center}
+#appScreen .profile-identity h3 {color: #fff; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.25}
+#appScreen .profile-identity p, #appScreen .profile-identity small {display: block; margin-top: 4px; color: #e0f4ff}
+#profileSettings[hidden] {display: none}
+.profile-switch {margin-inline-start: auto; width: 36px; padding: 3px; border-radius: 16px; background: #667585; box-sizing: border-box}
+.profile-switch::after {content: ""; display: block; width: 14px; height: 14px; border-radius: 50%; background: white}
+[aria-pressed="true"] > .profile-switch {background: #176582}
+[aria-pressed="true"] > .profile-switch::after {transform: translateX(16px)}

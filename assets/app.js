@@ -42,91 +42,211 @@ const SUBJECTS = [
 
 const SUBJECT_QUESTION_BANK = {
   "Matematika": [
-    { q: "Kvadrat tenglama ax² + bx + c = 0 ning diskriminanti qaysi formula bilan topiladi?", options: ["D = b² - 4ac", "D = b² + 4ac", "D = a² - 4bc", "D = 2b - 4ac"], correct: 0 },
-    { q: "To'g'ri burchakli uchburchakning katetlari 6 sm va 8 sm bo'lsa, gipotenuzani toping.", options: ["10 sm", "14 sm", "12 sm", "48 sm"], correct: 0 },
-    { q: "Logarifm log₂(32) ning qiymati nechaga teng?", options: ["5", "4", "6", "16"], correct: 0 },
-    { q: "Aylana uzunligi L qaysi formula orqali hisoblanadi?", options: ["L = 2πR", "L = πR²", "L = 4πR", "L = πR"], correct: 0 }
+    {"q":"Kvadrat tenglama ax² + bx + c = 0 ning diskriminanti qaysi formula bilan topiladi?","options":["D = b² - 4ac","D = b² + 4ac","D = a² - 4bc","D = 2b - 4ac"],"correct":0,"points":7},
+    {"q":"To'g'ri burchakli uchburchakning katetlari 6 sm va 8 sm bo'lsa, gipotenuzani toping.","options":["10 sm","14 sm","12 sm","48 sm"],"correct":0,"points":8},
+    {"q":"Logarifm log₂(32) ning qiymati nechaga teng?","options":["5","4","6","16"],"correct":0,"points":7},
+    {"q":"Aylana uzunligi L qaysi formula orqali hisoblanadi?","options":["L = 2πR","L = πR²","L = 4πR","L = πR"],"correct":0,"points":6},
+    {"q":"7 ning kvadrati nechaga teng?","options":["49","14","21"],"correct":0,"points":5},
+    {"q":"80 ning choragi nechaga teng?","options":["20","40","16"],"correct":0,"points":6},
+    {"q":"3x + 4 = 19 bo‘lsa, x ni toping.","options":["5","6","4"],"correct":0,"points":7},
+    {"q":"Tomonlari 5 va 9 sm bo‘lgan to‘g‘ri to‘rtburchakning perimetri qancha?","options":["28 sm","45 sm","14 sm"],"correct":0,"points":7},
+    {"q":"240 ning 15 foizi qancha?","options":["36","24","48"],"correct":0,"points":8},
+    {"q":"Ikki sonning yig‘indisi 35, ayirmasi 7. Katta son nechaga teng?","options":["21","18","28"],"correct":0,"points":9},
+    {"q":"Narx avval 20% oshib, keyin 20% pasaydi. U dastlabki narxning necha foizi bo‘ldi?","options":["96%","100%","80%"],"correct":0,"points":10},
+    {"q":"2/3 va 1/4 yig‘indisini toping.","options":["11/12","3/7","5/12"],"correct":0,"points":8}
   ],
   "Fizika": [
-    { q: "Nyutonning ikkinchi qonuni formulasi qaysi?", options: ["F = m · a", "F = m / a", "E = m · c²", "P = m · g · h"], correct: 0 },
-    { q: "Xalqaro birliklar tizimida (SI) elektr tok kuchining birligi nima?", options: ["Amper (A)", "Volt (V)", "Om (Ω)", "Vatt (W)"], correct: 0 },
-    { q: "Yorug'likning vakuumdagi tarqalish tezligi taxminan nechaga teng?", options: ["300 000 km/s", "150 000 km/s", "340 m/s", "3 000 km/s"], correct: 0 },
-    { q: "Zichlikni topish formulasi qaysi?", options: ["ρ = m / V", "ρ = m · V", "ρ = V / m", "ρ = F / S"], correct: 0 }
+    {"q":"Nyutonning ikkinchi qonuni formulasi qaysi?","options":["F = m · a","F = m / a","E = m · c²","P = m · g · h"],"correct":0,"points":6},
+    {"q":"Xalqaro birliklar tizimida (SI) elektr tok kuchining birligi nima?","options":["Amper (A)","Volt (V)","Om (Ω)","Vatt (W)"],"correct":0,"points":5},
+    {"q":"Yorug'likning vakuumdagi tarqalish tezligi taxminan nechaga teng?","options":["300 000 km/s","150 000 km/s","340 m/s","3 000 km/s"],"correct":0,"points":6},
+    {"q":"Zichlikni topish formulasi qaysi?","options":["ρ = m / V","ρ = m · V","ρ = V / m","ρ = F / S"],"correct":0,"points":6},
+    {"q":"Harorat qaysi asbob bilan o‘lchanadi?","options":["Termometr","Ampermetr","Dinamometr"],"correct":0,"points":5},
+    {"q":"Bir kilovatt necha vatt?","options":["1000","100","10"],"correct":0,"points":6},
+    {"q":"60 metrni 12 sekundda bosib o‘tgan jismning o‘rtacha tezligi qancha?","options":["5 m/s","12 m/s","72 m/s"],"correct":0,"points":7},
+    {"q":"Massasi 3 kg jismga 2 m/s² tezlanish beradigan natijaviy kuch qancha?","options":["6 N","1,5 N","5 N"],"correct":0,"points":7},
+    {"q":"12 V kuchlanish 4 Ω qarshilikka berilsa, tok kuchi qancha?","options":["3 A","48 A","8 A"],"correct":0,"points":8},
+    {"q":"2 A tok 6 Ω qarshilikdan o‘tayotganda ajraladigan quvvat qancha?","options":["24 W","12 W","3 W"],"correct":0,"points":9},
+    {"q":"Tinch holatdan 2 m/s² doimiy tezlanish bilan 4 s harakatlangan jism qancha yo‘l bosadi?","options":["16 m","8 m","32 m"],"correct":0,"points":10},
+    {"q":"200 g modda 50 sm³ hajm egallaydi. Zichligi qancha?","options":["4 g/sm³","0,25 g/sm³","150 g/sm³"],"correct":0,"points":8}
   ],
   "Kimyo": [
-    { q: "Suvning kimyoviy formulasi qaysi?", options: ["H₂O", "CO₂", "NaCl", "H₂SO₄"], correct: 0 },
-    { q: "Mendeleyev davriy jadvalida Kislorodning tartib raqami necha?", options: ["8", "6", "16", "12"], correct: 0 },
-    { q: "Osh tuzining kimyoviy nomi nima?", options: ["Natriy xlorid (NaCl)", "Kaliy permanganat", "Kalsiy karbonat", "Sulfat kislota"], correct: 0 },
-    { q: "Havoning asosiy qismini (taxminan 78%) qaysi gaz tashkil qiladi?", options: ["Azot (N₂)", "Kislorod (O₂)", "Vodorod (H₂)", "Geliy (He)"], correct: 0 }
+    {"q":"Suvning kimyoviy formulasi qaysi?","options":["H₂O","CO₂","NaCl","H₂SO₄"],"correct":0,"points":5},
+    {"q":"Mendeleyev davriy jadvalida Kislorodning tartib raqami necha?","options":["8","6","16","12"],"correct":0,"points":6},
+    {"q":"Osh tuzining kimyoviy nomi nima?","options":["Natriy xlorid (NaCl)","Kaliy permanganat","Kalsiy karbonat","Sulfat kislota"],"correct":0,"points":5},
+    {"q":"Havoning asosiy qismini (taxminan 78%) qaysi gaz tashkil qiladi?","options":["Azot (N₂)","Kislorod (O₂)","Vodorod (H₂)","Geliy (He)"],"correct":0,"points":6},
+    {"q":"Fe qaysi element belgisi?","options":["Temir","Ftor","Fosfor"],"correct":0,"points":5},
+    {"q":"CO₂ molekulasida nechta kislorod atomi bor?","options":["2","1","3"],"correct":0,"points":6},
+    {"q":"CaCO₃ formula birligida jami nechta atom bor?","options":["5","3","4"],"correct":0,"points":7},
+    {"q":"Neytral atomda protonlar soni qaysi zarrachalar soniga teng?","options":["Elektronlar","Neytronlar","Molekulalar"],"correct":0,"points":7},
+    {"q":"2H₂ + O₂ → 2H₂O bo‘yicha 4 mol H₂ uchun necha mol O₂ kerak?","options":["2","4","8"],"correct":0,"points":8},
+    {"q":"NaCl eritmasida 5 g tuz va 45 g suv bor. Tuzning massa ulushi qancha?","options":["10%","5%","20%"],"correct":0,"points":9},
+    {"q":"12 g uglerod 32 g kislorod bilan to‘liq reaksiyaga kirishdi. Necha gramm CO₂ hosil bo‘ldi?","options":["44 g","20 g","32 g"],"correct":0,"points":10},
+    {"q":"H=1 va O=16 bo‘lsa, suvning molyar massasi qancha?","options":["18 g/mol","17 g/mol","32 g/mol"],"correct":0,"points":8}
   ],
   "Biologiya": [
-    { q: "O'simliklarda fotosintez jarayoni hujayraning qaysi organoidida kechadi?", options: ["Xloroplastlarda", "Mitoxondriyada", "Ribosomada", "Yadroda"], correct: 0 },
-    { q: "Odam yuragi nechta kameradan iborat?", options: ["4 ta", "2 ta", "3 ta", "5 ta"], correct: 0 },
-    { q: "Irsiy axborotni saqlovchi va nasldan-naslga o'tkazuvchi molekula nima?", options: ["DNK", "Kraxmal", "Glyukoza", "Sellyuloza"], correct: 0 },
-    { q: "Qonning ivishida qaysi qon shaklli elementlari ishtirok etadi?", options: ["Trombotsitlar", "Eritrotsitlar", "Leykotsitlar", "Plazma"], correct: 0 }
+    {"q":"O'simliklarda fotosintez jarayoni hujayraning qaysi organoidida kechadi?","options":["Xloroplastlarda","Mitoxondriyada","Ribosomada","Yadroda"],"correct":0,"points":6},
+    {"q":"Odam yuragi nechta kameradan iborat?","options":["4 ta","2 ta","3 ta","5 ta"],"correct":0,"points":5},
+    {"q":"Irsiy axborotni saqlovchi va nasldan-naslga o'tkazuvchi molekula nima?","options":["DNK","Kraxmal","Glyukoza","Sellyuloza"],"correct":0,"points":6},
+    {"q":"Qonning ivishida qaysi qon shaklli elementlari ishtirok etadi?","options":["Trombotsitlar","Eritrotsitlar","Leykotsitlar","Plazma"],"correct":0,"points":7},
+    {"q":"O‘simlik tuproqdan suvni asosan qaysi a’zosi orqali oladi?","options":["Ildiz","Gul","Urug‘"],"correct":0,"points":5},
+    {"q":"Odam tanasida gaz almashinuvi asosan qaysi a’zoda sodir bo‘ladi?","options":["O‘pka","Jigar","Buyrak"],"correct":0,"points":6},
+    {"q":"Qaysi juftlik bir turga mansub organizmlar guruhini va uning yashash hududini ta’riflaydi?","options":["Populyatsiya — bir hududdagi bir tur vakillari","Ekotizim — faqat bir tur","Tur — bitta organizm"],"correct":0,"points":7},
+    {"q":"Eritrotsitlar tarkibida kislorodni tashuvchi oqsil nima?","options":["Gemoglobin","Insulin","Keratin"],"correct":0,"points":7},
+    {"q":"Barg og‘izchalari yopilganda suv bug‘lanishi odatda qanday o‘zgaradi?","options":["Kamayadi","Ko‘payadi","Doim ikki baravar bo‘ladi"],"correct":0,"points":8},
+    {"q":"O‘t → chigirtka → qurbaqa zanjirida chigirtkalar keskin kamaysa, dastlab qurbaqaga qanday ta’sir qiladi?","options":["Ozuqasi kamayadi","Ozuqasi ortadi","Fotosintezi tezlashadi"],"correct":0,"points":9},
+    {"q":"Ikki geterozigota Aa × Aa chatishtirilsa, aa genotipining kutilgan ulushi qancha?","options":["25%","50%","75%"],"correct":0,"points":10},
+    {"q":"Fotosintez tajribasida yorug‘lik ta’sirini tekshirish uchun nimani o‘zgartirish kerak?","options":["Faqat yorug‘lik sharoitini","Suv va haroratni birga","Faqat o‘simlik turini"],"correct":0,"points":8}
   ],
   "Informatika va IT": [
-    { q: "1 Kilobayt (KB) necha baytga teng?", options: ["1024 bayt", "1000 bayt", "512 bayt", "256 bayt"], correct: 0 },
-    { q: "Veb-sahifalarning tuzilishini yaratish uchun qaysi belgilash tili ishlatiladi?", options: ["HTML", "Python", "SQL", "C++"], correct: 0 },
-    { q: "Ikkilik sanoq tizimida qaysi raqamlar ishlatiladi?", options: ["0 va 1", "1 va 2", "0 dan 9 gacha", "0 dan 7 gacha"], correct: 0 },
-    { q: "Kompyuterning vaqtinchalik tezkor xotirasi nima deb ataladi?", options: ["RAM (OZU)", "HDD", "SSD", "CPU"], correct: 0 }
+    {"q":"1 kibibayt (KiB) necha baytga teng?","options":["1024 bayt","1000 bayt","512 bayt","256 bayt"],"correct":0,"points":6},
+    {"q":"Veb-sahifalarning tuzilishini yaratish uchun qaysi belgilash tili ishlatiladi?","options":["HTML","Python","SQL","C++"],"correct":0,"points":5},
+    {"q":"Ikkilik sanoq tizimida qaysi raqamlar ishlatiladi?","options":["0 va 1","1 va 2","0 dan 9 gacha","0 dan 7 gacha"],"correct":0,"points":5},
+    {"q":"Kompyuterning vaqtinchalik tezkor xotirasi nima deb ataladi?","options":["RAM (OZU)","HDD","SSD","CPU"],"correct":0,"points":5},
+    {"q":"CSS nimani belgilaydi?","options":["Sahifa ko‘rinishini","Tarmoq manzilini","Protsessor tezligini"],"correct":0,"points":5},
+    {"q":"Bir bayt necha bit?","options":["8","4","16"],"correct":0,"points":6},
+    {"q":"Ikkilik 101 soni o‘nlikda qancha?","options":["5","3","6"],"correct":0,"points":7},
+    {"q":"JavaScriptda 17 % 5 ifodasi nimaga teng?","options":["2","3","5"],"correct":0,"points":7},
+    {"q":"[3, 7, 9] massivida indeks 1 dagi qiymat qancha?","options":["7","3","9"],"correct":0,"points":8},
+    {"q":"s=0 bo‘lsa, 1 dan 4 gacha barcha butun sonlarni s ga qo‘shgach s qancha bo‘ladi?","options":["10","6","15"],"correct":0,"points":9},
+    {"q":"Tashqi sikl 3 marta, har safar ichki sikl 4 marta ishlasa, ichki amal jami necha marta bajariladi?","options":["12","7","16"],"correct":0,"points":10},
+    {"q":"CSS gridda 3 ta teng ustun uchun qaysi qiymat mos?","options":["repeat(3, 1fr)","repeat(1, 3px)","auto 3px"],"correct":0,"points":8}
   ],
   "Ona tili": [
-    { q: "O'zbek tilida nechta unli tovush bor?", options: ["6 ta", "5 ta", "8 ta", "10 ta"], correct: 0 },
-    { q: "Kim? Nima? Qayer? so'roqlariga javob bo'luvchi so'z turkumi qaysi?", options: ["Ot", "Sifat", "Fe'l", "Ravish"], correct: 0 },
-    { q: "Gapning bosh bo'laklari qaysilar?", options: ["Ega va kesim", "Aniqlovchi va to'ldiruvchi", "Hol va undalma", "Sifat va son"], correct: 0 },
-    { q: "Ma'nodosh so'zlar tilshunoslikda nima deb ataladi?", options: ["Sinonimlar", "Antonimlar", "Omonimlar", "Paronimlar"], correct: 0 }
+    {"q":"O'zbek tilida nechta unli tovush bor?","options":["6 ta","5 ta","8 ta","10 ta"],"correct":0,"points":5},
+    {"q":"Kim? Nima? Qayer? so'roqlariga javob bo'luvchi so'z turkumi qaysi?","options":["Ot","Sifat","Fe'l","Ravish"],"correct":0,"points":6},
+    {"q":"Gapning bosh bo'laklari qaysilar?","options":["Ega va kesim","Aniqlovchi va to'ldiruvchi","Hol va undalma","Sifat va son"],"correct":0,"points":6},
+    {"q":"Ma'nodosh so'zlar tilshunoslikda nima deb ataladi?","options":["Sinonimlar","Antonimlar","Omonimlar","Paronimlar"],"correct":0,"points":6},
+    {"q":"«Uzun» so‘zining zid ma’nolisi qaysi?","options":["Qisqa","Baland","Yirik"],"correct":0,"points":5},
+    {"q":"«Bolalar» so‘zidagi -lar nimani bildiradi?","options":["Ko‘plikni","Egalikni","Kelishikni"],"correct":0,"points":6},
+    {"q":"«Men kitobni o‘qidim» gapida tushum kelishigidagi so‘z qaysi?","options":["Kitobni","Men","O‘qidim"],"correct":0,"points":7},
+    {"q":"«U sekin yurdi» gapida «sekin» qaysi so‘roqqa javob bo‘ladi?","options":["Qanday tarzda?","Qayerga?","Qachon?"],"correct":0,"points":7},
+    {"q":"«Bog‘imizda» so‘zidagi -imiz qanday qo‘shimcha?","options":["Egalik","Ko‘plik","Kelishik"],"correct":0,"points":8},
+    {"q":"«Bahor keldi va gullar ochildi» gapida nechta grammatik asos bor?","options":["2","1","3"],"correct":0,"points":9},
+    {"q":"«Bolalarimizdan» so‘zidagi qo‘shimchalar qaysi tartibda?","options":["Ko‘plik, egalik, kelishik","Egalik, ko‘plik, kelishik","Kelishik, egalik, ko‘plik"],"correct":0,"points":10},
+    {"q":"«Yoz» so‘zi faslni ham, yozish buyrug‘ini ham bildiradi. Bu qanday hodisa?","options":["Shakldoshlik","Zid ma’nolilik","Ma’nodoshlik"],"correct":0,"points":8}
   ],
   "Adabiyot": [
-    { q: "'Xamsa' asarining muallifi kim?", options: ["Alisher Navoiy", "Zahiriddin Muhammad Bobur", "Abdulla Qodiriy", "Cho'lpon"], correct: 0 },
-    { q: "'O'tkan kunlar' romani kimning qalamiga mansub?", options: ["Abdulla Qodiriy", "Oybek", "G'afur G'ulom", "O'tkir Hoshimov"], correct: 0 },
-    { q: "'Boburnoma' asari qaysi janrda yozilgan?", options: ["Memuar (esdalik) nasr", "Doston", "Drama", "Masal"], correct: 0 },
-    { q: "'Shum bola' qissasining muallifi kim?", options: ["G'afur G'ulom", "Xudoyberdi To'xtaboyev", "Said Ahmad", "Erkin Vohidov"], correct: 0 }
+    {"q":"'Xamsa' asarining muallifi kim?","options":["Alisher Navoiy","Zahiriddin Muhammad Bobur","Abdulla Qodiriy","Cho'lpon"],"correct":0,"points":6},
+    {"q":"'O'tkan kunlar' romani kimning qalamiga mansub?","options":["Abdulla Qodiriy","Oybek","G'afur G'ulom","O'tkir Hoshimov"],"correct":0,"points":5},
+    {"q":"'Boburnoma' asari qaysi janrda yozilgan?","options":["Memuar (esdalik) nasr","Doston","Drama","Masal"],"correct":0,"points":7},
+    {"q":"'Shum bola' qissasining muallifi kim?","options":["G'afur G'ulom","Xudoyberdi To'xtaboyev","Said Ahmad","Erkin Vohidov"],"correct":0,"points":6},
+    {"q":"Ikki misradan tashkil topgan she’riy birlik nima?","options":["Bayt","Bob","Parda"],"correct":0,"points":5},
+    {"q":"Dramada qahramonlarning o‘zaro suhbati nima deyiladi?","options":["Dialog","Portret","Manzara"],"correct":0,"points":6},
+    {"q":"«Yuzi oydek» birikmasida qaysi vosita qo‘llangan?","options":["O‘xshatish","Mubolag‘a","Tazod"],"correct":0,"points":7},
+    {"q":"Masalning yakunida odatda nima ifodalanadi?","options":["Ibratli xulosa","Muallif manzili","Asar mundarijasi"],"correct":0,"points":7},
+    {"q":"«Shamol daraxtga sir aytdi» satrida qanday tasvir vositasi bor?","options":["Jonlantirish","Tazod","Sanash"],"correct":0,"points":8},
+    {"q":"«Kulgan yuzim, yig‘lagan dilim» satrida asosiy badiiy usul qaysi?","options":["Tazod","Tashbeh","Takror"],"correct":0,"points":9},
+    {"q":"Hikoyachi voqeani «men» tilidan aytsa va faqat o‘zi ko‘rganini bilsa, bu qaysi bayon usuli?","options":["Cheklangan birinchi shaxs bayoni","Hamma narsani biluvchi hikoyachi","Dramatik dialog"],"correct":0,"points":10},
+    {"q":"Asarda voqealar eng keskin tus olgan nuqta qanday ataladi?","options":["Kulminatsiya","Ekspozitsiya","Epilog"],"correct":0,"points":8}
   ],
   "Ingliz tili": [
-    { q: "'Book' so'zining ko'plik shakli qaysi?", options: ["Books", "Bookes", "Bookies", "Book"], correct: 0 },
-    { q: "'She ___ a student' gapida nuqtalar o'rniga to'g'ri fe'lni qo'ying.", options: ["is", "are", "am", "be"], correct: 0 },
-    { q: "'Apple' so'zining o'zbekcha tarjimasi nima?", options: ["Olma", "Nok", "Uzum", "Anor"], correct: 0 },
-    { q: "'Yesterday' so'zi qaysi zamonga ishora qiladi?", options: ["Past Simple (O'tgan zamon)", "Future Simple", "Present Continuous", "Present Perfect"], correct: 0 }
+    {"q":"'Book' so'zining ko'plik shakli qaysi?","options":["Books","Bookes","Bookies","Book"],"correct":0,"points":5},
+    {"q":"'She ___ a student' gapida nuqtalar o'rniga to'g'ri fe'lni qo'ying.","options":["is","are","am","be"],"correct":0,"points":6},
+    {"q":"'Apple' so'zining o'zbekcha tarjimasi nima?","options":["Olma","Nok","Uzum","Anor"],"correct":0,"points":5},
+    {"q":"'Yesterday' so'zi qaysi zamonga ishora qiladi?","options":["Past Simple (O'tgan zamon)","Future Simple","Present Continuous","Present Perfect"],"correct":0,"points":6},
+    {"q":"«Child» so‘zining ko‘pligini tanlang.","options":["Children","Childs","Childes"],"correct":0,"points":5},
+    {"q":"«He ___ football every Sunday.»","options":["plays","play","playing"],"correct":0,"points":6},
+    {"q":"«We ___ to school yesterday.»","options":["went","go","going"],"correct":0,"points":7},
+    {"q":"«My bag is ___ than yours.»","options":["heavier","heaviest","heavy"],"correct":0,"points":7},
+    {"q":"«She has lived here ___ 2020.»","options":["since","for","during"],"correct":0,"points":8},
+    {"q":"«If it rains tomorrow, we ___ at home.»","options":["will stay","stayed","would have stayed"],"correct":0,"points":9},
+    {"q":"«By the time I arrived, the train ___.» Avvalroq tugagan harakatni belgilang.","options":["had left","will leave","is leaving"],"correct":0,"points":10},
+    {"q":"«They built this house in 1990» gapining mos majhul nisbat shakli qaysi?","options":["This house was built in 1990.","This house builds in 1990.","They were built in 1990."],"correct":0,"points":8}
   ],
   "Rus tili": [
-    { q: "'Школа' so'zining o'zbekcha tarjimasi nima?", options: ["Maktab", "Kitob", "O'quvchi", "Sinf"], correct: 0 },
-    { q: "'Учитель' so'zi qaysi rodga (jinsga) tegishli?", options: ["Мужской род", "Женский род", "Средний род", "Множественное число"], correct: 0 },
-    { q: "'Доброе утро' iborasining ma'nosi nima?", options: ["Xayrli tong", "Xayrli kech", "Xayr", "Rahmat"], correct: 0 },
-    { q: "Rus alifbosida nechta harf mavjud?", options: ["33 ta", "26 ta", "29 ta", "31 ta"], correct: 0 }
+    {"q":"'Школа' so'zining o'zbekcha tarjimasi nima?","options":["Maktab","Kitob","O'quvchi","Sinf"],"correct":0,"points":5},
+    {"q":"'Учитель' so'zi qaysi rodga (jinsga) tegishli?","options":["Мужской род","Женский род","Средний род","Множественное число"],"correct":0,"points":6},
+    {"q":"'Доброе утро' iborasining ma'nosi nima?","options":["Xayrli tong","Xayrli kech","Xayr","Rahmat"],"correct":0,"points":5},
+    {"q":"Rus alifbosida nechta harf mavjud?","options":["33 ta","26 ta","29 ta","31 ta"],"correct":0,"points":6},
+    {"q":"«Книга» so‘zining ko‘plik shakli qaysi?","options":["Книги","Книгу","Книгой"],"correct":0,"points":5},
+    {"q":"«Я ___ в школе».","options":["учусь","учится","учишься"],"correct":0,"points":6},
+    {"q":"«Вчера она ___ письмо».","options":["написала","напишет","пишу"],"correct":0,"points":7},
+    {"q":"«Я иду к ___».","options":["другу","друга","другом"],"correct":0,"points":7},
+    {"q":"«Мы говорим о ___».","options":["школе","школу","школой"],"correct":0,"points":8},
+    {"q":"«Он гордится своим ___».","options":["братом","брата","брату"],"correct":0,"points":9},
+    {"q":"«Если бы у меня было время, я ___ в музей».","options":["пошёл бы","пойду","иду"],"correct":0,"points":10},
+    {"q":"«У меня нет ___».","options":["тетради","тетрадь","тетрадью"],"correct":0,"points":8}
   ],
   "O'zbekiston tarixi": [
-    { q: "O'zbekiston Respublikasining Davlat mustaqilligi qachon e'lon qilingan?", options: ["1991-yil 31-avgust", "1992-yil 8-dekabr", "1991-yil 18-noyabr", "1990-yil 20-iyun"], correct: 0 },
-    { q: "Amir Temur qaysi yili Samarqand taxtiga o'tirgan?", options: ["1370-yil", "1336-yil", "1405-yil", "1380-yil"], correct: 0 },
-    { q: "Mirzo Ulug'bek Samarqandda rasadxonani qaysi asrda qurdirgan?", options: ["XV asrda", "XIV asrda", "XVI asrda", "XIII asrda"], correct: 0 },
-    { q: "O'zbekiston Respublikasi Konstitutsiyasi qachon qabul qilingan?", options: ["1992-yil 8-dekabr", "1991-yil 1-sentabr", "1993-yil 2-mart", "1994-yil 1-iyul"], correct: 0 }
+    {"q":"O'zbekiston Respublikasining Davlat mustaqilligi qachon e'lon qilingan?","options":["1991-yil 31-avgust","1992-yil 8-dekabr","1991-yil 18-noyabr","1990-yil 20-iyun"],"correct":0,"points":6},
+    {"q":"Amir Temur qaysi yili Samarqand taxtiga o'tirgan?","options":["1370-yil","1336-yil","1405-yil","1380-yil"],"correct":0,"points":7},
+    {"q":"Mirzo Ulug'bek Samarqandda rasadxonani qaysi asrda qurdirgan?","options":["XV asrda","XIV asrda","XVI asrda","XIII asrda"],"correct":0,"points":7},
+    {"q":"O'zbekiston Respublikasi Konstitutsiyasi qachon qabul qilingan?","options":["1992-yil 8-dekabr","1991-yil 1-sentabr","1993-yil 2-mart","1994-yil 1-iyul"],"correct":0,"points":6},
+    {"q":"«Boburnoma»ni kim yozgan?","options":["Bobur","Ulug‘bek","Beruniy"],"correct":0,"points":5},
+    {"q":"Rasadxona qaysi fan rivojiga xizmat qilgan?","options":["Astronomiya","Tilshunoslik","Musiqa"],"correct":0,"points":6},
+    {"q":"1405-yil qaysi asrga kiradi?","options":["XV","XIV","XVI"],"correct":0,"points":7},
+    {"q":"Arxeolog sopol idish topdi. Bu qanday manba?","options":["Moddiy","Og‘zaki","Audio"],"correct":0,"points":7},
+    {"q":"1370-yil bilan 1405-yil orasida necha yil bor?","options":["35","45","25"],"correct":0,"points":8},
+    {"q":"Karvon yo‘lida shaharlarning o‘sishiga nima yordam bergan?","options":["Savdo va xizmatlarga talab","Bozorlarning yopilishi","Yo‘llarning uzilishi"],"correct":0,"points":8},
+    {"q":"Qadimiy tanga orqali qaysi ma’lumotni bevosita o‘rganish mumkin?","options":["Undagi hukmdor nomi va belgilarni","Shaharning aniq aholi sonini","Hosilning aniq miqdorini"],"correct":0,"points":9},
+    {"q":"Bir voqea haqida ikki solnomada turli sana berilgan. Eng asosli yo‘l qaysi?","options":["Manbalar yaratilgan vaqt va boshqa dalillarni solishtirish","Faqat uzunroq matnni tanlash","Sanalar o‘rtachasini olish"],"correct":0,"points":10}
   ],
   "Jahon tarixi": [
-    { q: "Qadimgi Misr ehromlari (piramidalari) qaysi daryo vodiysida joylashgan?", options: ["Nil daryosi", "Dajla daryosi", "Hind daryosi", "Amazonka"], correct: 0 },
-    { q: "Ikkinchi Jahon urushi nechanchi yilda yakunlangan?", options: ["1945-yilda", "1941-yilda", "1939-yilda", "1918-yilda"], correct: 0 },
-    { q: "Xristofor Kolumb Amerika qit'asiga qaysi yili yetib borgan?", options: ["1492-yilda", "1498-yilda", "1519-yilda", "1453-yilda"], correct: 0 },
-    { q: "Birlashgan Millatlar Tashkiloti (BMT) qachon tashkil etilgan?", options: ["1945-yil 24-oktabr", "1919-yil", "1950-yil", "1939-yil"], correct: 0 }
+    {"q":"Qadimgi Misr ehromlari (piramidalari) qaysi daryo vodiysida joylashgan?","options":["Nil daryosi","Dajla daryosi","Hind daryosi","Amazonka"],"correct":0,"points":5},
+    {"q":"Ikkinchi Jahon urushi nechanchi yilda yakunlangan?","options":["1945-yilda","1941-yilda","1939-yilda","1918-yilda"],"correct":0,"points":6},
+    {"q":"Xristofor Kolumb Amerika qit'asiga qaysi yili yetib borgan?","options":["1492-yilda","1498-yilda","1519-yilda","1453-yilda"],"correct":0,"points":7},
+    {"q":"Birlashgan Millatlar Tashkiloti (BMT) qachon tashkil etilgan?","options":["1945-yil 24-oktabr","1919-yil","1950-yil","1939-yil"],"correct":0,"points":7},
+    {"q":"Olimpiya o‘yinlari qadimda qayerda paydo bo‘lgan?","options":["Yunonistonda","Misrda","Xitoyda"],"correct":0,"points":5},
+    {"q":"Qadimgi Rimda lotin yozuvidagi X nimani bildirgan?","options":["10","5","50"],"correct":0,"points":6},
+    {"q":"1789-yil qaysi asrga to‘g‘ri keladi?","options":["XVIII","XVII","XIX"],"correct":0,"points":7},
+    {"q":"Yozuv paydo bo‘lishidan oldingi hayotni qaysi dalil orqali o‘rganish mumkin?","options":["Mehnat qurollari","Gazeta maqolasi","Bosma kitob"],"correct":0,"points":7},
+    {"q":"Miloddan avvalgi 300-yil va 200-yildan qaysi biri avval kelgan?","options":["300-yil","200-yil","Ikkalasi bir vaqtda"],"correct":0,"points":8},
+    {"q":"Bosmaxonaning rivojlanishi bilim tarqalishiga qanday yordam berdi?","options":["Kitob nusxalarini ko‘paytirdi","O‘qishni chekladi","Yozuvni bekor qildi"],"correct":0,"points":8},
+    {"q":"1918-yildan 1945-yilgacha qancha vaqt o‘tdi?","options":["27 yil","37 yil","17 yil"],"correct":0,"points":9},
+    {"q":"Urush davridagi kundalik va keyin yozilgan darslikni solishtirganda qaysi xulosa asosli?","options":["Kundalik bevosita guvohlik berishi mumkin, uni boshqa manbalar bilan tekshirish kerak","Eski manba doim xatosiz","Darslik doim birlamchi manba"],"correct":0,"points":10}
   ],
   "Geografiya": [
-    { q: "Yer yuzidagi eng katta okean qaysi?", options: ["Tinch okeani", "Atlantika okeani", "Hind okeani", "Shimoliy Muz okeani"], correct: 0 },
-    { q: "Dunyodagi eng baland tog' cho'qqisi qaysi?", options: ["Everest (Jomolungma)", "Hazrati Sulton", "Elbrus", "Kilimanjaro"], correct: 0 },
-    { q: "O'zbekiston nechta davlat bilan chegaradosh?", options: ["5 ta", "4 ta", "6 ta", "3 ta"], correct: 0 },
-    { q: "Yer sharida nechta materik mavjud?", options: ["6 ta", "5 ta", "7 ta", "4 ta"], correct: 0 }
+    {"q":"Yer yuzidagi eng katta okean qaysi?","options":["Tinch okeani","Atlantika okeani","Hind okeani","Shimoliy Muz okeani"],"correct":0,"points":5},
+    {"q":"Dunyodagi eng baland tog' cho'qqisi qaysi?","options":["Everest (Jomolungma)","Hazrati Sulton","Elbrus","Kilimanjaro"],"correct":0,"points":5},
+    {"q":"O'zbekiston nechta davlat bilan chegaradosh?","options":["5 ta","4 ta","6 ta","3 ta"],"correct":0,"points":7},
+    {"q":"Yer sharida nechta materik mavjud?","options":["6 ta","5 ta","7 ta","4 ta"],"correct":0,"points":6},
+    {"q":"Ekvator Yerni qaysi yarimsharlarga ajratadi?","options":["Shimoliy va janubiy","Sharqiy va g‘arbiy","Yozgi va qishki"],"correct":0,"points":5},
+    {"q":"Kompasning N belgisi nimani anglatadi?","options":["Shimol","Janub","G‘arb"],"correct":0,"points":6},
+    {"q":"Xaritada 1 sm 5 km ga teng. 3 sm necha km?","options":["15","8","1,5"],"correct":0,"points":7},
+    {"q":"Daryoning dengizga quyiladigan joyi nima deyiladi?","options":["Mansab","Manba","Dovon"],"correct":0,"points":7},
+    {"q":"1:100 000 masshtabda 1 sm joyda qancha masofani bildiradi?","options":["1 km","10 km","100 km"],"correct":0,"points":8},
+    {"q":"Balandlik chiziqlari bir-biriga juda yaqin bo‘lsa, yonbag‘ir qanday?","options":["Tik","Tekis","Botiqsiz"],"correct":0,"points":8},
+    {"q":"Hududda 120 000 kishi 300 km² da yashaydi. Zichlik qancha?","options":["400 kishi/km²","40 kishi/km²","360 kishi/km²"],"correct":0,"points":9},
+    {"q":"1:200 000 masshtabda borish yo‘li 4 sm, qaytish yo‘li 5 sm. Umumiy masofa qancha?","options":["18 km","9 km","90 km"],"correct":0,"points":10}
   ],
   "Huquqshunoslik": [
-    { q: "O'zbekiston Respublikasida oliy yuridik kuchga ega asosiy qonun nima?", options: ["Konstitutsiya", "Mehnat kodeksi", "Soliq kodeksi", "Fuqarolik kodeksi"], correct: 0 },
-    { q: "O'zbekiston fuqarolari necha yoshdan saylash huquqiga ega bo'ladilar?", options: ["18 yoshdan", "16 yoshdan", "21 yoshdan", "25 yoshdan"], correct: 0 },
-    { q: "Bola huquqlari to'g'risidagi Konvensiyaga ko'ra necha yoshgacha bo'lgan shaxs bola hisoblanadi?", options: ["18 yoshgacha", "14 yoshgacha", "16 yoshgacha", "12 yoshgacha"], correct: 0 }
+    {"q":"O'zbekiston Respublikasida oliy yuridik kuchga ega asosiy qonun nima?","options":["Konstitutsiya","Mehnat kodeksi","Soliq kodeksi","Fuqarolik kodeksi"],"correct":0,"points":5},
+    {"q":"O'zbekiston fuqarolari necha yoshdan saylash huquqiga ega bo'ladilar?","options":["18 yoshdan","16 yoshdan","21 yoshdan","25 yoshdan"],"correct":0,"points":6},
+    {"q":"Bola huquqlari to'g'risidagi Konvensiyaga ko'ra necha yoshgacha bo'lgan shaxs bola hisoblanadi?","options":["18 yoshgacha","14 yoshgacha","16 yoshgacha","12 yoshgacha"],"correct":0,"points":6},
+    {"q":"Huquqiy qoida nima uchun xizmat qiladi?","options":["Jamiyatdagi munosabatlarni tartibga solish uchun","Ob-havoni belgilash uchun","Masofani o‘lchash uchun"],"correct":0,"points":5},
+    {"q":"Sudda ko‘rgan voqeasi haqida ma’lumot beruvchi shaxs kim?","options":["Guvoh","Tarjimon","Kotib"],"correct":0,"points":6},
+    {"q":"Qaysi biri majburiyatga misol?","options":["Kelishilgan ishni bajarish","Kutubxonadan kitob tanlash","Sayr joyini tanlash"],"correct":0,"points":7},
+    {"q":"Shartnomada «muddat» nimani bildiradi?","options":["Bajarish uchun belgilangan vaqtni","Tomonning ismini","Mahsulot rangini"],"correct":0,"points":7},
+    {"q":"Sinf qoidasida «kitobni 7 kunda qaytaring» deyilgan. Bu qaysi talab?","options":["Muddatga rioya qilish","Narx belgilash","Muallifni tanlash"],"correct":0,"points":8},
+    {"q":"Dalil bilan taxmin o‘rtasidagi farq qaysi javobda to‘g‘ri?","options":["Dalil tekshiriladigan ma’lumotga asoslanadi","Taxmin har doim dalildan kuchli","Ikkalasi aynan bir xil"],"correct":0,"points":8},
+    {"q":"Shartnomada «5 dona daftar» yozilgan. Qaysi holat miqdor shartiga mos?","options":["5 dona topshirildi","3 dona topshirildi","1 dona topshirildi"],"correct":0,"points":9},
+    {"q":"Ikki tomon kelishuv matnini turlicha izohladi. Muhokamani nimadan boshlash asosli?","options":["Matnning tegishli bandini va tomonlarning dalillarini solishtirishdan","Faqat baland gapirgan tomonni tinglashdan","Matnni o‘qimasdan xulosa qilishdan"],"correct":0,"points":10}
   ],
   "Iqtisodiyot asoslari": [
-    { q: "Bozorda tovar va xizmatlarga bo'lgan ehtiyoj va xarid qobiliyati nima deyiladi?", options: ["Talab", "Taklif", "Inflyatsiya", "Soliq"], correct: 0 },
-    { q: "O'zbekiston Respublikasining milliy valyutasi nima?", options: ["So'm", "Tenge", "Rubl", "Manat"], correct: 0 },
-    { q: "Daromadlarning xarajatlardan ortiq qismi nima deb ataladi?", options: ["Foyda", "Zarar", "Kredit", "Qarz"], correct: 0 }
+    {"q":"Bozorda tovar va xizmatlarga bo'lgan ehtiyoj va xarid qobiliyati nima deyiladi?","options":["Talab","Taklif","Inflyatsiya","Soliq"],"correct":0,"points":6},
+    {"q":"O'zbekiston Respublikasining milliy valyutasi nima?","options":["So'm","Tenge","Rubl","Manat"],"correct":0,"points":5},
+    {"q":"Daromadlarning xarajatlardan ortiq qismi nima deb ataladi?","options":["Foyda","Zarar","Kredit","Qarz"],"correct":0,"points":6},
+    {"q":"Mahsulotni yaratadigan tomon kim?","options":["Ishlab chiqaruvchi","Iste’molchi","Sayyoh"],"correct":0,"points":5},
+    {"q":"Jamg‘arma nima?","options":["Kelajak uchun ajratilgan mablag‘","Faqat qarz","Faqat soliq"],"correct":0,"points":6},
+    {"q":"Daromad 80 ming, xarajat 65 ming so‘m. Qancha ortadi?","options":["15 ming","25 ming","145 ming"],"correct":0,"points":7},
+    {"q":"10 dona daftar 40 ming so‘m bo‘lsa, bittasi qancha?","options":["4 ming","5 ming","400 so‘m"],"correct":0,"points":7},
+    {"q":"100 ming so‘mlik mahsulotga 15% chegirma berildi. Narx qancha bo‘ldi?","options":["85 ming","95 ming","75 ming"],"correct":0,"points":8},
+    {"q":"Taklif bir xil qolganda talab ortsa, boshqa sharoitlar teng bo‘lganda narxga qanday bosim bo‘ladi?","options":["Ko‘tarilish tomonga","Tushish tomonga","Albatta nolga"],"correct":0,"points":8},
+    {"q":"Tushum 240 ming, jami xarajat 180 ming so‘m. Foyda tushumning qancha qismi?","options":["25%","33%","60%"],"correct":0,"points":9},
+    {"q":"Doimiy xarajat 60 ming so‘m. Bir mahsulot narxi 10 ming, o‘zgaruvchan xarajati 4 ming. Xarajatlarni qoplash uchun nechtasi sotilishi kerak?","options":["10","6","15"],"correct":0,"points":10}
   ],
   "Astronomiya": [
-    { q: "Quyosh sistemasidagi eng katta sayyora qaysi?", options: ["Yupiter", "Saturn", "Yer", "Mars"], correct: 0 },
-    { q: "Yerning tabiiy yo'ldoshi nima?", options: ["Oy", "Fobos", "Titan", "Venera"], correct: 0 },
-    { q: "Quyoshga eng yaqin joylashgan sayyora qaysi?", options: ["Merkuriy", "Venera", "Mars", "Uran"], correct: 0 }
+    {"q":"Quyosh sistemasidagi eng katta sayyora qaysi?","options":["Yupiter","Saturn","Yer","Mars"],"correct":0,"points":5},
+    {"q":"Yerning tabiiy yo'ldoshi nima?","options":["Oy","Fobos","Titan","Venera"],"correct":0,"points":5},
+    {"q":"Quyoshga eng yaqin joylashgan sayyora qaysi?","options":["Merkuriy","Venera","Mars","Uran"],"correct":0,"points":6},
+    {"q":"Quyosh qanday osmon jismi?","options":["Yulduz","Sayyora","Yo‘ldosh"],"correct":0,"points":5},
+    {"q":"Yer o‘z o‘qi atrofida aylanishi nimaga sabab bo‘ladi?","options":["Kun va tun almashishiga","Oy tutilishining har kuni bo‘lishiga","Yil davomiyligiga"],"correct":0,"points":6},
+    {"q":"Yer Quyosh atrofida taxminan qancha vaqtda aylanadi?","options":["Bir yilda","Bir sutkada","Bir haftada"],"correct":0,"points":7},
+    {"q":"Yorug‘lik yili nimaning birligi?","options":["Masofa","Vaqt","Massa"],"correct":0,"points":7},
+    {"q":"Quyosh tutilganda qaysi jism Yer bilan Quyosh orasida turadi?","options":["Oy","Mars","Venera"],"correct":0,"points":8},
+    {"q":"Oy tutilishi paytida Oy qaysi jism soyasiga kiradi?","options":["Yer","Quyosh","Merkuriy"],"correct":0,"points":8},
+    {"q":"Yulduz 4 yorug‘lik yili uzoqlikda. Uning hozir ko‘ringan nuri qachon chiqqan?","options":["Taxminan 4 yil avval","Hozirgina","4 kun avval"],"correct":0,"points":9},
+    {"q":"Yorug‘lik tezligi 300 000 km/s bo‘lsa, 900 000 km ga borib qaytgan signalning jami yo‘l vaqti qancha?","options":["6 s","3 s","9 s"],"correct":0,"points":10}
   ]
 };
 
@@ -155,31 +275,34 @@ const AI_PRESETS = [
   "Kimyoviy bog'lanish turlari", "Insho rejasi tuzish", "Ingliz tili zamonlari"
 ];
 
+function questionPoints(question) {
+  return Number.isInteger(question.points) && question.points >= 5 && question.points <= 10 ? question.points : 10;
+}
+
+function testPoints(questions) {
+  return questions.reduce((total, question) => total + questionPoints(question), 0);
+}
+
 function buildInitialTests() {
   const bank = [];
-  let idx = 1;
-  CLASSES.forEach(cls => {
-    SUBJECTS.forEach(sub => {
-      const qPool = SUBJECT_QUESTION_BANK[sub] || SUBJECT_QUESTION_BANK["Matematika"];
+  CLASSES.forEach((grade, gradeIndex) => {
+    SUBJECTS.forEach(subject => {
+      const pool = SUBJECT_QUESTION_BANK[subject];
+      // The original three positions are retained for saved mistake indices.
+      const originalSize = ["Huquqshunoslik","Iqtisodiyot asoslari","Astronomiya"].includes(subject) ? 3 : 4;
       for (let topic = 1; topic <= 10; topic++) {
-        const picked = [];
-        for (let k = 0; k < 3; k++) {
-          const item = qPool[(topic + k) % qPool.length];
-          picked.push({
-            q: `[${cls}] ${item.q}`,
-            options: [...item.options],
-            correct: item.correct
-          });
+        const chosen = [0,1,2].map(offset => (topic + offset) % originalSize);
+        for (let offset = 0; chosen.length < 10; offset++) {
+          const index = (gradeIndex + topic * 3 + offset) % pool.length;
+          if (!chosen.includes(index)) chosen.push(index);
         }
-        bank.push({
-          id: "sys_t_" + idx++,
-          subject: sub,
-          grade: cls,
-          title: `${sub} — ${topic}-mavzu nazorat testi`,
-          authorName: null,
-          maxPoints: picked.length * 10,
-          questions: picked
+        const questions = chosen.map((index, position) => {
+          const item = pool[index];
+          const shift = (gradeIndex + topic + index + position) % item.options.length;
+          const options = item.options.slice(shift).concat(item.options.slice(0,shift));
+          return {...item, options, correct:(item.correct - shift + options.length) % options.length};
         });
+        bank.push({id:"sys_t_" + (bank.length+1),subject,grade,title:`${subject} — ${topic}-mavzu nazorat testi`,authorName:null,maxPoints:testPoints(questions),questions});
       }
     });
   });
@@ -210,7 +333,7 @@ const DEFAULT_DB = {
     {
       id: "ann_1",
       title: "IlmNuri Raqamli Ekotizimi Ishga Tushdi",
-      body: "O'quvchilar kunlik missiyalar, fan testlari (har bir savolga 10 ball) va vazifalarni bajarib ball to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlar hamda ramkalarni qo'lga kiritishlari mumkin.",
+      body: "O'quvchilar kunlik missiyalar, fan testlari (har bir savolga 5–10 ball) va vazifalarni bajarib ball to'plashlari, 1200 ball yig'ib rasmiy PDF sertifikatlar hamda ramkalarni qo'lga kiritishlari mumkin.",
       author: "Ma'muriyat", date: "2026-11-25", views: ["u_admin"]
     }
   ],
@@ -263,6 +386,7 @@ function normalizeDB(data) {
   }
   const announcement = data.announcements.find(item => item.id === "ann_1");
   const launchTitle = DEFAULT_DB.announcements[0].title;
+  if (announcement?.body === DEFAULT_DB.announcements[0].body.replace("5–10 ball","10 ball")) announcement.body = DEFAULT_DB.announcements[0].body;
   if (announcement?.title === launchTitle.replace("IlmNuri", "MaktabOS")) announcement.title = launchTitle;
   for (const message of Object.values(data.messages.r_general)) {
     if (message?.senderId !== "u_admin") continue;
@@ -1465,7 +1589,7 @@ function gradeTask(taskId, studentId) {
   renderTasks(document.getElementById("mainContent"));
 }
 
-/* ================= 4. FAN TESTLARI (HAR BIR SAVOLGA 10 BALL) ================= */
+/* ================= 4. FAN TESTLARI (5–10 BALL) ================= */
 let filterTestGrade = "9-sinf";
 let filterTestSubj = "Matematika";
 
@@ -1475,7 +1599,7 @@ function renderTests(box) {
   const solved = currentUser.solvedTests || [];
   const options = (items,selected) => items.map(item => `<option ${item === selected ? "selected" : ""}>${safeText(item)}</option>`).join("");
   box.innerHTML = `<section class="ilm-tests">
-    <header class="ilm-test-head"><div><h2>Fan testlari</h2><p>Har bir to‘g‘ri javob uchun 10 ball</p></div>
+    <header class="ilm-test-head"><div><h2>Fan testlari</h2><p>Har bir to‘g‘ri javob uchun murakkabligiga qarab 5–10 ball</p></div>
       ${canCreate ? '<button class="ilm-gold" onclick="openCreateTestModal()">+ Test tuzish</button>' : ""}</header>
     <div class="ilm-filters">
       <label>Sinf<select onchange="filterTestGrade=this.value;renderTests(document.getElementById('mainContent'))">${options(CLASSES,filterTestGrade)}</select></label>
@@ -1485,7 +1609,7 @@ function renderTests(box) {
     ${tests.map(t=>{
       const done=solved.includes(t.id), misses=currentUser.testMistakes?.[t.id]?.length || 0;
       return `<article class="ilm-test-row"><div><h4>${safeText(t.title)}</h4>
-        <p>${t.questions.length} ta savol · ${t.questions.length*10} ballgacha</p>
+        <p>${t.questions.length} ta savol · ${testPoints(t.questions)} ballgacha</p>
         ${t.authorName ? `<p>Ustoz · ${memberLink(t.authorId,t.authorName)}</p>` : ""}</div>
         ${canCreate ? "" : done && !misses ? '<span class="ilm-done">✓ Yechilgan</span>' :
           `<button class="ilm-gold" data-id="${safeText(t.id)}" onclick="startTestModal(this.dataset.id, ${done})">${done ? `Xatolarni yechish (${misses})` : "Boshlash"}</button>`}</article>`;
@@ -1500,10 +1624,10 @@ function startTestModal(testId, practice = false) {
   const indices = practice ? currentUser.testMistakes?.[testId] : test.questions.map((_, i) => i);
   if (solved !== practice || !indices?.length) return;
   openModal(`<div class="ilm-quiz"><header class="ilm-test-head"><div><h3>${safeText(test.title)}</h3>
-    <p>${practice ? "Xatolar ustida mashq · Ball o‘zgarmaydi" : "Har bir to‘g‘ri javob uchun 10 ball · Bir marta topshiriladi"}</p></div></header>
+    <p>${practice ? "Xatolar ustida mashq · Ball o‘zgarmaydi" : "Har bir to‘g‘ri javob uchun murakkabligiga qarab 5–10 ball · Bir marta topshiriladi"}</p></div></header>
     ${indices.map((idx,order)=>{
       const question=test.questions[idx];
-      return `<fieldset class="ilm-question"><legend>${order+1}. ${safeText(question.q)}</legend>
+      return `<fieldset class="ilm-question"><legend>${order+1}. ${safeText(question.q)} · ${questionPoints(question)} ball</legend>
         ${question.options.map((opt,i)=>`<label><input type="radio" name="q_${idx}" value="${i}"><span>${safeText(opt)}</span></label>`).join("")}</fieldset>`;
     }).join("")}
     <div class="ilm-quiz-actions"><button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
@@ -1524,22 +1648,23 @@ function finishTest(testId, practice = false) {
   });
   mistakes[testId] = missed;
   const correct = indices.length - missed.length;
+  const earned = indices.reduce((sum,i) => sum + (missed.includes(i) ? 0 : questionPoints(test.questions[i])), 0);
   if (!practice) {
     solved.push(testId);
-    currentUser.points += correct * 10;
-    currentUser.weeklyPoints = (currentUser.weeklyPoints || 0) + correct * 10;
+    currentUser.points += earned;
+    currentUser.weeklyPoints = (currentUser.weeklyPoints || 0) + earned;
   }
   saveDB();
   navigate("tests");
   openModal(`<div class="ilm-quiz"><header class="ilm-test-head"><div><h3>${practice ? "Mashq natijasi" : "Test natijasi"}</h3><p>${safeText(test.title)}</p></div></header>
-    <div class="ilm-score"><strong>${correct} / ${indices.length}</strong><span>To‘g‘ri javoblar</span><b>${practice ? "Ball o‘zgarmadi" : "+" + correct * 10 + " ball"}</b></div>
+    <div class="ilm-score"><strong>${correct} / ${indices.length}</strong><span>To‘g‘ri javoblar</span><b>${practice ? "Ball o‘zgarmadi" : "+" + earned + " ball"}</b></div>
     <div class="ilm-quiz-actions"><button class="btn-secondary" onclick="closeModal()">Yopish</button>${missed.length ? `<button class="ilm-gold" data-id="${safeText(testId)}" onclick="startTestModal(this.dataset.id,true)">Xatolarni yechish (${missed.length})</button>` : ""}</div></div>`);
 }
 
 function openCreateTestModal() {
   const defaultSubj = currentUser.role === "teacher" ? currentUser.subject : SUBJECTS[0];
   openModal(`
-    <h3 style="margin-bottom:12px;color:var(--text);">Yangi Test Tuzish (10 ball/savol)</h3>
+    <h3 style="margin-bottom:12px;color:var(--text);">Yangi test · 10 ta savol</h3>
     <div class="form-group"><label>Sinf</label>
       <select id="ctGrade">${CLASSES.map(c => `<option value="${c}">${c}</option>`).join("")}</select>
     </div>
@@ -1549,10 +1674,13 @@ function openCreateTestModal() {
       </select>
     </div>
     <div class="form-group"><label>Test Nomi</label><input id="ctTitle" placeholder="Test sarlavhasi" /></div>
-    <div class="form-group"><label>Savol (10 ball)</label><input id="ctQ1" placeholder="Savol matni" /></div>
-    <div class="form-group"><label>To'g'ri javob</label><input id="ctOpt1" placeholder="To'g'ri variant" /></div>
-    <div class="form-group"><label>Noto'g'ri variant 1</label><input id="ctOpt2" placeholder="Variant 2" /></div>
-    <div class="form-group"><label>Noto'g'ri variant 2</label><input id="ctOpt3" placeholder="Variant 3" /></div>
+    ${Array.from({length:10},(_,i)=>`<fieldset class="ilm-question" data-teacher-question><legend>${i+1}-savol</legend>
+      <label>Savol matni<input data-prompt required></label>
+      <label>To‘g‘ri javob<input data-answer required></label>
+      <label>Noto‘g‘ri variant 1<input data-answer required></label>
+      <label>Noto‘g‘ri variant 2<input data-answer required></label>
+      <label>Murakkablik<select data-weight>${["5 · Oson","6 · Oson","7 · O‘rtacha","8 · O‘rtacha","9 · Qiyin","10 · Qiyin"].map(label=>`<option value="${parseInt(label)}">${label} (ball)</option>`).join("")}</select></label>
+    </fieldset>`).join("")}
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
       <button class="btn-primary" style="width:auto;margin:0;" onclick="saveTeacherTest()">Saqlash</button>
@@ -1562,11 +1690,21 @@ function openCreateTestModal() {
 
 function saveTeacherTest() {
   const title = document.getElementById("ctTitle").value.trim();
-  const q1 = document.getElementById("ctQ1").value.trim();
-  const o1 = document.getElementById("ctOpt1").value.trim();
-  const o2 = document.getElementById("ctOpt2").value.trim();
-  const o3 = document.getElementById("ctOpt3").value.trim();
-  if (!title || !q1 || !o1) return;
+  if (!title) return notify("Test nomini kiriting.", "error");
+  const questions = [];
+  for (const field of document.querySelectorAll("[data-teacher-question]")) {
+    const q = field.querySelector("[data-prompt]").value.trim();
+    const options = Array.from(field.querySelectorAll("[data-answer]"), input => input.value.trim());
+    const points = Number(field.querySelector("[data-weight]").value);
+    if (!q || options.some(option => !option) || new Set(options).size !== options.length) {
+      field.scrollIntoView({block:"center"});
+      return notify((questions.length + 1) + "-savol matni va uchta turli javobni kiriting.", "error");
+    }
+    const correct = Math.floor(Math.random() * options.length);
+    [options[0], options[correct]] = [options[correct], options[0]];
+    questions.push({q, options, correct, points});
+  }
+  if (questions.length !== 10) return notify("Testda 10 ta savol bo‘lishi kerak.", "error");
 
   if (!DB.customTests) DB.customTests = [];
   DB.customTests.unshift({
@@ -1576,8 +1714,8 @@ function saveTeacherTest() {
     title,
     authorId: currentUser.id,
     authorName: currentUser.name,
-    maxPoints: 10,
-    questions: [{ q: q1, options: [o1, o2 || "Variant B", o3 || "Variant C"], correct: 0 }]
+    maxPoints: testPoints(questions),
+    questions
   });
   saveDB();
   closeModal();

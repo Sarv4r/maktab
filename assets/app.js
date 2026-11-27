@@ -346,6 +346,7 @@ let DB = normalizeDB(JSON.parse(localStorage.getItem("maktabos_db_v4")) || JSON.
 
 let currentUser = null;
 let currentView = "dashboard";
+let chatThreadOpen = false;
 let activeRoomId = "r_general";
 let replyTarget = null;
 let rankingTab = "weekly";
@@ -907,7 +908,8 @@ function renderBottomNav() {
   `).join("");
 }
 
-async function navigate(viewId) {
+async function navigate(viewId, openChat = false) {
+  if (viewId !== "chats" || currentView !== "chats") chatThreadOpen = openChat;
   currentView = viewId;
   document.getElementById("sidebar").classList.remove("open");
   document.getElementById("sidebarOverlay").classList.remove("show");
@@ -1094,60 +1096,47 @@ function claimMission(missionId, reward) {
 
 /* ================= 2. CHATLAR VA KANALLAR ================= */
 function renderChats(box) {
-  const accessibleRooms = DB.rooms.filter(r =>
-    currentUser.role === "admin" || r.id === "r_general" || r.members.includes(currentUser.id)
-  );
-  if (!accessibleRooms.some(r => r.id === activeRoomId) && accessibleRooms.length) {
-    activeRoomId = accessibleRooms[0].id;
-  }
-  const activeRoom = DB.rooms.find(r => r.id === activeRoomId);
-  const msgs = DB.messages[activeRoomId] || [];
-
+  const rooms = DB.rooms.filter(r => currentUser.role === "admin" || r.id === "r_general" || r.members?.includes(currentUser.id));
+  const activeRoom = rooms.find(r => r.id === activeRoomId) || rooms[0];
+  if (activeRoom && activeRoom.id !== activeRoomId) { activeRoomId = activeRoom.id; replyTarget = null; }
+  const msgs = activeRoom ? DB.messages[activeRoomId] || [] : [];
+  const oldInput = box.querySelector("#chatInput");
+  const sameRoom = oldInput?.dataset.room === activeRoomId;
+  const draft = sameRoom ? oldInput.value : "";
+  const typing = sameRoom && document.activeElement === oldInput;
+  const peer = room => room.type === "direct" && room.members?.includes(currentUser.id)
+    ? DB.users.find(u => u.id === room.members.find(id => id !== currentUser.id)) : null;
+  const kind = room => room.type === "channel" ? "Kanal" : room.type === "direct" ? "Shaxsiy suhbat" : "Guruh";
+  const contact = activeRoom && peer(activeRoom);
   box.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
-      <div>
-        <h2 class="page-title">${ICONS.chat} Chatlar va Kanallar</h2>
-        <p class="page-sub" style="margin:0;">Sinfdoshlar va ustozlar bilan muloqot</p>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn-secondary" onclick="openDirectChatModal()">+ Shaxsiy Chat</button>
-        <button class="btn-primary" style="width:auto;margin:0;padding:9px 14px;" onclick="openCreateRoomModal()">+ Guruh / Kanal</button>
-      </div>
-    </div>
-
-    <div class="chat-layout">
-      <div class="chat-sidebar">
-        <div style="padding:12px 15px;border-bottom:1px solid var(--border);font-weight:700;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;">
-          Suhbatlar (${accessibleRooms.length})
-        </div>
+    <section class="chat-layout ilm-chat ${chatThreadOpen && activeRoom ? "thread-open" : ""}">
+      <aside class="chat-sidebar">
+        <header class="ilm-chat-title"><h2>Chatlar</h2><span>${rooms.length} suhbat</span></header>
+        <div class="ilm-chat-create"><button type="button" onclick="openDirectChatModal()">Shaxsiy chat</button><button type="button" onclick="openCreateRoomModal()">Guruh / kanal</button></div>
         <div class="chat-list">
-          ${accessibleRooms.map(r => `
-            <div class="chat-room-item ${r.id === activeRoomId ? 'active' : ''}" onclick="selectRoom('${r.id}')">
-              <div style="font-weight:700;font-size:13.5px;color:var(--text);">${r.name}</div>
-              <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">
-                ${r.type === 'channel' ? 'Kanal' : r.type === 'direct' ? 'Shaxsiy suhbat' : 'Guruh'} • ${r.id === 'r_general' ? DB.users.length : r.members.length} a'zo
-              </div>
-            </div>
-          `).join("")}
+          ${rooms.map(r => {
+            const person = peer(r), name = person?.name || r.name;
+            const last = (DB.messages[r.id] || []).at(-1);
+            return `<button type="button" class="ilm-room ${r.id===activeRoomId ? "selected" : ""}" data-id="${safeText(r.id)}" onclick="selectRoom(this.dataset.id)">
+              ${person ? renderAvatarHTML(person,42,16,false) : `<span class="ilm-room-icon">${safeText(name?.trim().charAt(0) || "#")}</span>`}
+              <span class="ilm-room-copy"><strong>${safeText(name)}</strong><small>${safeText(last?.text || kind(r))}</small></span>
+              <time>${safeText(last?.time)}</time></button>`;
+          }).join("") || "<p>Suhbatlar hozircha yo‘q.</p>"}
         </div>
-      </div>
-
+      </aside>
       <div class="chat-main">
         ${activeRoom ? `
-          <div class="chat-header">
-            <div>
-              <div style="font-weight:700;font-size:14.5px;color:var(--text);">${activeRoom.type === "direct" ? memberLink(activeRoom.members.find(id => id !== currentUser.id), activeRoom.name) : safeText(activeRoom.name)}</div>
-              <div style="font-size:11.5px;color:var(--muted);">${activeRoom.desc || ''} • ${activeRoom.id === 'r_general' ? DB.users.length : activeRoom.members.length} a'zo</div>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-              <button class="btn-secondary" style="padding:6px 11px;font-size:12px;" onclick="viewRoomMembers('${activeRoom.id}')">A'zolar</button>
-              <button class="btn-secondary" style="padding:6px 11px;font-size:12px;" onclick="openPollModal()">So'rovnoma</button>
-            </div>
-          </div>
-
+          <header class="chat-header">
+            <button type="button" class="ilm-chat-back" aria-label="Suhbatlar ro‘yxatiga qaytish" onclick="chatThreadOpen=false;renderChats(document.getElementById('mainContent'))">‹</button>
+            <div class="ilm-thread-title"><strong>${contact ? memberLink(contact.id,contact.name) : safeText(activeRoom.name)}</strong>
+              <small>${kind(activeRoom)}${activeRoom.type==="direct" ? "" : " · "+(activeRoom.id==="r_general" ? DB.users.length : activeRoom.members?.length || 0)+" a’zo"}${activeRoom.desc && activeRoom.desc !== kind(activeRoom) ? " · "+safeText(activeRoom.desc) : ""}</small></div>
+            <details class="ilm-chat-menu"><summary aria-label="Suhbat amallari">⋮</summary><div>
+              <button data-id="${safeText(activeRoom.id)}" onclick="viewRoomMembers(this.dataset.id)">A’zolar</button><button onclick="openPollModal()">So‘rovnoma</button>
+            </div></details>
+          </header>
           ${activeRoom.pinned ? `
             <div style="background:#FFFBEB;padding:8px 16px;font-size:12px;color:#B45309;border-bottom:1px solid #FEF3C7;">
-              <strong>Mahkamlangan:</strong> ${activeRoom.pinned}
+              <strong>Mahkamlangan:</strong> ${safeText(activeRoom.pinned)}
             </div>
           ` : ''}
 
@@ -1164,23 +1153,23 @@ function renderChats(box) {
               <div class="msg-bubble ${m.senderId === currentUser.id ? 'mine' : ''}">
                 <div class="msg-meta">
                   <span>${memberLink(m.senderId,m.senderName)}</span>
-                  <span style="color:var(--muted);font-weight:500;">${m.time}</span>
+                  <span style="color:var(--muted);font-weight:500;">${safeText(m.time)}</span>
                 </div>
-                ${m.replyTo ? `<div style="font-size:11.5px;background:rgba(37,99,235,0.05);padding:4px 9px;border-left:2.5px solid var(--primary);margin-bottom:6px;border-radius:6px;color:var(--muted);">Javob: ${m.replyTo}</div>` : ''}
-                ${m.mediaType === 'image' ? `<img src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;" />` : ''}
-                ${m.mediaType === 'audio' ? `<audio controls src="${m.mediaUrl}" style="max-width:220px;margin-bottom:6px;display:block;"></audio>` : ''}
-                ${m.mediaType === 'video' ? `<video controls src="${m.mediaUrl}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;"></video>` : ''}
-                <div style="font-size:13.5px;line-height:1.45;">${m.text}</div>
-                <div class="msg-actions">
+                ${m.replyTo ? `<div style="font-size:11.5px;background:rgba(37,99,235,0.05);padding:4px 9px;border-left:2.5px solid var(--primary);margin-bottom:6px;border-radius:6px;color:var(--muted);">Javob: ${safeText(m.replyTo)}</div>` : ''}
+                ${m.mediaType === 'image' ? `<img src="${safeText(m.mediaUrl)}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;" />` : ''}
+                ${m.mediaType === 'audio' ? `<audio controls src="${safeText(m.mediaUrl)}" style="max-width:220px;margin-bottom:6px;display:block;"></audio>` : ''}
+                ${m.mediaType === 'video' ? `<video controls src="${safeText(m.mediaUrl)}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;"></video>` : ''}
+                <div style="font-size:13.5px;line-height:1.45;">${safeText(m.text)}</div>
+                <details class="ilm-msg-options"><summary>Xabar amallari</summary><div class="msg-actions">
                   <button class="react-btn ${hasAjoyib ? 'reacted' : ''}" onclick="reactMsg('${m.id}', 'Ajoyib')">Ajoyib (${ajoyibCount})</button>
                   <button class="react-btn ${hasFoydali ? 'reacted' : ''}" onclick="reactMsg('${m.id}', 'Foydali')">Foydali (${foydaliCount})</button>
-                  <button class="react-btn" onclick="setReply('${m.text.replace(/'/g, '')}')">Javob</button>
-                  <button class="react-btn" onclick="pinMsg('${m.text.replace(/'/g, '')}')">Mahkamlash</button>
+                  <button class="react-btn" data-text="${safeText(m.text)}" onclick="setReply(this.dataset.text)">Javob</button>
+                  <button class="react-btn" data-text="${safeText(m.text)}" onclick="pinMsg(this.dataset.text)">Mahkamlash</button>
                   ${(m.senderId === currentUser.id || currentUser.role === 'admin') ? `<button class="react-btn" style="color:#E11D48;" onclick="deleteMsg('${m.id}')">O'chirish</button>` : ''}
-                </div>
+                </div></details>
               </div>
             `;
-            }).join("")}
+            }).join("") || '<p class="ilm-chat-empty">Hozircha xabar yo‘q.</p>'}
           </div>
 
           <div id="replyBar" class="hidden" style="background:#F8FAFC;padding:6px 14px;font-size:12px;display:flex;justify-content:space-between;border-top:1px solid var(--border);">
@@ -1189,36 +1178,30 @@ function renderChats(box) {
           </div>
 
           <form class="chat-input-bar" onsubmit="sendMessage(event)">
-            <label class="btn-secondary" style="margin:0;padding:8px 10px;cursor:pointer;font-size:12px;">
-              Rasm
-              <input type="file" accept="image/*" class="hidden" onchange="sendMediaFile(event, 'image')" />
-            </label>
-            <label class="btn-secondary" style="margin:0;padding:8px 10px;cursor:pointer;font-size:12px;">
-              Audio
-              <input type="file" accept="audio/*" class="hidden" onchange="sendMediaFile(event, 'audio')" />
-            </label>
-            <label class="btn-secondary" style="margin:0;padding:8px 10px;cursor:pointer;font-size:12px;">
-              Video
-              <input type="file" accept="video/*" class="hidden" onchange="sendMediaFile(event, 'video')" />
-            </label>
-            <input type="text" id="chatInput" placeholder="Xabar yozing..." style="flex:1;min-width:140px;" />
-            <button type="submit" class="btn-primary" style="width:auto;margin:0;padding:10px 16px;">Yuborish</button>
+            <details class="ilm-chat-menu ilm-attach"><summary aria-label="Fayl biriktirish">＋</summary><div>
+              ${[["image","Rasm"],["audio","Audio"],["video","Video"]].map(([type,label])=>`<label>${label}<input type="file" aria-label="${label}" accept="${type}/*" onchange="sendMediaFile(event,'${type}')"></label>`).join("")}
+            </div></details>
+            <input type="text" id="chatInput" data-room="${safeText(activeRoomId)}" aria-label="Xabar matni" placeholder="Xabar yozing…" />
+            <button type="submit" class="ilm-send" aria-label="Xabarni yuborish">➤</button>
           </form>
         ` : ''}
       </div>
-    </div>
+    </section>
   `;
+  const input = box.querySelector("#chatInput");
+  if (input) { input.value = draft; if (typing) input.focus(); if (replyTarget) setReply(replyTarget); }
   const list = document.getElementById("chatMsgList");
   if (list) list.scrollTop = list.scrollHeight;
 }
 
-function selectRoom(id) { activeRoomId = id; renderChats(document.getElementById("mainContent")); }
+function selectRoom(id) { if (id !== activeRoomId) replyTarget = null; chatThreadOpen = true; activeRoomId = id; renderChats(document.getElementById("mainContent")); }
 
 function sendMessage(e) {
   e.preventDefault();
   const inp = document.getElementById("chatInput");
   const txt = inp.value.trim();
   if (!txt) return;
+  inp.value = "";
   if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
   DB.messages[activeRoomId].push({
     id: "m_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
@@ -1238,10 +1221,13 @@ function sendMessage(e) {
 function sendMediaFile(e, type) {
   const file = e.target.files[0];
   if (!file) return;
+  const roomId = activeRoomId;
+  const senderId = currentUser.id;
   const reader = new FileReader();
   reader.onload = function(ev) {
-    if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
-    DB.messages[activeRoomId].push({
+    if (currentUser?.id !== senderId) return;
+    if (!DB.messages[roomId]) DB.messages[roomId] = [];
+    DB.messages[roomId].push({
       id: "m_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
       senderId: currentUser.id,
       senderName: currentUser.name,
@@ -1255,7 +1241,7 @@ function sendMediaFile(e, type) {
     });
     saveDB();
     notify("Media fayl yuborildi", "success");
-    renderChats(document.getElementById("mainContent"));
+    if (currentView === "chats") renderChats(document.getElementById("mainContent"));
   };
   reader.readAsDataURL(file);
 }
@@ -1336,6 +1322,8 @@ function createRoom() {
   });
   DB.messages[id] = [];
   activeRoomId = id;
+  chatThreadOpen = true;
+  replyTarget = null;
   saveDB();
   closeModal();
   notify(`"${name}" yaratildi!`, "success");
@@ -1377,9 +1365,11 @@ function startDirectChat(targetId) {
     DB.messages[pairId] = [];
   }
   activeRoomId = pairId;
+  chatThreadOpen = true;
+  replyTarget = null;
   saveDB();
   closeModal();
-  navigate("chats");
+  navigate("chats", true);
 }
 
 function viewRoomMembers(roomId) {

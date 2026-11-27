@@ -621,3 +621,40 @@ button.member-avatar {cursor:pointer}
 @keyframes ilm-podium-rise {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ilm-crown-float {0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes ilm-medal-shine {0%,65%{transform:translateX(-110%)}100%{transform:translateX(245%)}}
+
+#appScreen .ilm-chat {grid-template-columns:minmax(220px,32%) minmax(0,1fr);height:clamp(340px,calc(100dvh - 190px),780px);min-height:0;background:var(--surface)}
+#appScreen .ilm-chat .chat-sidebar {display:flex;flex-direction:column;max-height:none;overflow:hidden;background:var(--surface)}
+.ilm-chat-title,.ilm-chat-create {display:flex;align-items:center;justify-content:space-between;padding:14px;gap:6px}
+.ilm-chat-title h2 {margin:0;color:var(--text);font-size:1.25rem}
+.ilm-chat-title span,.ilm-room time,.ilm-room small,.ilm-thread-title small {color:var(--muted);font-size:.78rem}
+.ilm-chat-create {padding:0 12px 12px;justify-content:start}
+.ilm-chat-create button,.ilm-chat-menu summary,.ilm-chat-back {background:var(--primary-soft);color:var(--primary);border:0;border-radius:9px;cursor:pointer;min-height:40px;padding:6px 10px}
+#appScreen .ilm-chat .chat-list {flex:1;max-height:none;overflow:auto}
+.ilm-room {background:transparent;color:var(--text);border:0;border-radius:0;width:100%;padding:10px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;text-align:start}
+.ilm-room.selected,.ilm-room:hover {background:var(--primary-soft)}
+.ilm-room-icon {display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#286781;color:white;font-weight:700}
+.ilm-room-copy {min-width:0;display:grid;gap:3px}
+.ilm-room-copy>* {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ilm-chat .chat-main {min-height:0}
+#appScreen .ilm-chat .chat-header {flex-wrap:nowrap;justify-content:start}
+.ilm-thread-title {flex:1}.ilm-thread-title small {display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ilm-chat-menu {position:relative}
+.ilm-chat-menu summary {display:grid;place-items:center;list-style:none;min-width:40px;font-size:1.2rem}
+.ilm-chat-menu summary::-webkit-details-marker {display:none}
+.ilm-chat-menu>div {position:absolute;z-index:5;top:100%;right:0;min-width:138px;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;box-shadow:0 6px 18px #172c4026;padding:5px}
+.ilm-chat-menu button,.ilm-chat-menu label {display:block;position:relative;width:100%;margin:0;background:transparent;color:var(--text);padding:10px;text-align:start;cursor:pointer;border:0}
+.ilm-attach>div {top:auto;bottom:100%;left:0;right:auto}.ilm-attach input {position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.ilm-chat-back {display:none}
+#appScreen .ilm-chat .chat-messages {min-height:0;max-height:none;flex:1;overflow:auto;background:var(--bg)}
+.ilm-chat .msg-bubble {flex-shrink:0}
+.ilm-msg-options summary {margin-top:4px;font-size:.7rem;cursor:pointer}
+.ilm-chat-empty {margin:auto;text-align:center;color:var(--muted)}
+#appScreen .ilm-chat .chat-input-bar {display:grid;grid-template-columns:40px minmax(0,1fr) 44px;align-items:center;gap:7px}
+.ilm-chat .chat-input-bar input[type=text] {margin:0;width:100%}
+.ilm-send {width:44px;height:44px;border-radius:50%;background:#16749b;color:white;border:0;font-size:1.1rem}
+@media(max-width:760px){
+  #appScreen .ilm-chat {display:flex;flex-direction:column;height:calc(100dvh - 182px);min-height:250px}
+  #appScreen .ilm-chat .chat-main,#appScreen .ilm-chat.thread-open .chat-sidebar {display:none}
+  #appScreen .ilm-chat .chat-sidebar,#appScreen .ilm-chat.thread-open .chat-main {display:flex;flex:1;min-height:0}
+  .ilm-chat-back {display:block;font-size:1.5rem;line-height:1}
+}

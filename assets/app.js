@@ -2262,7 +2262,9 @@ async function showCertificateVerification(id) {
   const status = screen.querySelector('[role="status"]');
   try {
     const endpoint = CLOUD_DB_URL.replace(/\.json$/, "/certificates.json");
-    const response = await fetch(endpoint + "?orderBy=" + encodeURIComponent(JSON.stringify("id")) + "&equalTo=" + encodeURIComponent(JSON.stringify(id)), {cache:"no-store"});
+    let response = await fetch(endpoint + "?orderBy=" + encodeURIComponent(JSON.stringify("id")) + "&equalTo=" + encodeURIComponent(JSON.stringify(id)), {cache:"no-store"});
+    // Existing Firebase configuration may not index certificate IDs.
+    if (response.status === 400) response = await fetch(endpoint, {cache:"no-store"});
     if (!response.ok) throw new Error("Server");
     const data = await response.json();
     const cert = Object.values(data || {}).find(c => c && c.id === id);

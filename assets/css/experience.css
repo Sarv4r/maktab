@@ -749,3 +749,43 @@ button.member-avatar {cursor:pointer}
 }
 
 #appScreen .bnav-btn.active .bnav-bar {background:var(--ilm-brass)}
+
+/* IlmNuri certificate — independent, print-ready paper palette */
+.ilm-cert-scroll{overflow-x:auto;padding:3px;max-width:100%}
+#modalCard:has(.ilm-cert-paper){width:min(960px,96vw);max-width:960px}
+#certPrintArea.ilm-cert-paper{box-sizing:border-box;position:relative;width:100%;min-width:650px;background:#fffefa;color:#14283f;border:7px double #a58140;padding:10px;text-align:center;font-family:Georgia,"Times New Roman",serif;letter-spacing:normal;box-shadow:0 5px 20px #14283f20}
+.ilm-cert-border{position:relative;border:1px solid #b79a64;padding:20px 30px 16px}
+.ilm-cert-border:before,.ilm-cert-border:after{content:"";position:absolute;width:42px;height:42px;border:3px solid #a58140;pointer-events:none}
+.ilm-cert-border:before{top:6px;left:6px;border-right:0;border-bottom:0}
+.ilm-cert-border:after{bottom:6px;right:6px;border-left:0;border-top:0}
+.ilm-cert-head img{display:block;margin:0 auto 4px;object-fit:contain}
+.ilm-cert-brand{font:bold 22px Georgia,serif;letter-spacing:5px;color:#14283f}
+.ilm-cert-sub,.ilm-cert-tier{font:600 10px Arial,sans-serif;letter-spacing:2px;color:#78602e;margin-top:5px}
+.ilm-cert-rule{display:flex;align-items:center;gap:12px;color:#a58140;margin:10px auto;width:55%}
+.ilm-cert-rule:before,.ilm-cert-rule:after{content:"";height:1px;background:#b79a64;flex:1}
+.ilm-cert-paper h1{font:bold clamp(30px,4vw,46px)/1.15 Georgia,serif;color:#14283f;letter-spacing:4px;margin:8px 0 10px}
+.ilm-cert-intro,.ilm-cert-description{font-size:15px;line-height:1.55;color:#354458;margin:8px auto}
+.ilm-cert-name{font:bold 32px/1.2 Georgia,serif;color:#14283f;border-bottom:1px solid #b79a64;display:inline-block;padding:6px 24px;max-width:100%;overflow-wrap:anywhere}
+.ilm-cert-grade{font:12px Arial,sans-serif;color:#566477;margin:7px 0}
+.ilm-cert-description{max-width:580px}
+.ilm-cert-footer{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:end;margin-top:15px;text-align:left}
+.ilm-cert-meta{display:grid;gap:4px;font:12px Arial,sans-serif;overflow-wrap:anywhere}
+.ilm-cert-meta span{font-size:9px;letter-spacing:1px;color:#78602e}
+.ilm-cert-meta strong{color:#14283f;margin-bottom:4px}
+.ilm-cert-sign,.ilm-cert-stamp{text-align:center;font:12px Arial,sans-serif;color:#14283f}
+.ilm-cert-sign div{border-bottom:1px solid #14283f;height:36px;margin-bottom:7px}
+.ilm-cert-sign small,.ilm-cert-stamp small{display:block;color:#566477;font-size:10px;margin-top:4px}
+.ilm-cert-stamp div{width:115px;height:115px;margin:auto;border:1px dashed #b6b6b6;border-radius:50%;background:transparent}
+.ilm-cert-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:16px}
+@media print{
+ @page{size:A4 landscape;margin:8mm}
+ html:has(#certPrintArea.ilm-cert-paper),body:has(#certPrintArea.ilm-cert-paper){width:100%;height:auto;overflow:visible!important;background:white!important}
+ body:has(.ilm-cert-paper)>:not(#modalBackdrop){display:none!important}
+ #modalBackdrop:has(.ilm-cert-paper),#modalCard:has(.ilm-cert-paper),.ilm-cert-scroll{position:static!important;display:block!important;transform:none!important;overflow:visible!important;width:100%!important;max-width:none!important;max-height:none!important;height:auto!important;padding:0!important;margin:0!important;background:none!important;border:0!important;box-shadow:none!important}
+ .ilm-cert-actions{display:none!important}
+ #certPrintArea.ilm-cert-paper{position:static!important;width:100%!important;min-width:0!important;box-shadow:none!important;break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .ilm-cert-border{padding:8mm 12mm 6mm}
+ .ilm-cert-paper h1{font-size:34pt}
+ .ilm-cert-stamp div{width:40mm;height:40mm;border-color:transparent}
+ .ilm-cert-stamp small{color:#566477}
+}

@@ -1775,6 +1775,30 @@ function askAI(e) {
 }
 
 /* ================= 6. TOP REYTING ================= */
+function animateRankingScores(panel, formatter) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const counters = Array.from(panel.querySelectorAll("[data-ranking-score]"), node => ({
+    node, target:Number(node.dataset.rankingScore), value:0
+  })).filter(counter => Number.isFinite(counter.target) && counter.target !== 0);
+  if (!counters.length) return;
+  for (const {node} of counters) node.textContent = "0 ball";
+  const start = performance.now();
+  function tick(now) {
+    if (!panel.isConnected) return;
+    const progress = Math.min(1, Math.max(0, (now - start) / 1000));
+    const eased = 1 - (1 - progress) ** 3;
+    for (const counter of counters) {
+      const value = progress === 1 ? counter.target : Math.trunc(counter.target * eased);
+      if (value !== counter.value) {
+        counter.value = value;
+        counter.node.textContent = formatter.format(value) + " ball";
+      }
+    }
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function renderRanking(box) {
   const weekly = rankingTab === "weekly";
   const entries = DB.users.filter(user => user.role === "student")
@@ -1790,14 +1814,15 @@ function renderRanking(box) {
         ${i===0 ? '<svg class="ilm-crown" viewBox="0 0 24 18" aria-hidden="true"><path fill="currentColor" d="m2 3 6 4 4-7 4 7 6-4-3 12H5zM5 16h14v2H5z"/></svg>' : ""}
         <div class="ilm-medal-avatar">${renderAvatarHTML(user,i===0?62:50,20)}<b aria-hidden="true">${i+1}</b></div>
         <div class="ilm-medal-name">${memberLink(user.id,user.name)}</div>
-        <strong>${number.format(score)} ball</strong><small>${safeText(user.grade || "")}</small>
+        <strong data-ranking-score="${Number(score)}">${number.format(score)} ball</strong><small>${safeText(user.grade || "")}</small>
         <div class="ilm-medal-step" aria-hidden="true">${i+1}</div>
       </li>`).join("")}</ol>` : "<p>Hozircha reytingda o‘quvchilar yo‘q.</p>"}
     ${entries.length>3 ? `<ol class="ilm-ranking-list" start="4">${entries.slice(3).map(({user,score},i) =>
       `<li><span class="ilm-place">${i+4}</span>${renderAvatarHTML(user,36,14)}
         <div class="ilm-rank-name">${memberLink(user.id,user.name)}<small>${[user.grade,user.activeTitle].filter(Boolean).map(safeText).join(" · ")}</small></div>
-        <strong class="ilm-rank-score">${number.format(score)} ball</strong></li>`).join("")}</ol>` : ""}
+        <strong class="ilm-rank-score" data-ranking-score="${Number(score)}">${number.format(score)} ball</strong></li>`).join("")}</ol>` : ""}
   </section>`;
+  animateRankingScores(box.firstElementChild, number);
 }
 
 /* ================= 7. MUKOFOTLAR DO'KONI ================= */

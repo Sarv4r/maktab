@@ -1470,64 +1470,27 @@ let filterTestGrade = "9-sinf";
 let filterTestSubj = "Matematika";
 
 function renderTests(box) {
-  const canCreate = currentUser.role === "teacher" || currentUser.role === "homeroom" || currentUser.role === "admin";
-  const allTests = getAllTests();
-  const filtered = allTests.filter(t => t.grade === filterTestGrade && t.subject === filterTestSubj);
-
-  box.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
-      <div>
-        <h2 class="page-title">${ICONS.test} Fan Testlari</h2>
-        <p class="page-sub" style="margin:0;">Har bir to'g'ri savolga <strong>10 ball</strong> beriladi</p>
-      </div>
-      ${canCreate ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openCreateTestModal()">+ Test Tuzish</button>` : ''}
+  const canCreate = ["teacher","homeroom","admin"].includes(currentUser.role);
+  const tests = getAllTests().filter(t => t.grade === filterTestGrade && t.subject === filterTestSubj);
+  const solved = currentUser.solvedTests || [];
+  const options = (items,selected) => items.map(item => `<option ${item === selected ? "selected" : ""}>${safeText(item)}</option>`).join("");
+  box.innerHTML = `<section class="ilm-tests">
+    <header class="ilm-test-head"><div><h2>Fan testlari</h2><p>Har bir to‘g‘ri javob uchun 10 ball</p></div>
+      ${canCreate ? '<button class="ilm-gold" onclick="openCreateTestModal()">+ Test tuzish</button>' : ""}</header>
+    <div class="ilm-filters">
+      <label>Sinf<select onchange="filterTestGrade=this.value;renderTests(document.getElementById('mainContent'))">${options(CLASSES,filterTestGrade)}</select></label>
+      <label>Fan<select onchange="filterTestSubj=this.value;renderTests(document.getElementById('mainContent'))">${options(SUBJECTS,filterTestSubj)}</select></label>
     </div>
-
-    <div class="card" style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:140px;">
-        <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Sinf</label>
-        <select onchange="filterTestGrade=this.value;renderTests(document.getElementById('mainContent'))">
-          ${CLASSES.map(c => `<option value="${c}" ${c === filterTestGrade ? 'selected' : ''}>${c}</option>`).join("")}
-        </select>
-      </div>
-      <div style="flex:1;min-width:160px;">
-        <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Fan</label>
-        <select onchange="filterTestSubj=this.value;renderTests(document.getElementById('mainContent'))">
-          ${SUBJECTS.map(s => `<option value="${s}" ${s === filterTestSubj ? 'selected' : ''}>${s}</option>`).join("")}
-        </select>
-      </div>
-    </div>
-
-    <div class="grid-3">
-      ${filtered.map(t => {
-        const solved = (currentUser.solvedTests || []).includes(t.id);
-        const missed = currentUser.testMistakes?.[t.id] || [];
-        const totalTestPts = t.questions.length * 10;
-        return `
-          <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
-            <div>
-              <div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:10px;">
-                <span class="badge badge-blue">${t.subject} • ${t.grade}</span>
-                <span class="badge badge-gold">Max: ${totalTestPts} ball</span>
-              </div>
-              <h4 style="color:var(--text);margin-bottom:6px;font-size:15px;">${t.title}</h4>
-              ${t.authorName ? `<div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:4px;">Ustoz: ${memberLink(t.authorId,t.authorName)}</div>` : ''}
-              <p style="font-size:12px;color:var(--muted);">Savollar: ${t.questions.length} ta (har biri 10 ball)</p>
-            </div>
-            <div style="margin-top:14px;">
-              ${currentUser.role === "student" ? (
-                solved && missed.length
-                  ? `<button class="btn-secondary" onclick="startTestModal('${t.id}', true)">Xato savollarni qayta yechish (${missed.length})</button>`
-                  : solved
-                  ? `<button class="btn-secondary" style="width:100%;" disabled>Yechilgan</button>`
-                  : `<button class="btn-primary" style="margin:0;" onclick="startTestModal('${t.id}')">Testni Boshlash</button>`
-              ) : `<span class="badge badge-green">O'qituvchi ko'rish rejimi</span>`}
-            </div>
-          </div>
-        `;
-      }).join("")}
-    </div>
-  `;
+    <div class="ilm-list-heading"><h3>${safeText(filterTestSubj)}</h3><span>${tests.length} ta test${canCreate ? "" : ` · ${tests.filter(t=>solved.includes(t.id)).length} ta yechilgan`}</span></div>
+    ${tests.map(t=>{
+      const done=solved.includes(t.id), misses=currentUser.testMistakes?.[t.id]?.length || 0;
+      return `<article class="ilm-test-row"><div><h4>${safeText(t.title)}</h4>
+        <p>${t.questions.length} ta savol · ${t.questions.length*10} ballgacha</p>
+        ${t.authorName ? `<p>Ustoz · ${memberLink(t.authorId,t.authorName)}</p>` : ""}</div>
+        ${canCreate ? "" : done && !misses ? '<span class="ilm-done">✓ Yechilgan</span>' :
+          `<button class="ilm-gold" data-id="${safeText(t.id)}" onclick="startTestModal(this.dataset.id, ${done})">${done ? `Xatolarni yechish (${misses})` : "Boshlash"}</button>`}</article>`;
+    }).join("") || '<p class="ilm-empty">Bu sinf va fan uchun hali test yo‘q. Boshqa fan yoki sinfni tanlang.</p>'}
+  </section>`;
 }
 
 function startTestModal(testId, practice = false) {
@@ -1536,27 +1499,15 @@ function startTestModal(testId, practice = false) {
   const solved = (currentUser.solvedTests || []).includes(testId);
   const indices = practice ? currentUser.testMistakes?.[testId] : test.questions.map((_, i) => i);
   if (solved !== practice || !indices?.length) return;
-  openModal(`
-    <h3 style="color:var(--text);margin-bottom:4px;">${test.title}</h3>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">${practice ? "Xato savollar ustida mashq. Ball o‘zgarmaydi." : "Har bir to‘g‘ri javob uchun 10 ball beriladi. Test bir marta topshiriladi."}</p>
-    ${indices.map(idx => {
-      const qObj = test.questions[idx];
-      return `
-      <div style="margin-bottom:12px;padding:12px;background:#F8FAFC;border-radius:12px;border:1px solid var(--border);">
-        <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${idx + 1}. ${qObj.q}</div>
-        ${qObj.options.map((opt, oIdx) => `
-          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:6px;cursor:pointer;">
-            <input type="radio" name="q_${idx}" value="${oIdx}" style="width:auto;" />
-            <span>${opt}</span>
-          </label>
-        `).join("")}
-      </div>
-    `; }).join("")}
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
-      <button class="btn-primary" style="width:auto;margin:0;" onclick="finishTest('${test.id}', ${practice})">Yakunlash</button>
-    </div>
-  `);
+  openModal(`<div class="ilm-quiz"><header class="ilm-test-head"><div><h3>${safeText(test.title)}</h3>
+    <p>${practice ? "Xatolar ustida mashq · Ball o‘zgarmaydi" : "Har bir to‘g‘ri javob uchun 10 ball · Bir marta topshiriladi"}</p></div></header>
+    ${indices.map((idx,order)=>{
+      const question=test.questions[idx];
+      return `<fieldset class="ilm-question"><legend>${order+1}. ${safeText(question.q)}</legend>
+        ${question.options.map((opt,i)=>`<label><input type="radio" name="q_${idx}" value="${i}"><span>${safeText(opt)}</span></label>`).join("")}</fieldset>`;
+    }).join("")}
+    <div class="ilm-quiz-actions"><button class="btn-secondary" onclick="closeModal()">Bekor qilish</button>
+      <button class="ilm-gold" data-id="${safeText(test.id)}" onclick="finishTest(this.dataset.id, ${practice})">Yakunlash</button></div></div>`);
 }
 
 function finishTest(testId, practice = false) {
@@ -1580,12 +1531,9 @@ function finishTest(testId, practice = false) {
   }
   saveDB();
   navigate("tests");
-  openModal(`
-    <h3>${practice ? "Mashq natijasi" : "Test natijasi"}</h3>
-    <p>To‘g‘ri javoblar: ${correct}/${indices.length}. ${practice ? "Ball o‘zgarmadi." : "+" + correct * 10 + " ball."}</p>
-    ${missed.length ? `<button class="btn-primary" onclick="startTestModal('${testId}', true)">${missed.length} ta xato savolni qayta yechish</button>` : ""}
-    <button class="btn-secondary" onclick="closeModal()">Yopish</button>
-  `);
+  openModal(`<div class="ilm-quiz"><header class="ilm-test-head"><div><h3>${practice ? "Mashq natijasi" : "Test natijasi"}</h3><p>${safeText(test.title)}</p></div></header>
+    <div class="ilm-score"><strong>${correct} / ${indices.length}</strong><span>To‘g‘ri javoblar</span><b>${practice ? "Ball o‘zgarmadi" : "+" + correct * 10 + " ball"}</b></div>
+    <div class="ilm-quiz-actions"><button class="btn-secondary" onclick="closeModal()">Yopish</button>${missed.length ? `<button class="ilm-gold" data-id="${safeText(testId)}" onclick="startTestModal(this.dataset.id,true)">Xatolarni yechish (${missed.length})</button>` : ""}</div></div>`);
 }
 
 function openCreateTestModal() {

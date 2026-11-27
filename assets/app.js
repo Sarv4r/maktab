@@ -251,9 +251,9 @@ const SUBJECT_QUESTION_BANK = {
 };
 
 const STORE_CATALOG = [
-  { id: "cert_gold_honor", type: "certificate", name: "Oltin Faxriy Yorliq", price: 1200, tier: "Oltin Daraja", desc: "Maktab miqyosidagi eng yuqori natija uchun rasmiy muhrlangan PDF sertifikat" },
+  { id: "cert_gold_honor", type: "certificate", name: "Oltin Faxriy Yorliq", price: 1200, tier: "Oltin Daraja", desc: "Maktab miqyosidagi eng yuqori natija uchun muhr uchun joy ajratilgan PDF sertifikat" },
   { id: "cert_olympiad_master", type: "certificate", name: "Fan Olimpiadasi G'olibi Diplomi", price: 1200, tier: "Maxsus Diplom", desc: "Aniq va tabiiy fanlardan yuqori natija ko'rsatgan o'quvchi uchun rasmiy PDF diplom" },
-  { id: "cert_director_award", type: "certificate", name: "Maktab Direktori Tashakkurnomasi", price: 1200, tier: "Oliy Maqom", desc: "Maktab hayotidagi faollik uchun direktor imzosi tushirilgan rasmiy PDF hujjat" },
+  { id: "cert_director_award", type: "certificate", name: "Maktab Direktori Tashakkurnomasi", price: 1200, tier: "Oliy Maqom", desc: "Maktab hayotidagi faollik uchun imzo uchun joy ajratilgan PDF hujjat" },
   { id: "cert_grand_scholar", type: "certificate", name: "Yilning Eng Yaxshi Bilimdoni", price: 1200, tier: "Grand Sertifikat", desc: "1200+ ball to'plagan mutlaq yetakchi o'quvchi uchun maxsus PDF sertifikat" },
 
   { id: "fr_gif_emerald", type: "frame", gifKey: "gif_emerald", name: "Zumrad", price: 200, desc: "To‘q yashil va kumush hoshiyalar." },
@@ -2247,38 +2247,34 @@ function saveProfileEdit() {
 function openCertPdfModal(certId) {
   const cert = DB.certificates.find(c => c.id === certId);
   if (!cert) return;
+  const kind = cert.title || "Faxriy sertifikat";
   openModal(`
-    <div id="certPrintArea" class="cert-frame-outer">
-      <div class="cert-frame-inner">
-        <div class="cert-ribbon">${cert.tier || 'RASMIY HUJJAT'}</div>
-        <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:1.5px;">ILMNURI AKADEMIK EKOTIZIMI</div>
-        <h1 class="cert-main-title">SERTIFIKAT</h1>
-        <p style="font-size:13px;color:#64748B;margin-top:6px;">Ushbu faxriy hujjat yuqori bilim va natijalari uchun</p>
-
-        <div class="cert-recipient">${safeText(cert.studentName)}</div>
-        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">${cert.grade} o'quvchisiga</div>
-
-        <p style="font-size:14px;color:#1E293B;max-width:410px;margin:0 auto 18px;line-height:1.5;">
-          IlmNuri platformasidagi o‘quv yutuqlari uchun <strong>«${safeText(cert.title)}»</strong> mukofoti bilan taqdirlanadi.
-        </p>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed #D97706;text-align:left;font-size:12px;color:#64748B;">
-          <div>
-            <div><strong>Berilgan sana:</strong> ${cert.date}</div>
-            <div><strong>Seriya raqami:</strong> ${cert.id}</div>
-            <div style="margin-top:4px;color:#1E293B;font-weight:700;">Maktab Ma'muriyati</div>
-          </div>
-          <div class="cert-gold-seal">
-            <span>ILMNURI</span>
-            <span>AKADEMIK</span>
-          </div>
+    <div class="ilm-cert-scroll">
+      <article id="certPrintArea" class="ilm-cert-paper" aria-label="IlmNuri sertifikati">
+        <div class="ilm-cert-border">
+          <header class="ilm-cert-head">
+            <img src="./assets/icon-192.png" alt="" width="52" height="52">
+            <div class="ilm-cert-brand">ILMNURI</div>
+            <div class="ilm-cert-sub">AKADEMIK RAQAMLI TA’LIM PLATFORMASI</div>
+          </header>
+          <div class="ilm-cert-rule"><span>◆</span></div>
+          <div class="ilm-cert-tier">${safeText(cert.tier || "Akademik yutuq")}</div>
+          <h1>${/diplom/i.test(kind) ? "DIPLOM" : /tashakkur/i.test(kind) ? "TASHAKKURNOMA" : /yorliq/i.test(kind) ? "FAXRIY YORLIQ" : "SERTIFIKAT"}</h1>
+          <p class="ilm-cert-intro">Ushbu hujjat quyidagi o‘quvchiga taqdim etiladi</p>
+          <div class="ilm-cert-name">${safeText(cert.studentName)}</div>
+          <div class="ilm-cert-grade">${safeText(cert.grade || "")}</div>
+          <p class="ilm-cert-description">IlmNuri platformasida erishgan yutuqlari va ta’limdagi faolligi uchun <strong>«${safeText(kind)}»</strong> bilan taqdirlanadi.</p>
+          <footer class="ilm-cert-footer">
+            <div class="ilm-cert-meta"><span>BERILGAN SANA</span><strong>${safeText(cert.date)}</strong><span>SERIYA RAQAMI</span><strong>${safeText(cert.id)}</strong></div>
+            <div class="ilm-cert-sign"><div></div><strong>Mas’ul shaxs imzosi</strong><small>Maktab ma’muriyati</small></div>
+            <div class="ilm-cert-stamp"><div aria-label="Haqiqiy muhr uchun bo‘sh joy"></div><small>Muhr uchun joy</small></div>
+          </footer>
         </div>
-      </div>
+      </article>
     </div>
-
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+    <div class="ilm-cert-actions">
       <button class="btn-secondary" onclick="closeModal()">Yopish</button>
-      <button class="btn-primary" style="width:auto;margin:0;" onclick="window.print()">PDF Saqlash / Chop Etish</button>
+      <button class="btn-primary" style="width:auto;margin:0;" onclick="window.print()">PDF saqlash / Chop etish</button>
     </div>
   `);
 }

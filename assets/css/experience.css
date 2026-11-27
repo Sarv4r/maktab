@@ -489,35 +489,33 @@ button.member-avatar {cursor:pointer}
 }
 }
 
-/* Personal profile */
-#appScreen .account-profile {
-  max-width: 720px;
-  background: #f1f1f5;
-  padding: clamp(12px, 3vw, 24px);
-  border-radius: 24px;
-}
-[data-theme="dark"] #appScreen .account-profile {background: var(--bg)}
-.profile-summary {text-align: center; padding: 12px 0 20px}
-.profile-summary .member-avatar {margin: 0 auto; vertical-align: middle}
-#appScreen .profile-summary h2 {margin: 14px 0 3px; color: var(--text); font-size: clamp(1.4rem, 4vw, 1.85rem); overflow-wrap: anywhere}
-.profile-summary p {margin: 0; color: var(--muted); overflow-wrap: anywhere}
-.profile-actions {display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 20px}
-#appScreen .profile-tile {
-  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 6px; min-height: 66px; margin: 0; padding: 8px 3px; border: 0; border-radius: 16px;
-  background: var(--surface); color: var(--text); font: inherit; font-weight: 600;
-  font-size: clamp(.73rem, 2.7vw, .9rem); line-height: 1.2; cursor: pointer;
-}
-.profile-tile input {position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer}
-.profile-tile svg {width: 23px; height: 23px}
-#appScreen .profile-tile:is(:focus-visible,:focus-within) {outline: 2px solid var(--primary); outline-offset: 2px}
-#appScreen .profile-tile[aria-expanded="true"] {color: var(--primary); box-shadow: inset 0 0 0 1px currentColor}
-.profile-points {display: inline-flex; gap: 6px; margin-top: 10px; padding: 3px 11px; border-radius: 20px; background: var(--surface); font-size: .78rem}
-#appScreen .account-profile .account-panel, #appScreen .account-profile>.card {border: 0; border-radius: 18px; box-shadow: none; background: var(--surface)}
-#appScreen .profile-details {padding: 6px 18px}
-.profile-details dl>div {display: flex; flex-direction: column-reverse; gap: 2px; padding: 10px 0}
-.profile-details dt {font-size: .8rem; color: var(--muted)}
-.profile-details dd {margin: 0; color: var(--text); overflow-wrap: anywhere; white-space: pre-wrap}
+/* IlmNuri academic profile */
+#appScreen .account-profile {max-width:760px;margin-inline:auto}
+.profile-summary {position:relative;isolation:isolate;overflow:hidden;padding:clamp(18px,4vw,30px);border-radius:16px 16px 4px 4px;background:#182d35;color:#fff;border-inline-start:5px solid #cfac69}
+.profile-summary::after {content:"";position:absolute;inset:0 0 0 57%;z-index:-1;background:repeating-linear-gradient(132deg,transparent 0 21px,#ddba721c 22px 23px);pointer-events:none}
+.profile-brand,.profile-idline,.profile-actions,.profile-points {display:flex;align-items:center}
+.profile-brand {gap:9px;color:#f1d7a6;font:600 1.1rem Georgia,serif;letter-spacing:.03em}
+.profile-brand img {border-radius:6px}
+.profile-idline {margin:20px 0;gap:16px}
+.profile-portrait {position:relative;flex:none}
+.profile-name {min-width:0;overflow-wrap:anywhere}
+#appScreen .profile-name h2 {margin:4px 0;color:#fff;font:600 clamp(1.45rem,5vw,2.15rem)/1.12 Georgia,serif}
+.profile-name p,.profile-name small {margin:0;color:#d6e3e5;font-size:.85rem}
+.profile-camera {position:absolute;right:-6px;bottom:-5px;display:grid;place-items:center;width:32px;height:32px;background:#edd49d;color:#192c32;border-radius:9px;overflow:hidden}
+.profile-camera input {position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.profile-camera svg,.profile-tile svg {width:18px;height:18px}
+.profile-actions {gap:8px;flex-wrap:wrap}
+#appScreen .profile-tile {display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:6px 12px;border-radius:7px;border:1px solid #76868b;background:#203941;color:white;font:inherit;font-size:.84rem;cursor:pointer}
+#appScreen .profile-tile:first-child {background:#f3e3bc;color:#21343a;border-color:transparent}
+.profile-camera:focus-within,.profile-tile:focus-visible {outline:2px solid white;outline-offset:2px}
+.profile-points {justify-content:space-between;padding:12px 18px;margin-top:3px;border-bottom:1px solid var(--border-soft);background:var(--surface);color:var(--text)}
+.profile-points strong {font-size:1.12rem;font-variant-numeric:tabular-nums}
+#appScreen .account-profile .account-panel,#appScreen .account-profile>.card {background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;box-shadow:none}
+#appScreen .profile-details {padding:3px 16px}
+.profile-details dl>div {display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:12px;align-items:baseline;padding:13px 0}
+.profile-details dl>div+div {border-top:1px solid var(--border-soft)}
+.profile-details dt {font-size:.85rem;color:var(--muted);overflow-wrap:anywhere}
+.profile-details dd {margin:0;color:var(--text);overflow-wrap:anywhere;white-space:pre-wrap}
 #profileSettings[hidden] {display: none}
 .profile-switch {margin-inline-start: auto; width: 36px; padding: 3px; border-radius: 16px; background: #667585; box-sizing: border-box}
 .profile-switch::after {content: ""; display: block; width: 14px; height: 14px; border-radius: 50%; background: white}
@@ -535,8 +533,8 @@ button.member-avatar {cursor:pointer}
 #mosSearchResults .mos-result-copy {min-width:0;width:100%;overflow-wrap:anywhere;white-space:normal}
 
 .profile-sections {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:0 0 12px;padding:4px;border-radius:15px;background:var(--surface)}
-.profile-sections button {min-width:0;min-height:44px;padding:5px 2px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:clamp(.68rem,3vw,.9rem);font-weight:650}
-.profile-sections button[aria-pressed="true"] {background:var(--primary-soft);color:var(--primary)}
+.profile-sections button {min-width:0;min-height:44px;padding:5px 2px;border:0;border-radius:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);font-size:clamp(.68rem,3vw,.9rem);font-weight:650}
+.profile-sections button[aria-pressed="true"] {border-bottom-color:#ad8948;color:var(--text)}
 .account-profile [data-profile-section][hidden] {display:none!important}
 .profile-sharing {margin:12px 0;padding:0;border:0;min-width:0}
 .profile-sharing legend {font-size:.85rem;color:var(--muted);margin-bottom:6px}

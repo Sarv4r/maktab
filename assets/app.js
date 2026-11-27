@@ -1902,18 +1902,24 @@ function renderProfile(box) {
   box.innerHTML = `
     <article class="account-profile" data-owner="${safeText(currentUser.id)}">
       <header class="profile-summary">
-        ${renderAvatarHTML(currentUser, 96, 36)}
-        <h2>${safeText(currentUser.name)}</h2>
-        <p>${safeText(currentUser.activeTitle || roles[currentUser.role])}</p>
+        <div class="profile-brand"><img src="./assets/icon-48.png" width="24" height="24" alt="">IlmNuri</div>
+        <div class="profile-idline">
+          <div class="profile-portrait">
+            ${renderAvatarHTML(currentUser,72,27)}
+            <label class="profile-camera" title="Profil rasmini almashtirish">${ICONS.camera}
+              <input type="file" aria-label="Profil rasmini tanlash" accept="image/*" onchange="uploadProfilePhoto(event)">
+            </label>
+          </div>
+          <div class="profile-name"><p>${[roles[currentUser.role],currentUser.grade || currentUser.subject].filter(Boolean).map(safeText).join(" · ")}</p>
+            <h2>${safeText(currentUser.name)}</h2>
+            ${currentUser.activeTitle ? `<small>${safeText(currentUser.activeTitle)}</small>` : ""}</div>
+        </div>
         <div class="profile-actions">
-          <label class="profile-tile">${ICONS.camera}<span>Rasm belgilash</span>
-            <input aria-label="Profil rasmini tanlash" type="file" accept="image/*" onchange="uploadProfilePhoto(event)">
-          </label>
-          <button type="button" class="profile-tile" onclick="openEditProfileModal()"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 12-12a2.8 2.8 0 0 0-4-4l-12 12z"/></svg><span>Axborotni tahrirlash</span></button>
+          <button type="button" class="profile-tile" onclick="openEditProfileModal()"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 12-12a2.8 2.8 0 0 0-4-4l-12 12z"/></svg><span>Tahrirlash</span></button>
           <button type="button" class="profile-tile" aria-expanded="false" aria-controls="profileSettings" onclick="toggleProfileSettings(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 3 .5-1h4l.7 2.4 1.7 1 2.4-.6 2 3.5-1.7 1.8v2.2l1.7 1.8-2 3.5-2.4-.6-1.7 1-.7 2.4h-4L9.3 18l-1.7-1-2.4.6-2-3.5 1.7-1.8v-2.2L3.2 8.3l2-3.5 2.4.6 1.7-1z"/><circle cx="12" cy="11.3" r="3"/></svg><span>Sozlamalar</span></button>
         </div>
-        ${currentUser.role === "student" ? `<span class="profile-points">Balans <strong>${Number(currentUser.points) || 0} ball</strong></span>` : ""}
       </header>
+      ${currentUser.role === "student" ? `<div class="profile-points"><span>O‘quv balansi</span><strong>${Number(currentUser.points)||0} ball</strong></div>` : ""}
       <section id="profileSettings" class="account-panel" hidden><h3>Sozlamalar</h3>
         <fieldset class="profile-sharing"><legend>Boshqalarga profilda ko‘rsatish</legend>
           ${extraProfileFields.map(([key,label]) => `<label><span>${label}</span><input type="checkbox" ${Object.hasOwn(currentUser.sharedExtras || {},key) ? "checked" : ""} onchange="setExtraVisibility('${key}',this)"></label>`).join("")}

@@ -490,29 +490,34 @@ button.member-avatar {cursor:pointer}
 }
 
 /* Personal profile */
-#appScreen .account-id.profile-cover {
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 14px clamp(14px, 4vw, 28px) 28px;
-  background: linear-gradient(125deg, #16476b, #176582 65%, #176f79);
-  border: 0;
-  color: #fff;
+#appScreen .account-profile {
+  max-width: 720px;
+  background: #f1f1f5;
+  padding: clamp(12px, 3vw, 24px);
+  border-radius: 24px;
 }
-.profile-toolbar, .profile-tools {display: flex; align-items: center}
-.profile-toolbar {width: 100%; justify-content: space-between}
-.profile-toolbar h2 {margin: 0; font-size: 1.05rem; color: inherit}
-.profile-tools {gap: 6px}
-#appScreen .profile-tool {
-  width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
-  border: 1px solid #ffffff54; border-radius: 50%; background: #ffffff12; color: #fff; cursor: pointer;
+[data-theme="dark"] #appScreen .account-profile {background: var(--bg)}
+.profile-summary {text-align: center; padding: 12px 0 20px}
+.profile-summary .member-avatar {margin: 0 auto; vertical-align: middle}
+#appScreen .profile-summary h2 {margin: 14px 0 3px; color: var(--text); font-size: clamp(1.4rem, 4vw, 1.85rem); overflow-wrap: anywhere}
+.profile-summary p {margin: 0; color: var(--muted); overflow-wrap: anywhere}
+.profile-actions {display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 20px}
+#appScreen .profile-tile {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; min-height: 66px; margin: 0; padding: 8px 3px; border: 0; border-radius: 16px;
+  background: var(--surface); color: var(--text); font: inherit; font-weight: 600;
+  font-size: clamp(.73rem, 2.7vw, .9rem); line-height: 1.2; cursor: pointer;
 }
-#appScreen .profile-tool:hover, #appScreen .profile-tool[aria-expanded="true"] {background: #ffffff32}
-.profile-tool:focus-visible {outline: 2px solid white; outline-offset: 3px}
-.profile-cover .member-avatar {box-shadow: 0 0 0 3px #ffffff80}
-.profile-identity {max-width: 100%; text-align: center}
-#appScreen .profile-identity h3 {color: #fff; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.25}
-#appScreen .profile-identity p, #appScreen .profile-identity small {display: block; margin-top: 4px; color: #e0f4ff}
+.profile-tile input {position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer}
+.profile-tile svg {width: 23px; height: 23px}
+#appScreen .profile-tile:is(:focus-visible,:focus-within) {outline: 2px solid var(--primary); outline-offset: 2px}
+#appScreen .profile-tile[aria-expanded="true"] {color: var(--primary); box-shadow: inset 0 0 0 1px currentColor}
+.profile-points {display: inline-flex; gap: 6px; margin-top: 10px; padding: 3px 11px; border-radius: 20px; background: var(--surface); font-size: .78rem}
+#appScreen .account-profile .account-panel, #appScreen .account-profile>.card {border: 0; border-radius: 18px; box-shadow: none; background: var(--surface)}
+#appScreen .profile-details {padding: 6px 18px}
+.profile-details dl>div {display: flex; flex-direction: column-reverse; gap: 2px; padding: 10px 0}
+.profile-details dt {font-size: .8rem; color: var(--muted)}
+.profile-details dd {margin: 0; color: var(--text); overflow-wrap: anywhere; white-space: pre-wrap}
 #profileSettings[hidden] {display: none}
 .profile-switch {margin-inline-start: auto; width: 36px; padding: 3px; border-radius: 16px; background: #667585; box-sizing: border-box}
 .profile-switch::after {content: ""; display: block; width: 14px; height: 14px; border-radius: 50%; background: white}

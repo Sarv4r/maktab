@@ -1859,23 +1859,27 @@ function renderProfile(box) {
   const myAllItems = STORE_CATALOG.filter(i => (currentUser.owned || []).includes(i.id));
 
   const roles = {student:"O‘quvchi", teacher:"O‘qituvchi", homeroom:"Sinf rahbari", admin:"Administrator"};
-  const detailIcons = {school:"home", interests:"fire", subjects:"test", goals:"rank", about:"user"};
   const rows = [
-    ["user","Vazifasi",roles[currentUser.role]],
-    ...(currentUser.grade ? [["cert","Sinf",currentUser.grade]] : []),
-    ...(currentUser.subject ? [["test","Fan",currentUser.subject]] : []),
-    ...profileFields.map(([key,label]) => [detailIcons[key],label,currentUser.profileInfo?.[key]])
+    ["Foydalanuvchi nomi", "@" + currentUser.login],
+    ["Vazifasi", roles[currentUser.role]],
+    ["Sinf", currentUser.grade],
+    ["Fan", currentUser.subject],
+    ...profileFields.map(([key, label]) => [label, currentUser.profileInfo?.[key]])
   ];
   box.innerHTML = `
     <article class="account-profile">
-      <header class="account-id profile-cover">
-        <div class="profile-toolbar"><h2>Profil</h2><div class="profile-tools">
-          <button type="button" class="profile-tool" aria-label="Profilni tahrirlash" title="Profilni tahrirlash" onclick="openEditProfileModal()"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 12-12a2.8 2.8 0 0 0-4-4l-12 12z"/></svg></button>
-          <button type="button" class="profile-tool" aria-label="Profil sozlamalari" title="Profil sozlamalari" aria-expanded="false" aria-controls="profileSettings" onclick="toggleProfileSettings(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 3 .5-1h4l.7 2.4 1.7 1 2.4-.6 2 3.5-1.7 1.8v2.2l1.7 1.8-2 3.5-2.4-.6-1.7 1-.7 2.4h-4L9.3 18l-1.7-1-2.4.6-2-3.5 1.7-1.8v-2.2L3.2 8.3l2-3.5 2.4.6 1.7-1z"/><circle cx="12" cy="11.3" r="3"/></svg></button>
-        </div></div>
-        ${renderAvatarHTML(currentUser, 84, 32)}
-        <div class="profile-identity"><h3>${safeText(currentUser.name)}</h3><p>@${safeText(currentUser.login)}</p>
-        ${currentUser.activeTitle ? `<small>${safeText(currentUser.activeTitle)}</small>` : ""}</div>
+      <header class="profile-summary">
+        ${renderAvatarHTML(currentUser, 96, 36)}
+        <h2>${safeText(currentUser.name)}</h2>
+        <p>${safeText(currentUser.activeTitle || roles[currentUser.role])}</p>
+        <div class="profile-actions">
+          <label class="profile-tile">${ICONS.camera}<span>Rasm belgilash</span>
+            <input aria-label="Profil rasmini tanlash" type="file" accept="image/*" onchange="uploadProfilePhoto(event)">
+          </label>
+          <button type="button" class="profile-tile" onclick="openEditProfileModal()"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 12-12a2.8 2.8 0 0 0-4-4l-12 12z"/></svg><span>Axborotni tahrirlash</span></button>
+          <button type="button" class="profile-tile" aria-expanded="false" aria-controls="profileSettings" onclick="toggleProfileSettings(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 3 .5-1h4l.7 2.4 1.7 1 2.4-.6 2 3.5-1.7 1.8v2.2l1.7 1.8-2 3.5-2.4-.6-1.7 1-.7 2.4h-4L9.3 18l-1.7-1-2.4.6-2-3.5 1.7-1.8v-2.2L3.2 8.3l2-3.5 2.4.6 1.7-1z"/><circle cx="12" cy="11.3" r="3"/></svg><span>Sozlamalar</span></button>
+        </div>
+        ${currentUser.role === "student" ? `<span class="profile-points">Balans <strong>${Number(currentUser.points) || 0} ball</strong></span>` : ""}
       </header>
       <section id="profileSettings" class="account-panel" hidden><h3>Sozlamalar</h3>
         <button type="button" class="account-action" id="profileNightMode" aria-pressed="${document.documentElement.dataset.theme === 'dark'}" onclick="document.getElementById('themeToggleBtn').click()">
@@ -1885,13 +1889,10 @@ function renderProfile(box) {
           <span class="account-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg></span>
           <span>${appInstalled() ? "Ilova o‘rnatilgan" : "Ilovani o‘rnatish"}</span>
         </button>
-        <label class="account-action"><span class="account-icon">${ICONS.camera}</span>
-          ${currentUser.avatarImg ? "Profil rasmini almashtirish" : "Profil rasmini qo‘yish"}
-          <input type="file" accept="image/*" onchange="uploadProfilePhoto(event)" /></label>
         ${currentUser.avatarImg ? '<button class="account-action" onclick="removeProfilePhoto()">Profil rasmini o‘chirish</button>' : ""}
       </section>
-      <section class="account-panel"><h3>Profil ma’lumotlari</h3>
-        <dl>${rows.filter(([, , value]) => value).map(([icon,label,value]) => `<div class="account-row"><dt><span class="account-icon">${ICONS[icon]}</span>${label}</dt><dd>${safeText(value)}</dd></div>`).join("")}</dl>
+      <section class="account-panel profile-details" aria-label="Profil ma’lumotlari">
+        <dl>${rows.filter(([, value]) => value).map(([label, value]) => `<div><dt>${label}</dt><dd>${safeText(value)}</dd></div>`).join("")}</dl>
       </section>
       ${currentUser.role === "student" ? `
         <div class="card">

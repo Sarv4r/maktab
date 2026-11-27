@@ -558,6 +558,8 @@ setInterval(async () => {
 }, 4000);
 
 (async function restoreSessionOnLoad() {
+  const verifyId = new URLSearchParams(location.search).get('verify');
+  if (verifyId) { showCertificateVerification(verifyId); return; }
   const savedUid = localStorage.getItem(SESSION_KEY);
   if (savedUid) {
     const cachedUser = DB.users.find(u => u.id === savedUid);
@@ -1998,7 +2000,7 @@ function buyItem(itemId) {
   if (item.type === "title") currentUser.activeTitle = item.name;
   if (item.type === "certificate") {
     const certRecord = {
-      id: "MOS-" + Math.floor(100000 + Math.random() * 900000),
+      id: "IN-" + (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2,"0")).join("")),
       studentId: currentUser.id,
       studentName: currentUser.name,
       grade: currentUser.grade,
@@ -2244,30 +2246,61 @@ function saveProfileEdit() {
 }
 
 /* ================= PDF SERTIFIKAT MODAL ================= */
+function certificateVerifyUrl(id) {
+  const url = new URL("./", location.href);
+  url.searchParams.set("verify", id);
+  return url.href;
+}
+
+async function showCertificateVerification(id) {
+  const screen = document.createElement("main");
+  screen.className = "ilm-public-verify";
+  screen.innerHTML = '<h1>IlmNuri</h1><h2>Sertifikatni tekshirish</h2><p role="status">Ma’lumotlar tekshirilmoqda…</p><a href="./">Bosh sahifa</a>';
+  document.getElementById("authScreen").classList.add("hidden");
+  document.getElementById("appScreen").classList.add("hidden");
+  document.body.appendChild(screen);
+  const status = screen.querySelector('[role="status"]');
+  try {
+    const endpoint = CLOUD_DB_URL.replace(/\.json$/, "/certificates.json");
+    const response = await fetch(endpoint + "?orderBy=" + encodeURIComponent(JSON.stringify("id")) + "&equalTo=" + encodeURIComponent(JSON.stringify(id)), {cache:"no-store"});
+    if (!response.ok) throw new Error("Server");
+    const data = await response.json();
+    const cert = Object.values(data || {}).find(c => c && c.id === id);
+    if (!cert) { status.textContent = "Sertifikat serverda topilmadi."; return; }
+    status.textContent = "Sertifikat IlmNuri bazasida mavjud.";
+    const details = document.createElement("dl");
+    for (const [label,value] of [["Sertifikat turi",cert.title],["Daraja",cert.tier],["Berilgan sana",cert.date],["Seriya raqami",cert.id]]) {
+      const dt=document.createElement("dt"),dd=document.createElement("dd");
+      dt.textContent=label;dd.textContent=value || "—";details.append(dt,dd);
+    }
+    status.after(details);
+  } catch (err) { status.textContent = "Server orqali tekshirib bo‘lmadi. Keyinroq qayta urinib ko‘ring."; }
+}
+
 function openCertPdfModal(certId) {
   const cert = DB.certificates.find(c => c.id === certId);
   if (!cert) return;
   const kind = cert.title || "Faxriy sertifikat";
+  const heading = /diplom/i.test(kind) ? "DIPLOM" : /tashakkur/i.test(kind) ? "TASHAKKURNOMA" : /yorliq/i.test(kind) ? "FAXRIY YORLIQ" : "SERTIFIKAT";
   openModal(`
     <div class="ilm-cert-scroll">
       <article id="certPrintArea" class="ilm-cert-paper" aria-label="IlmNuri sertifikati">
         <div class="ilm-cert-border">
           <header class="ilm-cert-head">
             <img src="./assets/icon-192.png" alt="" width="52" height="52">
-            <div class="ilm-cert-brand">ILMNURI</div>
-            <div class="ilm-cert-sub">AKADEMIK RAQAMLI TA’LIM PLATFORMASI</div>
+            <div class="ilm-cert-brand">IlmNuri</div>
+            <div class="ilm-cert-sub">TA’LIM PLATFORMASI</div>
           </header>
-          <div class="ilm-cert-rule"><span>◆</span></div>
+          <h1>${heading}</h1>
           <div class="ilm-cert-tier">${safeText(cert.tier || "Akademik yutuq")}</div>
-          <h1>${/diplom/i.test(kind) ? "DIPLOM" : /tashakkur/i.test(kind) ? "TASHAKKURNOMA" : /yorliq/i.test(kind) ? "FAXRIY YORLIQ" : "SERTIFIKAT"}</h1>
-          <p class="ilm-cert-intro">Ushbu hujjat quyidagi o‘quvchiga taqdim etiladi</p>
+          <p class="ilm-cert-intro">USHBU HUJJAT BILAN TAQDIRLANADI</p>
           <div class="ilm-cert-name">${safeText(cert.studentName)}</div>
           <div class="ilm-cert-grade">${safeText(cert.grade || "")}</div>
           <p class="ilm-cert-description">IlmNuri platformasida erishgan yutuqlari va ta’limdagi faolligi uchun <strong>«${safeText(kind)}»</strong> bilan taqdirlanadi.</p>
           <footer class="ilm-cert-footer">
-            <div class="ilm-cert-meta"><span>BERILGAN SANA</span><strong>${safeText(cert.date)}</strong><span>SERIYA RAQAMI</span><strong>${safeText(cert.id)}</strong></div>
-            <div class="ilm-cert-sign"><div></div><strong>Mas’ul shaxs imzosi</strong><small>Maktab ma’muriyati</small></div>
+            <div class="ilm-cert-meta"><span>BERILGAN SANA</span><strong>${safeText(cert.date)}</strong><div class="ilm-cert-sign"><div></div><strong>F.I.Sh.</strong><small>Maktab direktori</small></div></div>
             <div class="ilm-cert-stamp"><div aria-label="Haqiqiy muhr uchun bo‘sh joy"></div><small>Muhr uchun joy</small></div>
+            <div class="ilm-cert-meta"><div class="ilm-cert-verify"><a id="certQrLink" href="${safeText(certificateVerifyUrl(cert.id))}" target="_blank" rel="noopener" aria-label="Sertifikatni tekshirish"><span id="certQrCode"></span></a><div><span>SERTIFIKAT RAQAMI</span><strong>${safeText(cert.id)}</strong></div></div><div class="ilm-cert-sign"><div></div><strong>Imzo</strong><small>Mas’ul shaxs</small></div></div>
           </footer>
         </div>
       </article>
@@ -2277,6 +2310,10 @@ function openCertPdfModal(certId) {
       <button class="btn-primary" style="width:auto;margin:0;" onclick="window.print()">PDF saqlash / Chop etish</button>
     </div>
   `);
+  const target=document.getElementById("certQrCode");
+  if (target && typeof QRCode === "function") {
+    new QRCode(target,{text:certificateVerifyUrl(cert.id),width:108,height:108,colorDark:"#14283f",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+  } else if (target) { target.textContent="QR yuklanmadi"; }
 }
 
 /* ================= 9. O'QITUVCHI UCHUN O'QUVCHILAR SERTIFIKATLARI ================= */
@@ -2713,7 +2750,7 @@ function adminGrantCert(uid) {
   if (!u.owned.includes(item.id)) u.owned.push(item.id);
 
   const certRecord = {
-    id: "MOS-" + Math.floor(100000 + Math.random() * 900000),
+    id: "IN-" + (crypto.randomUUID ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2,"0")).join("")),
     studentId: u.id,
     studentName: u.name,
     grade: u.grade,

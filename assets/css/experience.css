@@ -587,29 +587,41 @@ button.member-avatar {cursor:pointer}
 .ilm-rank-score {text-align:end;font-size:.94rem}
 
 .ilm-podium {
+  --stage:radial-gradient(ellipse at 50% 0%,#f6e7bc,transparent 58%),linear-gradient(155deg,#f5f7fa,#e1e7ed);
+  --stage-edge:#ced5dd;--card-base:#fff;--card-end:#f8fafb;--step-end:#f4f5f8;--stage-ink:#202d39;--stage-muted:#475360;
+  --stage-shadow:0 5px 12px #253c541c;--ray:#6878870a;
   position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);
   align-items:end;gap:clamp(4px,1.4vw,14px);list-style:none;margin:16px 0;padding:clamp(20px,4vw,38px) clamp(6px,2vw,20px) 12px;
-  background:radial-gradient(ellipse at 50% 0%,#615238 0%,transparent 55%),linear-gradient(165deg,#182e36,#0e1720 72%);
-  border:1px solid #39474c;border-radius:18px;box-shadow:inset 0 1px #ffffff22,0 6px 18px #10202920
+  background:var(--stage);
+  border:1px solid var(--stage-edge);border-radius:18px;box-shadow:inset 0 1px #ffffff22,0 6px 18px #10202920
 }
-.ilm-podium::before {content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:repeating-conic-gradient(from 75deg at 50% -100%,transparent 0 7deg,#ffe1a40a 8deg,transparent 10deg)}
+.ilm-podium::before {content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:repeating-conic-gradient(from 75deg at 50% -100%,transparent 0 7deg,var(--ray) 8deg,transparent 10deg)}
 .ilm-medal {
   position:relative;isolation:isolate;grid-row:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:15px 2px 0;border:1px solid var(--metal);border-radius:14px 14px 6px 6px;color:#fff;text-align:center;overflow-wrap:anywhere;
-  background:radial-gradient(ellipse at top,var(--tint),transparent 75%),linear-gradient(150deg,#26313b,#151d25 70%);
-  box-shadow:inset 0 1px #ffffff55,inset 0 -3px #0004,0 6px 9px #0005
+  padding:15px 2px 0;border:1px solid var(--metal);border-radius:14px 14px 6px 6px;color:var(--stage-ink);text-align:center;overflow-wrap:anywhere;
+  background:radial-gradient(ellipse at top,var(--tint),transparent 75%),linear-gradient(150deg,var(--card-base),var(--card-end) 70%);
+  box-shadow:inset 0 1px #ffffff55,var(--stage-shadow)
 }
-.ilm-medal.medal-1 {grid-column:2;--metal:#ffda83;--tint:#785925}
-.ilm-medal.medal-2 {grid-column:1;--metal:#d7e2ef;--tint:#506174}
-.ilm-medal.medal-3 {grid-column:3;--metal:#efb58d;--tint:#704d40}
+.ilm-medal.medal-1 {grid-column:2;--metal:#dbaf51;--tint:#f6e5b6;--medal-ink:#704900}
+.ilm-medal.medal-2 {grid-column:1;--metal:#acbacb;--tint:#dce4f1;--medal-ink:#3a5068}
+.ilm-medal.medal-3 {grid-column:3;--metal:#d5a486;--tint:#f4dccc;--medal-ink:#743f25}
 .ilm-crown {width:27px;height:21px;color:var(--metal);filter:drop-shadow(0 2px 5px #edb74170)}
 .ilm-medal-avatar {position:relative;display:grid;padding:3px;border-radius:50%;background:conic-gradient(from -40deg,#fff,var(--metal) 20%,var(--tint) 43%,#fff 62%,var(--metal) 82%,#fff);box-shadow:0 0 0 1px #121b22,0 3px 8px #0007}
 .ilm-medal-avatar b {position:absolute;right:-3px;bottom:-3px;z-index:2;pointer-events:none;border-radius:50%;background:var(--metal);color:#19232b;width:21px;height:21px;line-height:21px;font-size:12px}
 .ilm-medal-name {width:100%;min-width:0;height:2.5em;display:grid;align-items:center}
-.ilm-medal-name .member-name {display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;text-align:center;max-width:100%;color:white;font-size:clamp(.75rem,3vw,1rem);line-height:1.2;padding:0 2px}
-.ilm-medal>strong {color:var(--metal);font-size:clamp(.78rem,3vw,1.18rem);font-variant-numeric:tabular-nums}
-.ilm-medal small {color:#e0e5e7}
-.ilm-medal-step {position:relative;overflow:hidden;width:100%;display:grid;place-items:center;border-top:2px solid var(--metal);background:linear-gradient(155deg,var(--tint),#192129);color:var(--metal);font:700 1.65rem Georgia,serif;text-shadow:0 2px 1px #0009;height:30px}
+.ilm-medal-name .member-name {display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;text-align:center;max-width:100%;color:var(--stage-ink);font-size:clamp(.75rem,3vw,1rem);line-height:1.2;padding:0 2px}
+.ilm-medal>strong {color:var(--medal-ink);font-size:clamp(.78rem,3vw,1.18rem);font-variant-numeric:tabular-nums}
+.ilm-medal small {color:var(--stage-muted)}
+.ilm-medal-step {position:relative;overflow:hidden;width:100%;display:grid;place-items:center;border-top:2px solid var(--metal);background:linear-gradient(155deg,var(--tint),var(--step-end));color:var(--medal-ink);font:700 1.65rem Georgia,serif;height:30px}
+
+:root[data-theme="dark"] .ilm-podium {
+  --stage:radial-gradient(ellipse at 50% 0%,#615238,transparent 55%),linear-gradient(165deg,#182e36,#0e1720 72%);
+  --stage-edge:#39474c;--card-base:#26313b;--card-end:#151d25;--step-end:#192129;--stage-ink:#fff;--stage-muted:#e0e5e7;
+  --stage-shadow:0 6px 9px #0005;--ray:#ffe1a40a
+}
+:root[data-theme="dark"] .medal-1 {--metal:#ffda83;--tint:#785925;--medal-ink:#ffda83}
+:root[data-theme="dark"] .medal-2 {--metal:#d7e2ef;--tint:#506174;--medal-ink:#d7e2ef}
+:root[data-theme="dark"] .medal-3 {--metal:#efb58d;--tint:#704d40;--medal-ink:#efb58d}
 .medal-2 .ilm-medal-step {height:43px}.medal-1 .ilm-medal-step {height:58px}
 @media(prefers-reduced-motion:no-preference){
   .ilm-medal {animation:ilm-podium-rise .55s ease-out backwards}
@@ -658,3 +670,12 @@ button.member-avatar {cursor:pointer}
   #appScreen .ilm-chat .chat-sidebar,#appScreen .ilm-chat.thread-open .chat-main {display:flex;flex:1;min-height:0}
   .ilm-chat-back {display:block;font-size:1.5rem;line-height:1}
 }
+
+.ilm-chat input.ilm-chat-search {margin:0 12px 8px;width:calc(100% - 24px);min-height:42px;border-radius:12px;background:var(--bg);color:var(--text)}
+.ilm-room[hidden],.ilm-no-matches[hidden],.ilm-room-copy [hidden] {display:none}
+.ilm-no-matches {padding:14px;text-align:center;color:var(--muted)}
+.ilm-draft-label {color:var(--primary)}
+.ilm-chat .ilm-pinned {padding:7px 14px;border-inline-start:3px solid var(--primary);background:var(--primary-soft);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.82rem}
+.ilm-pinned strong {color:var(--primary);margin-inline-end:7px}
+.ilm-chat-text {font-size:.94rem;line-height:1.45;white-space:pre-wrap}
+.ilm-send:disabled {opacity:.46;cursor:default}

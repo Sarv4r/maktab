@@ -537,7 +537,7 @@ async function manualCloudPull() {
 setInterval(async () => {
   if (!currentUser) return;
   const oldUsersCount = DB.users.length;
-  const oldMsgCount = (DB.messages[activeRoomId] || []).length;
+  const oldChats = currentView === "chats" ? chatListVersion() : null;
   const updated = await pullFromCloud(true);
   if (updated && currentUser) {
     const stillExists = DB.users.find(u => u.id === currentUser.id);
@@ -547,7 +547,7 @@ setInterval(async () => {
     }
     currentUser = stillExists;
     updateTopbar();
-    if (currentView === "chats" && (DB.messages[activeRoomId] || []).length !== oldMsgCount) {
+    if (currentView === "chats" && chatListVersion() !== oldChats) {
       renderChats(document.getElementById("mainContent"));
     } else if (currentView === "ranking" && DB.users.length !== oldUsersCount) {
       renderRanking(document.getElementById("mainContent"));
@@ -1095,14 +1095,75 @@ function claimMission(missionId, reward) {
 }
 
 /* ================= 2. CHATLAR VA KANALLAR ================= */
+function visibleChatRooms() {
+  return DB.rooms.filter(room => currentUser.role === "admin" || room.id === "r_general" || room.members?.includes(currentUser.id));
+}
+
+function lastChatActivity(room) {
+  const id = DB.messages[room.id]?.at(-1)?.id || "";
+  // Existing messages have a millisecond timestamp in their ID; older seed messages do not.
+  return Number(/^m_(\d{13})/.exec(id)?.[1] || 0);
+}
+
+function chatListVersion() {
+  return JSON.stringify(visibleChatRooms().map(room => {
+    const messages = DB.messages[room.id] || [];
+    return [room.id, room.name, room.pinned, messages.length, messages.at(-1)?.id];
+  }));
+}
+
+function chatDraftKey(roomId) {
+  return "ilmnuri.chatDraft." + JSON.stringify([currentUser.id,roomId]);
+}
+
+function readChatDraft(roomId) {
+  try { return localStorage.getItem(chatDraftKey(roomId)) || ""; }
+  catch { return ""; }
+}
+
+function updateChatDraft(input) {
+  const value = input.value;
+  try {
+    const key = chatDraftKey(input.dataset.room);
+    if (value) localStorage.setItem(key,value);
+    else localStorage.removeItem(key);
+  } catch { /* The composer stays usable when local storage is unavailable. */ }
+  input.form.querySelector(".ilm-send").disabled = !value.trim();
+  const row = input.closest(".ilm-chat").querySelector(".ilm-room.selected");
+  if (row) {
+    const preview = row.querySelector("[data-draft-preview]");
+    preview.hidden = !value.trim();
+    preview.lastElementChild.textContent = value.trim();
+    row.querySelector("[data-last-preview]").hidden = !preview.hidden;
+  }
+}
+
+function filterChatList(input) {
+  const sidebar = input.closest(".chat-sidebar");
+  const query = input.value.trim().toLocaleLowerCase("uz");
+  let matches = 0;
+  sidebar.querySelectorAll(".ilm-room").forEach(button => {
+    button.hidden = !button.dataset.search.includes(query);
+    if (!button.hidden) matches++;
+  });
+  sidebar.querySelector(".ilm-no-matches").hidden = !query || matches > 0;
+}
+
 function renderChats(box) {
-  const rooms = DB.rooms.filter(r => currentUser.role === "admin" || r.id === "r_general" || r.members?.includes(currentUser.id));
+  const rooms = visibleChatRooms().sort((a,b) => lastChatActivity(b) - lastChatActivity(a));
   const activeRoom = rooms.find(r => r.id === activeRoomId) || rooms[0];
   if (activeRoom && activeRoom.id !== activeRoomId) { activeRoomId = activeRoom.id; replyTarget = null; }
   const msgs = activeRoom ? DB.messages[activeRoomId] || [] : [];
   const oldInput = box.querySelector("#chatInput");
   const sameRoom = oldInput?.dataset.room === activeRoomId;
-  const draft = sameRoom ? oldInput.value : "";
+  const draft = sameRoom ? oldInput.value : readChatDraft(activeRoomId);
+  const previousList = sameRoom && box.querySelector("#chatMsgList");
+  const readingHistory = previousList?.clientHeight > 0 && previousList.scrollHeight - previousList.clientHeight - previousList.scrollTop > 60;
+  const scrollTop = readingHistory ? previousList.scrollTop : null;
+  const oldSearch = box.querySelector("#chatRoomSearch");
+  const query = oldSearch?.value || "";
+  const searching = oldSearch && oldSearch === document.activeElement;
+  const sideScroll = box.querySelector(".chat-list")?.scrollTop || 0;
   const typing = sameRoom && document.activeElement === oldInput;
   const peer = room => room.type === "direct" && room.members?.includes(currentUser.id)
     ? DB.users.find(u => u.id === room.members.find(id => id !== currentUser.id)) : null;
@@ -1113,15 +1174,18 @@ function renderChats(box) {
       <aside class="chat-sidebar">
         <header class="ilm-chat-title"><h2>Chatlar</h2><span>${rooms.length} suhbat</span></header>
         <div class="ilm-chat-create"><button type="button" onclick="openDirectChatModal()">Shaxsiy chat</button><button type="button" onclick="openCreateRoomModal()">Guruh / kanal</button></div>
+        <input id="chatRoomSearch" class="ilm-chat-search" type="search" aria-label="Suhbat nomi bo‘yicha qidirish" placeholder="Suhbatni qidirish…" oninput="filterChatList(this)">
         <div class="chat-list">
           ${rooms.map(r => {
             const person = peer(r), name = person?.name || r.name;
             const last = (DB.messages[r.id] || []).at(-1);
-            return `<button type="button" class="ilm-room ${r.id===activeRoomId ? "selected" : ""}" data-id="${safeText(r.id)}" onclick="selectRoom(this.dataset.id)">
+            const roomDraft = readChatDraft(r.id).trim();
+            return `<button type="button" data-search="${safeText(String(name || "").toLocaleLowerCase("uz"))}" class="ilm-room ${r.id===activeRoomId ? "selected" : ""}" data-id="${safeText(r.id)}" onclick="selectRoom(this.dataset.id)">
               ${person ? renderAvatarHTML(person,42,16,false) : `<span class="ilm-room-icon">${safeText(name?.trim().charAt(0) || "#")}</span>`}
-              <span class="ilm-room-copy"><strong>${safeText(name)}</strong><small>${safeText(last?.text || kind(r))}</small></span>
+              <span class="ilm-room-copy"><strong>${safeText(name)}</strong><small><span data-draft-preview ${roomDraft ? "" : "hidden"}><b class="ilm-draft-label">Qoralama</b> · <span>${safeText(roomDraft)}</span></span><span data-last-preview ${roomDraft ? "hidden" : ""}>${safeText(last?.text || kind(r))}</span></small></span>
               <time>${safeText(last?.time)}</time></button>`;
           }).join("") || "<p>Suhbatlar hozircha yo‘q.</p>"}
+          <p class="ilm-no-matches" hidden>Mos suhbat topilmadi.</p>
         </div>
       </aside>
       <div class="chat-main">
@@ -1135,8 +1199,8 @@ function renderChats(box) {
             </div></details>
           </header>
           ${activeRoom.pinned ? `
-            <div style="background:#FFFBEB;padding:8px 16px;font-size:12px;color:#B45309;border-bottom:1px solid #FEF3C7;">
-              <strong>Mahkamlangan:</strong> ${safeText(activeRoom.pinned)}
+            <div class="ilm-pinned">
+              <strong>Mahkamlangan xabar</strong> ${safeText(activeRoom.pinned)}
             </div>
           ` : ''}
 
@@ -1159,7 +1223,7 @@ function renderChats(box) {
                 ${m.mediaType === 'image' ? `<img src="${safeText(m.mediaUrl)}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;" />` : ''}
                 ${m.mediaType === 'audio' ? `<audio controls src="${safeText(m.mediaUrl)}" style="max-width:220px;margin-bottom:6px;display:block;"></audio>` : ''}
                 ${m.mediaType === 'video' ? `<video controls src="${safeText(m.mediaUrl)}" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block;"></video>` : ''}
-                <div style="font-size:13.5px;line-height:1.45;">${safeText(m.text)}</div>
+                <div class="ilm-chat-text">${safeText(m.text)}</div>
                 <details class="ilm-msg-options"><summary>Xabar amallari</summary><div class="msg-actions">
                   <button class="react-btn ${hasAjoyib ? 'reacted' : ''}" onclick="reactMsg('${m.id}', 'Ajoyib')">Ajoyib (${ajoyibCount})</button>
                   <button class="react-btn ${hasFoydali ? 'reacted' : ''}" onclick="reactMsg('${m.id}', 'Foydali')">Foydali (${foydaliCount})</button>
@@ -1181,7 +1245,7 @@ function renderChats(box) {
             <details class="ilm-chat-menu ilm-attach"><summary aria-label="Fayl biriktirish">＋</summary><div>
               ${[["image","Rasm"],["audio","Audio"],["video","Video"]].map(([type,label])=>`<label>${label}<input type="file" aria-label="${label}" accept="${type}/*" onchange="sendMediaFile(event,'${type}')"></label>`).join("")}
             </div></details>
-            <input type="text" id="chatInput" data-room="${safeText(activeRoomId)}" aria-label="Xabar matni" placeholder="Xabar yozing…" />
+            <input type="text" id="chatInput" oninput="updateChatDraft(this)" data-room="${safeText(activeRoomId)}" aria-label="Xabar matni" placeholder="Xabar yozing…" />
             <button type="submit" class="ilm-send" aria-label="Xabarni yuborish">➤</button>
           </form>
         ` : ''}
@@ -1189,9 +1253,22 @@ function renderChats(box) {
     </section>
   `;
   const input = box.querySelector("#chatInput");
-  if (input) { input.value = draft; if (typing) input.focus(); if (replyTarget) setReply(replyTarget); }
+  if (input) {
+    input.value = draft;
+    input.form.querySelector(".ilm-send").disabled = !draft.trim();
+    if (typing) {
+      input.focus({preventScroll:true});
+      input.setSelectionRange(oldInput.selectionStart,oldInput.selectionEnd);
+    }
+    if (replyTarget) setReply(replyTarget);
+  }
+  const search = box.querySelector("#chatRoomSearch");
+  search.value = query;
+  if (query) filterChatList(search);
+  if (searching && search.getClientRects().length) search.focus({preventScroll:true});
+  box.querySelector(".chat-list").scrollTop = sideScroll;
   const list = document.getElementById("chatMsgList");
-  if (list) list.scrollTop = list.scrollHeight;
+  if (list) list.scrollTop = scrollTop ?? list.scrollHeight;
 }
 
 function selectRoom(id) { if (id !== activeRoomId) replyTarget = null; chatThreadOpen = true; activeRoomId = id; renderChats(document.getElementById("mainContent")); }
@@ -1202,6 +1279,7 @@ function sendMessage(e) {
   const txt = inp.value.trim();
   if (!txt) return;
   inp.value = "";
+  updateChatDraft(inp);
   if (!DB.messages[activeRoomId]) DB.messages[activeRoomId] = [];
   DB.messages[activeRoomId].push({
     id: "m_" + Date.now() + "_" + Math.floor(Math.random() * 1000),

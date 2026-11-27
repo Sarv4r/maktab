@@ -789,3 +789,26 @@ button.member-avatar {cursor:pointer}
  .ilm-cert-stamp div{width:40mm;height:40mm;border-color:transparent}
  .ilm-cert-stamp small{color:#566477}
 }
+
+/* Selected IlmNuri minimalist certificate */
+#certPrintArea.ilm-cert-paper{background:#fff;color:#10243c;border:3px solid #10243c;padding:9px;box-shadow:none}
+.ilm-cert-paper .ilm-cert-border{border:1.5px solid #bb943c;padding:22px 34px 18px;background:linear-gradient(135deg,#f7f8fa 0%,#fff 26%,#fff 74%,#f7f8fa 100%)}
+.ilm-cert-paper .ilm-cert-border:before,.ilm-cert-paper .ilm-cert-border:after{width:24px;height:24px;border-color:#bb943c}
+.ilm-cert-paper .ilm-cert-brand{font:bold 30px Georgia,serif;letter-spacing:0;text-transform:none}
+.ilm-cert-paper .ilm-cert-sub{color:#10243c;letter-spacing:3px}
+.ilm-cert-paper h1{font:bold clamp(27px,4vw,48px)/1.1 Georgia,serif;letter-spacing:2px;margin:12px 0}
+.ilm-cert-paper .ilm-cert-tier{display:inline-block;background:#10243c;color:#fff;border:2px solid #bb943c;padding:6px 34px;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%)}
+.ilm-cert-paper .ilm-cert-intro{font:600 12px Arial,sans-serif;letter-spacing:2px;margin-top:14px}
+.ilm-cert-paper .ilm-cert-name{font:italic bold 38px/1.15 Georgia,serif;border-color:#bb943c;min-width:45%}
+.ilm-cert-paper .ilm-cert-footer{align-items:end;grid-template-columns:1fr 140px 1fr;gap:18px}
+.ilm-cert-paper .ilm-cert-verify{display:flex;align-items:center;gap:8px}
+.ilm-cert-paper .ilm-cert-verify span,.ilm-cert-paper .ilm-cert-verify strong{display:block}
+#certQrCode{display:block!important;background:white;padding:8px;width:max-content;min-width:80px;font:10px Arial,sans-serif}
+#certQrCode canvas,#certQrCode img{max-width:100%;height:auto}
+.ilm-cert-paper .ilm-cert-stamp div{border-color:#10243c}
+.ilm-public-verify{max-width:560px;margin:40px auto;padding:28px;border:1px solid var(--border);border-radius:18px;background:var(--surface);color:var(--text)}
+.ilm-public-verify h1,.ilm-public-verify h2{margin:0 0 14px}
+.ilm-public-verify dl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0;overflow-wrap:anywhere}
+.ilm-public-verify dd{margin:0;font-weight:600}
+.ilm-public-verify a{display:inline-block;margin-top:20px;color:var(--primary)}
+@media print{.ilm-cert-paper .ilm-cert-border{padding:5mm 9mm}.ilm-cert-paper h1{font-size:32pt}.ilm-cert-paper .ilm-cert-stamp div{width:40mm;height:40mm;border-color:transparent}.ilm-cert-paper .ilm-cert-footer{grid-template-columns:1fr 45mm 1fr}.ilm-cert-paper .ilm-cert-name{font-size:30pt}}

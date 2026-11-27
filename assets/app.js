@@ -1776,59 +1776,20 @@ function askAI(e) {
 
 /* ================= 6. TOP REYTING ================= */
 function renderRanking(box) {
-  const students = DB.users.filter(u => u.role === "student");
-  const sorted = [...students].sort((a, b) => {
-    if (rankingTab === "weekly") return (b.weeklyPoints || 0) - (a.weeklyPoints || 0);
-    return getTotalEarnedPoints(b) - getTotalEarnedPoints(a);
-  });
-
-  box.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
-      <div>
-        <h2 class="page-title">${ICONS.rank} Maktab Top Reytingi</h2>
-        <p class="page-sub" style="margin:0;">
-          ${rankingTab === 'all'
-            ? "Umumiy reytingda joriy balans va do'konda ishlatilgan barcha ballar qo'shib ko'rsatiladi"
-            : `Haftalik eng faol o'quvchilar (${students.length} nafar)`}
-        </p>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <button class="btn-secondary" style="padding:8px 12px;" onclick="manualCloudPull()">Yangilash</button>
-        <div class="tabs" style="margin:0;width:240px;">
-          <button class="tab-btn ${rankingTab === 'weekly' ? 'active' : ''}" onclick="rankingTab='weekly';renderRanking(document.getElementById('mainContent'))">Haftalik</button>
-          <button class="tab-btn ${rankingTab === 'all' ? 'active' : ''}" onclick="rankingTab='all';renderRanking(document.getElementById('mainContent'))">Umumiy</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      ${sorted.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha ro'yxatdan o'tgan o'quvchilar yo'q.</p>` : sorted.map((s, i) => {
-        const spent = calculateSpentPoints(s);
-        const totalAll = getTotalEarnedPoints(s);
-        const score = rankingTab === "weekly" ? (s.weeklyPoints || 0) : totalAll;
-        return `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border-soft);gap:10px;">
-            <div style="display:flex;align-items:center;gap:14px;">
-              <strong style="width:28px;color:${i === 0 ? '#D97706' : i === 1 ? '#2563EB' : 'var(--muted)'};font-size:14px;">#${i + 1}</strong>
-              ${renderAvatarHTML(s, 40, 15)}
-              <div>
-                <div style="font-weight:700;font-size:14px;">${memberLink(s.id, s.name)} ${s.activeTitle ? `<span class="badge badge-gold">${s.activeTitle}</span>` : ''}</div>
-                <div style="font-size:12px;color:var(--muted);">${s.grade}</div>
-              </div>
-            </div>
-            <div style="text-align:right;">
-              <strong style="color:var(--primary);font-size:15.5px;">${score} ball</strong>
-              <div style="font-size:11px;color:var(--muted);">
-                ${rankingTab === 'weekly'
-                  ? 'shu hafta'
-                  : `Balans: ${s.points} • Ishlatilgan: ${spent}`}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join("")}
-    </div>
-  `;
+  const weekly = rankingTab === "weekly";
+  const entries = DB.users.filter(user => user.role === "student")
+    .map(user => ({user, score:weekly ? user.weeklyPoints || 0 : getTotalEarnedPoints(user)}))
+    .sort((a,b) => b.score - a.score || a.user.name.localeCompare(b.user.name,"uz"));
+  const number = new Intl.NumberFormat("uz-UZ");
+  box.innerHTML = `<section class="ilm-ranking">
+    <header class="ilm-ranking-head"><h2>Maktab reytingi</h2><p>${weekly ? "Haftalik" : "Jami"} yig‘ilgan ball · ${entries.length} o‘quvchi</p></header>
+    <nav class="ilm-ranking-period" aria-label="Reyting davri">${[["weekly","Haftalik"],["all","Umumiy"]].map(([period,label]) =>
+      `<button type="button" aria-pressed="${rankingTab === period}" onclick="rankingTab='${period}';renderRanking(document.getElementById('mainContent'))">${label}</button>`).join("")}</nav>
+    ${entries.length ? `<ol class="ilm-ranking-list">${entries.map(({user,score},i) =>
+      `<li><span class="ilm-place">${i+1}</span>${renderAvatarHTML(user,36,14)}
+        <div class="ilm-rank-name">${memberLink(user.id,user.name)}<small>${[user.grade,user.activeTitle].filter(Boolean).map(safeText).join(" · ")}</small></div>
+        <strong class="ilm-rank-score">${number.format(score)} ball</strong></li>`).join("")}</ol>` : "<p>Hozircha reytingda o‘quvchilar yo‘q.</p>"}
+  </section>`;
 }
 
 /* ================= 7. MUKOFOTLAR DO'KONI ================= */
@@ -1926,7 +1887,7 @@ function buyItem(itemId) {
     return;
   }
   currentUser.points -= item.price;
-  currentUser.spentPoints = (currentUser.spentPoints || 0) + item.price;
+  currentUser.spentPoints = calculateSpentPoints(currentUser) + item.price;
   if (!currentUser.owned) currentUser.owned = [];
   currentUser.owned.push(item.id);
 

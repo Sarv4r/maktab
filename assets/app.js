@@ -487,18 +487,42 @@ const profileFields = [
   ["goals", "O‘quv maqsadlari"], ["about", "O‘zim haqimda"]
 ];
 
+const extraProfileFields = [["birthday", "Tug‘ilgan kun", "date"], ["languages", "Tillar", "text"], ["club", "To‘garak", "text"]];
+
+function localProfileExtras() {
+  try { return JSON.parse(localStorage.getItem("ilmnuri.profile." + currentUser.id)) || {}; }
+  catch { return {}; }
+}
+
+function ownProfileExtras() {
+  return {...localProfileExtras(), ...currentUser.sharedExtras};
+}
+
+function setExtraVisibility(key, input) {
+  const extras = ownProfileExtras();
+  try { localStorage.setItem("ilmnuri.profile." + currentUser.id, JSON.stringify(extras)); }
+  catch { input.checked = !input.checked; return notify("Qurilmaga saqlab bo‘lmadi.", "error"); }
+  const shared = {...currentUser.sharedExtras};
+  if (input.checked) shared[key] = extras[key] || "";
+  else delete shared[key];
+  currentUser.sharedExtras = shared;
+  DB.users.find(u => u.id === currentUser.id).sharedExtras = shared;
+  saveDB();
+}
+
 function openMember(id) {
   if (!currentUser) return;
   const u = DB.users.find(person => person.id === id);
   if (!u) return;
   const awards = STORE_CATALOG.filter(item => item.type !== "certificate" && u.owned?.includes(item.id)).map(item => item.name);
   const certificates = DB.certificates.filter(c => c.studentId === id);
-  const info = profileFields.filter(([key]) => u.profileInfo?.[key]);
+  const values = {...u.profileInfo, ...u.sharedExtras};
+  const info = [...profileFields, ...extraProfileFields].filter(([key]) => values[key]);
   const role = {student:"O‘quvchi",teacher:"O‘qituvchi",homeroom:"Sinf rahbari",admin:"Administrator"}[u.role];
   openModal(`<header class="member-head">${renderAvatarHTML(u,64,24,false)}<div><h2>${safeText(u.name)}</h2>
     <p>${[role,u.grade,u.subject,u.activeTitle].filter(Boolean).map(safeText).join(" · ")}</p></div></header>
     <dl class="member-stats"><div><dt>Ball</dt><dd>${Number(u.points)||0}</dd></div><div><dt>Yechilgan testlar</dt><dd>${u.solvedTests?.length||0}</dd></div></dl>
-    ${info.length ? `<dl class="member-info">${info.map(([k,l]) => `<div><dt>${l}</dt><dd>${safeText(u.profileInfo[k])}</dd></div>`).join("")}</dl>` : ""}
+    ${info.length ? `<dl class="member-info">${info.map(([k,l]) => `<div><dt>${l}</dt><dd>${safeText(values[k])}</dd></div>`).join("")}</dl>` : ""}
     <h3>Mukofotlar</h3><div class="award-list">${awards.map(a=>`<span class="badge">${safeText(a)}</span>`).join("")}
     ${certificates.map(c=>`<button class="btn-secondary" data-certificate="${safeText(c.id)}">${safeText(c.title)}</button>`).join("")}
     ${!awards.length && !certificates.length ? "<p>Hali mukofot olinmagan.</p>" : ""}</div>
@@ -1852,7 +1876,15 @@ function buyItem(itemId) {
 }
 
 /* ================= 8. PROFIL ================= */
+function switchProfileSection(id) {
+  document.querySelectorAll("[data-profile-section]").forEach(panel => { panel.hidden = panel.dataset.profileSection !== id; });
+  document.querySelectorAll("[data-profile-choice]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.profileChoice === id)));
+}
+
 function renderProfile(box) {
+  const active = box.querySelector(".account-profile")?.dataset.owner === String(currentUser.id)
+    ? box.querySelector('[data-profile-choice][aria-pressed="true"]')?.dataset.profileChoice : null;
+  const extras = ownProfileExtras();
   const ownedFrames = STORE_CATALOG.filter(i => i.type === "frame" && (currentUser.owned || []).includes(i.id));
   const ownedTitles = STORE_CATALOG.filter(i => i.type === "title" && (currentUser.owned || []).includes(i.id));
   const myCerts = DB.certificates.filter(c => c.studentId === currentUser.id);
@@ -1864,10 +1896,11 @@ function renderProfile(box) {
     ["Vazifasi", roles[currentUser.role]],
     ["Sinf", currentUser.grade],
     ["Fan", currentUser.subject],
+    ...extraProfileFields.map(([key, label]) => [label, extras[key]]),
     ...profileFields.map(([key, label]) => [label, currentUser.profileInfo?.[key]])
   ];
   box.innerHTML = `
-    <article class="account-profile">
+    <article class="account-profile" data-owner="${safeText(currentUser.id)}">
       <header class="profile-summary">
         ${renderAvatarHTML(currentUser, 96, 36)}
         <h2>${safeText(currentUser.name)}</h2>
@@ -1882,6 +1915,9 @@ function renderProfile(box) {
         ${currentUser.role === "student" ? `<span class="profile-points">Balans <strong>${Number(currentUser.points) || 0} ball</strong></span>` : ""}
       </header>
       <section id="profileSettings" class="account-panel" hidden><h3>Sozlamalar</h3>
+        <fieldset class="profile-sharing"><legend>Boshqalarga profilda ko‘rsatish</legend>
+          ${extraProfileFields.map(([key,label]) => `<label><span>${label}</span><input type="checkbox" ${Object.hasOwn(currentUser.sharedExtras || {},key) ? "checked" : ""} onchange="setExtraVisibility('${key}',this)"></label>`).join("")}
+        </fieldset>
         <button type="button" class="account-action" id="profileNightMode" aria-pressed="${document.documentElement.dataset.theme === 'dark'}" onclick="document.getElementById('themeToggleBtn').click()">
           <span class="account-icon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.7 13A9 9 0 0 1 11 3.3 9 9 0 1 0 20.7 13Z"/></svg></span>Tungi rejim<span class="profile-switch" aria-hidden="true"></span>
         </button>
@@ -1891,11 +1927,14 @@ function renderProfile(box) {
         </button>
         ${currentUser.avatarImg ? '<button class="account-action" onclick="removeProfilePhoto()">Profil rasmini o‘chirish</button>' : ""}
       </section>
-      <section class="account-panel profile-details" aria-label="Profil ma’lumotlari">
+      ${currentUser.role === "student" ? `<nav class="profile-sections" aria-label="Profil bo‘limlari">
+        ${[["info","Ma’lumotlar"],["awards","Mukofotlar"],["certs","Sertifikatlar"]].map(([key,label]) => `<button type="button" data-profile-choice="${key}" aria-pressed="${key === "info"}" onclick="switchProfileSection('${key}')">${label}</button>`).join("")}
+      </nav>` : ""}
+      <section data-profile-section="info" class="account-panel profile-details" aria-label="Profil ma’lumotlari">
         <dl>${rows.filter(([, value]) => value).map(([label, value]) => `<div><dt>${label}</dt><dd>${safeText(value)}</dd></div>`).join("")}</dl>
       </section>
       ${currentUser.role === "student" ? `
-        <div class="card">
+        <div class="card" data-profile-section="awards" hidden>
           <h3 style="margin-bottom:12px;color:var(--text);font-size:16px;">Ramkalar va unvonlar</h3>
           <div style="margin-bottom:14px;">
             <strong style="font-size:11px;color:var(--muted);">Ramkalar</strong>
@@ -1924,7 +1963,7 @@ function renderProfile(box) {
       ` : ''}
 
     ${currentUser.role === "student" ? `
-      <div class="card" style="margin-bottom:16px;">
+      <div class="card" data-profile-section="certs" hidden style="margin-bottom:16px;">
         <h3 style="color:var(--text);font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.cert} PDF Sertifikatlarim (${myCerts.length})</h3>
         <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Rasmiy hujjatlarni PDF formatda yuklab oling</p>
         ${myCerts.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Hali sertifikat olmadingiz. 1200 ball yig'ib Mukofotlar do'konidan oling.</p>` : `
@@ -1941,7 +1980,7 @@ function renderProfile(box) {
         `}
       </div>
 
-      <div class="card">
+      <div class="card" data-profile-section="awards" hidden>
         <h3 style="color:var(--text);font-size:16px;margin-bottom:10px;">Sotib Olingan Mukofotlarim (${myAllItems.length})</h3>
         ${myAllItems.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Hozircha mukofotlar sotib olinmagan.</p>` : `
           <div class="grid-3" style="margin-bottom:0;">
@@ -1957,6 +1996,7 @@ function renderProfile(box) {
     ` : ''}
     </article>
   `;
+  if (active && currentUser.role === "student") switchProfileSection(active);
 }
 
 function toggleProfileSettings(button) {
@@ -2003,9 +2043,13 @@ function equipTitle(titleName) {
 }
 
 function openEditProfileModal() {
+  const extras = ownProfileExtras();
+  const today = new Date();
+  const lastDate = new Date(today.getTime() - today.getTimezoneOffset()*60000).toISOString().slice(0,10);
   openModal(`
     <h3 style="margin-bottom:12px;color:var(--text);">Profil Ma'lumotlarini O'zgartirish</h3>
-    <p class="page-sub">Qo‘shimcha maydonlar ixtiyoriy. Kiritilgan ma’lumotlar profilingizda ko‘rinadi.</p>
+    <p class="page-sub">Tug‘ilgan kun, tillar va to‘garak ixtiyoriy. Ular shu qurilmada saqlanadi. Boshqalarga ko‘rsatish uchun profil sozlamalaridan foydalaning.</p>
+    ${extraProfileFields.map(([key,label,type]) => `<div class="form-group"><label for="extra-${key}">${label}</label><input id="extra-${key}" type="${type}" ${type === "date" ? 'max="'+lastDate+'"' : 'maxlength="100"'} value="${safeText(extras[key] || "")}"></div>`).join("")}
     ${profileFields.map(([k,label]) => `<div class="form-group"><label for="profile-${k}">${label}</label><textarea rows="2" maxlength="320" id="profile-${k}">${safeText(currentUser.profileInfo?.[k])}</textarea></div>`).join("")}
     <div class="form-group"><label>Ism va Familiya</label><input id="edName" value="${safeText(currentUser.name)}" /></div>
     <div class="form-group"><label>Login</label><input id="edLogin" value="${safeText(currentUser.login)}" /></div>
@@ -2022,6 +2066,15 @@ function saveProfileEdit() {
   const l = document.getElementById("edLogin").value.trim();
   const p = document.getElementById("edPass").value.trim();
   if (l && DB.users.some(u => u.id !== currentUser.id && u.login === l)) return notify("Bu login band.", "error");
+  const extras = {};
+  for (const [key] of extraProfileFields) {
+    const input = document.getElementById("extra-" + key);
+    if (!input.reportValidity()) return;
+    extras[key] = input.value.trim();
+  }
+  try { localStorage.setItem("ilmnuri.profile." + currentUser.id, JSON.stringify(extras)); }
+  catch { return notify("Qurilmaga saqlab bo‘lmadi.", "error"); }
+  currentUser.sharedExtras = Object.fromEntries(Object.keys(currentUser.sharedExtras || {}).map(key => [key,extras[key] || ""]));
   if (n) currentUser.name = n;
   if (l) currentUser.login = l;
   if (p) currentUser.pass = p;

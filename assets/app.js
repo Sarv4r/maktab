@@ -875,7 +875,7 @@ function renderSidebarMenu() {
   }
 
   nav.innerHTML = items.map(it => `
-    <button class="nav-item ${currentView === it.id ? 'active' : ''}" onclick="navigate('${it.id}')">
+    <button class="nav-item ${currentView === it.id ? 'active' : ''}" ${currentView === it.id ? 'aria-current="page"' : ""} onclick="navigate('${it.id}')">
       <div class="nav-item-left">${it.icon}<span>${it.label}</span></div>
       ${it.badge ? `<span class="nav-pill">${it.badge}</span>` : ''}
     </button>
@@ -900,7 +900,7 @@ function renderBottomNav() {
         { id: "profile", label: "Profil", icon: ICONS.user }
       ];
   bnav.innerHTML = quick.map(q => `
-    <button class="bnav-btn ${currentView === q.id ? 'active' : ''}" onclick="navigate('${q.id}')">
+    <button class="bnav-btn ${currentView === q.id ? 'active' : ''}" ${currentView === q.id ? 'aria-current="page"' : ""} onclick="navigate('${q.id}')">
       ${q.icon}
       <span>${q.label}</span>
       <span class="bnav-bar"></span>
@@ -923,6 +923,8 @@ async function navigate(viewId, openChat = false) {
     updateTopbar();
   }
 
+  if (currentView !== viewId) return;
+  box.dataset.page = viewId;
   if (viewId === "dashboard") renderDashboard(box);
   else if (viewId === "chats") renderChats(box);
   else if (viewId === "tasks") renderTasks(box);
@@ -956,15 +958,15 @@ function renderDashboard(box) {
     ];
 
     box.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+      <header class="ilm-page-head">
         <div>
-          <h2 class="page-title">Salom, ${currentUser.name}</h2>
-          <p class="page-sub" style="margin:0;">${currentUser.grade} • Akademik daraja: <strong>Level ${level}</strong></p>
+          <h2 class="page-title">Salom, ${safeText(currentUser.name)}</h2>
+          <p class="page-sub" style="margin:0;">${currentUser.grade} • <strong>${level}-daraja</strong></p>
         </div>
         <div class="badge badge-gold" style="padding:7px 14px;font-size:12px;">
           ${ICONS.fire} ${currentUser.streak || 1} kunlik seriya
         </div>
-      </div>
+      </header>
 
       <div class="grid-3">
         <div class="card">
@@ -980,8 +982,8 @@ function renderDashboard(box) {
         <div class="card">
           <div class="stat-label">${ICONS.store} 1200 Ballik Sertifikat</div>
           <div class="stat-val">${progressToCert}%</div>
-          <div style="height:6px;background:#EFF6FF;border-radius:10px;margin-top:10px;overflow:hidden;">
-            <div style="height:100%;width:${progressToCert}%;background:linear-gradient(90deg, #3B82F6, #2563EB);border-radius:10px;transition:width 0.4s var(--ease);"></div>
+          <div class="ilm-progress-track">
+            <div style="height:100%;width:${progressToCert}%;background:var(--ilm-accent);border-radius:10px;transition:width 0.4s var(--ease);"></div>
           </div>
         </div>
       </div>
@@ -993,7 +995,7 @@ function renderDashboard(box) {
           ${missions.map(ms => {
             const claimed = (currentUser.claimedMissions || []).includes(ms.id);
             return `
-              <div style="padding:11px 0;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <div class="ilm-work-row">
                 <div>
                   <div style="font-weight:600;font-size:13.5px;">${ms.title}</div>
                   <div style="font-size:11.5px;color:var(--gold);font-weight:600;">+${ms.reward} ball</div>
@@ -1012,7 +1014,7 @@ function renderDashboard(box) {
         <div class="card">
           <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">${ICONS.task} Bajarilmagan Vazifalar (${pendingTasks.length})</h3>
           ${pendingTasks.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Ajoyib! Barcha berilgan vazifalarni topshirgansiz.</p>` : pendingTasks.slice(0, 4).map(t => `
-            <div style="padding:10px 0;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div class="ilm-work-row">
               <div>
                 <strong style="font-size:13.5px;">${t.title}</strong>
                 <div style="font-size:12px;color:var(--muted);">${t.subject} • ${memberLink(t.teacherId,t.teacherName)}</div>
@@ -1031,8 +1033,8 @@ function renderDashboard(box) {
     const pendingCerts = DB.certificates.filter(c => !c.delivered).length;
 
     box.innerHTML = `
-      <h2 class="page-title">Ustoz ${currentUser.name}</h2>
-      <p class="page-sub">${r === 'teacher' ? currentUser.subject + " o'qituvchisi" : currentUser.grade + " rahbari"} kabineti</p>
+      <header class="ilm-page-head"><div><h2 class="page-title">${safeText(currentUser.name)}</h2>
+      <p class="page-sub">${r === 'teacher' ? currentUser.subject + " o'qituvchisi" : currentUser.grade + " rahbari"} kabineti</p></div></header>
 
       <div class="grid-3">
         <div class="card">
@@ -1063,8 +1065,8 @@ function renderDashboard(box) {
     const studentsCount = DB.users.filter(u => u.role === "student").length;
     const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
     box.innerHTML = `
-      <h2 class="page-title">IlmNuri Boshqaruv Markazi</h2>
-      <p class="page-sub">Super Administrator nazorat paneli</p>
+      <header class="ilm-page-head"><div><h2 class="page-title">IlmNuri Boshqaruv Markazi</h2>
+      <p class="page-sub">Maktab ma’muriyati kabineti</p></div></header>
       <div class="grid-3">
         <div class="card"><div class="stat-label">${ICONS.user} Jami Foydalanuvchilar</div><div class="stat-val">${DB.users.length} nafar</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">${studentsCount} o'quvchi • ${teachersCount} ustoz</div></div>
         <div class="card"><div class="stat-label">${ICONS.chat} Faol Guruh va Kanallar</div><div class="stat-val">${DB.rooms.length} ta</div></div>
@@ -1503,40 +1505,40 @@ function postPoll() {
 function renderTasks(box) {
   const canCreate = currentUser.role === "teacher" || currentUser.role === "homeroom" || currentUser.role === "admin";
   box.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+    <header class="ilm-page-head">
       <div>
         <h2 class="page-title">${ICONS.task} Vazifalar</h2>
-        <p class="page-sub" style="margin:0;">Har bir vazifadan maksimal 60 ball olish mumkin</p>
+        <p class="page-sub" style="margin:0;">${canCreate ? "Topshiriqlar va topshirilgan ishlar" : "Topshiriq sharti, muddati va natijasi"}</p>
       </div>
       ${canCreate ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openCreateTaskModal()">+ Vazifa Berish</button>` : ''}
-    </div>
+    </header>
 
     ${DB.tasks.length === 0 ? `<div class="card"><p style="color:var(--muted);font-size:13.5px;">Hozircha faol vazifalar mavjud emas.</p></div>` : DB.tasks.map(t => {
       const mySub = t.submissions.find(s => s.studentId === currentUser.id);
       return `
-        <div class="card" style="margin-bottom:14px;">
+        <article class="card ilm-task">
           <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
             <div>
               <span class="badge badge-blue">${t.subject}</span>
               <span class="badge badge-gold">Max: ${t.maxPoints} ball</span>
-              <h3 style="margin-top:8px;color:var(--text);font-size:16px;">${t.title}</h3>
+              <h3 style="margin-top:8px;color:var(--text);font-size:16px;">${safeText(t.title)}</h3>
             </div>
             <div style="font-size:12px;color:var(--muted);">
               <div><strong>Ustoz:</strong> ${memberLink(t.teacherId,t.teacherName)}</div>
               <div>Muddat: ${t.deadline}</div>
             </div>
           </div>
-          <p style="font-size:13.5px;margin:10px 0;color:#334155;">${t.desc}</p>
+          <p class="ilm-body-copy">${safeText(t.desc)}</p>
 
           ${currentUser.role === "student" ? `
             ${mySub ? `
-              <div style="background:#ECFDF5;padding:11px 14px;border-radius:11px;font-size:13px;color:#065F46;">
-                <strong>Yuborilgan javob:</strong> ${mySub.answer}<br/>
+              <div class="ilm-submission">
+                <strong>Yuborilgan javob:</strong> ${safeText(mySub.answer)}<br/>
                 <strong>Natija:</strong> ${mySub.grade !== null ? `+${mySub.grade} ball berildi` : "Ustoz tekshirmoqda..."}
               </div>
             ` : `
-              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                <input data-task-draft="${t.id}" id="ans_${t.id}" placeholder="Javobingizni yozing..." style="flex:1;min-width:200px;" />
+              <div class="ilm-task-submit">
+                <input data-task-draft="${t.id}" id="ans_${t.id}" placeholder="Javobingizni yozing..." aria-label="Vazifaga javob" />
                 <button class="btn-primary" style="width:auto;margin:0;" onclick="submitTask('${t.id}')">Topshirish</button>
               </div><small aria-live="polite" class="draft-status"></small>
             `}
@@ -1545,7 +1547,7 @@ function renderTasks(box) {
               <strong style="font-size:12.5px;color:var(--muted);">Topshirilgan ishlar (${t.submissions.length}):</strong>
               ${t.submissions.map(s => `
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft);gap:8px;flex-wrap:wrap;">
-                  <div style="font-size:13px;"><strong>${memberLink(s.studentId,s.studentName)}:</strong> ${s.answer}</div>
+                  <div style="font-size:13px;"><strong>${memberLink(s.studentId,s.studentName)}:</strong> ${safeText(s.answer)}</div>
                   ${s.grade !== null ? `<span class="badge badge-green">${s.grade} ball</span>` : `
                     <div style="display:flex;gap:6px;align-items:center;">
                       <input type="number" id="grd_${t.id}_${s.studentId}" min="0" max="${t.maxPoints}" placeholder="0-${t.maxPoints}" style="width:85px;padding:7px;" />
@@ -1556,7 +1558,7 @@ function renderTasks(box) {
               `).join("")}
             </div>
           `}
-        </div>
+        </article>
       `;
     }).join("")}
   `;
@@ -1794,20 +1796,20 @@ function saveTeacherTest() {
 /* ================= 5. AI USTOZ ================= */
 function renderAI(box) {
   box.innerHTML = `
-    <h2 class="page-title">${ICONS.ai} AI Yordamchi Ustoz</h2>
-    <p class="page-sub">Misol yechish, mavzularni tushuntirish va tezkor yordam</p>
+    <header class="ilm-page-head"><div><h2 class="page-title">${ICONS.ai} AI yordamchi</h2>
+    <p class="page-sub">Misol yechish, mavzularni tushuntirish va tezkor yordam</p></div></header>
     <div class="card">
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
         ${AI_PRESETS.map(p => `<button class="react-btn" onclick="document.getElementById('aiPrompt').value='${p}'">${p}</button>`).join("")}
       </div>
-      <div id="aiHistory" style="min-height:220px;max-height:360px;overflow-y:auto;padding:14px;background:#F8FAFC;border-radius:14px;border:1px solid var(--border);margin-bottom:12px;display:flex;flex-direction:column;gap:10px;">
+      <div id="aiHistory" class="ilm-ai-thread">
         <div class="msg-bubble">
           <div class="msg-meta"><span>IlmNuri AI</span></div>
-          <div>Assalomu alaykum, ${currentUser.name}! Qanday savol yoki misol bor?</div>
+          <div>Assalomu alaykum, ${safeText(currentUser.name)}! Qanday savol yoki misol bor?</div>
         </div>
       </div>
       <form onsubmit="askAI(event)" style="display:flex;gap:8px;">
-        <input id="aiPrompt" placeholder="Savol yoki misol yozing..." />
+        <input aria-label="Savol yoki misol" id="aiPrompt" placeholder="Savol yoki misol yozing..." />
         <button type="submit" class="btn-primary" style="width:auto;margin:0;">So'rash</button>
       </form>
     </div>
@@ -1900,20 +1902,20 @@ function renderStore(box) {
   const titles = STORE_CATALOG.filter(i => i.type === "title");
 
   box.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+    <header class="ilm-page-head">
       <div>
-        <h2 class="page-title">${ICONS.store} Mukofotlar Do'koni</h2>
+        <h2 class="page-title">${ICONS.store} Mukofotlar do‘koni</h2>
         <p class="page-sub" style="margin:0;">Ballaringizga rasmiy PDF sertifikatlar, ramkalar va unvonlar oling</p>
       </div>
-      <div class="badge badge-gold" style="font-size:13px;padding:7px 14px;">Balansingiz: ${currentUser.points} ball</div>
-    </div>
+      <div class="badge badge-gold">Balansingiz: ${currentUser.points} ball</div>
+    </header>
 
-    <h3 style="color:var(--text);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">${ICONS.cert} Rasmiy PDF Sertifikatlar (1200 ball)</h3>
+    <h3 class="ilm-category">${ICONS.cert} Rasmiy PDF Sertifikatlar (1200 ball)</h3>
     <div class="grid-2">
       ${certs.map(item => {
         const isOwned = (currentUser.owned || []).includes(item.id);
         return `
-          <div class="card" style="background:linear-gradient(180deg, #FFFDF5 0%, #FFFFFF 100%);display:flex;flex-direction:column;justify-content:space-between;">
+          <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <span class="badge badge-gold">${item.tier}</span>
@@ -1923,7 +1925,7 @@ function renderStore(box) {
               <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">${item.desc}</p>
             </div>
             ${isOwned
-              ? `<button class="btn-secondary" style="width:100%;background:#DCFCE7;color:#15803D;border-color:#86EFAC;" disabled>Olingan</button>`
+              ? `<button class="btn-secondary" style="width:100%;" disabled>Olingan</button>`
               : `<button class="btn-gold" style="width:100%;padding:11px;" onclick="buyItem('${item.id}')">Sotib Olish (1200 ball)</button>`
             }
           </div>
@@ -1931,7 +1933,7 @@ function renderStore(box) {
       }).join("")}
     </div>
 
-    <h3 style="color:var(--text);font-size:16px;margin:18px 0 10px;">Ramkalar</h3>
+    <h3 class="ilm-category">Ramkalar</h3>
     <div class="grid-3">
       ${frames.map(item => {
         const isOwned = (currentUser.owned || []).includes(item.id);
@@ -1947,7 +1949,7 @@ function renderStore(box) {
             </div>
             <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">${item.desc}</p>
             ${isOwned
-              ? `<button class="btn-secondary" style="width:100%;background:#DCFCE7;color:#15803D;border-color:#86EFAC;" disabled>Olingan</button>`
+              ? `<button class="btn-secondary" style="width:100%;" disabled>Olingan</button>`
               : `<button class="btn-primary" style="margin:0;" onclick="buyItem('${item.id}')">Olish (${item.price} ball)</button>`
             }
           </div>
@@ -1955,7 +1957,7 @@ function renderStore(box) {
       }).join("")}
     </div>
 
-    <h3 style="color:var(--text);font-size:16px;margin:18px 0 10px;">Maxsus Unvonlar</h3>
+    <h3 class="ilm-category">Maxsus Unvonlar</h3>
     <div class="grid-3">
       ${titles.map(item => {
         const isOwned = (currentUser.owned || []).includes(item.id);
@@ -1969,7 +1971,7 @@ function renderStore(box) {
             <div>
               <div style="font-weight:700;color:var(--gold);margin-bottom:8px;font-size:13px;">${item.price} ball</div>
               ${isOwned
-                ? `<button class="btn-secondary" style="width:100%;background:#DCFCE7;color:#15803D;border-color:#86EFAC;" disabled>Olingan</button>`
+                ? `<button class="btn-secondary" style="width:100%;" disabled>Olingan</button>`
                 : `<button class="btn-primary" style="margin:0;" onclick="buyItem('${item.id}')">Olish (${item.price} ball)</button>`
               }
             </div>
@@ -2284,11 +2286,11 @@ function openCertPdfModal(certId) {
 /* ================= 9. O'QITUVCHI UCHUN O'QUVCHILAR SERTIFIKATLARI ================= */
 function renderStudentCertsForTeacher(box) {
   box.innerHTML = `
-    <h2 class="page-title">${ICONS.cert} O'quvchilar Olgan Sertifikatlar</h2>
-    <p class="page-sub">1200 ball to'plab sertifikat olgan o'quvchilar ro'yxati</p>
+    <header class="ilm-page-head"><div><h2 class="page-title">${ICONS.cert} O‘quvchilar sertifikatlari</h2>
+    <p class="page-sub">1200 ball to'plab sertifikat olgan o'quvchilar ro'yxati</p></div></header>
     <div class="card">
       ${DB.certificates.length === 0 ? `<p style="color:var(--muted);font-size:13.5px;">Hozircha sertifikat olgan o'quvchilar yo'q.</p>` : DB.certificates.map(c => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:10px;">
+        <div class="ilm-work-row">
           <div>
             <strong>${memberLink(c.studentId,c.studentName)}</strong> (${c.grade}) — <span style="color:var(--primary);font-weight:700;">${c.title}</span>
             <div style="font-size:12px;color:var(--muted);">Sana: ${c.date} • ID: ${c.id}</div>
@@ -2326,20 +2328,20 @@ function renderAnnouncements(box) {
   if (changed) saveDB();
 
   box.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+    <header class="ilm-page-head">
       <div>
-        <h2 class="page-title">${ICONS.news} Maktab E'lonlari</h2>
+        <h2 class="page-title">${ICONS.news} Maktab e’lonlari</h2>
         <p class="page-sub" style="margin:0;">Rasmiy xabarlar va ko'rishlar statistikasi</p>
       </div>
       <button class="btn-secondary" onclick="configurePhoneAlerts()">${localStorage.getItem("mos_phone_" + currentUser.id) ? "Telefon xabarlarini o‘chirish" : "Telefonda xabar olish"}</button>
       ${canManage ? `<button class="btn-primary" style="width:auto;margin:0;" onclick="openAnnModal()">+ E'lon Qo'shish</button>` : ''}
-    </div>
+    </header>
 
     ${DB.announcements.map(a => `
-      <div class="card" style="margin-bottom:14px;">
+      <article class="card ilm-notice">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
           <div>
-            <h3 style="color:var(--text);font-size:16px;">${a.title}</h3>
+            <h3 style="color:var(--text);font-size:16px;">${safeText(a.title)}</h3>
             <div style="font-size:12px;color:var(--muted);margin-top:2px;">Muallif: ${memberLink(a.authorId,a.author)} • ${a.date}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -2350,9 +2352,9 @@ function renderAnnouncements(box) {
             ` : ''}
           </div>
         </div>
-        <p style="font-size:13.5px;margin-top:12px;line-height:1.55;color:#334155;">${a.body}</p>
-      </div>
-    `).join("")}
+        <p class="ilm-body-copy">${safeText(a.body)}</p>
+      </article>
+    `).join("") || '<p class="card">Hozircha e’lon yo‘q.</p>'}
   `;
 }
 
@@ -2397,6 +2399,18 @@ function deleteAnn(id) {
 }
 
 /* ================= 11. SUPER ADMIN PANELI ================= */
+function filterAdminUsers(input) {
+  adminSearch = input.value;
+  const cursor = input.selectionStart;
+  const box = document.getElementById("mainContent");
+  renderAdmin(box);
+  const field = box.querySelector("[oninput='filterAdminUsers(this)']");
+  if (field) {
+    field.focus({preventScroll:true});
+    field.setSelectionRange(cursor,cursor);
+  }
+}
+
 function renderAdmin(box) {
   const studentsCount = DB.users.filter(u => u.role === "student").length;
   const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
@@ -2410,9 +2424,9 @@ function renderAdmin(box) {
   });
 
   box.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+    <header class="ilm-page-head">
       <div>
-        <h2 class="page-title">${ICONS.admin} Super Admin Boshqaruv Paneli</h2>
+        <h2 class="page-title">${ICONS.admin} Boshqaruv paneli</h2>
         <p class="page-sub" style="margin:0;">Barcha foydalanuvchilar, ballar va tizim boshqaruvi</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -2420,7 +2434,7 @@ function renderAdmin(box) {
         <button class="btn-gold" onclick="openAdminCreateUserModal()">+ Yangi Foydalanuvchi</button>
         <button class="btn-primary" style="width:auto;margin:0;" onclick="openAdminBroadcastModal()">Ommaviy E'lon</button>
       </div>
-    </div>
+    </header>
 
     <div class="grid-3">
       <div class="card">
@@ -2451,7 +2465,7 @@ function renderAdmin(box) {
 
     ${adminTab === 'users' ? `
       <div class="card" style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" placeholder="Ism yoki login bo'yicha qidirish..." value="${adminSearch}" oninput="adminSearch=this.value;renderAdmin(document.getElementById('mainContent'))" style="flex:2;min-width:200px;" />
+        <input type="text" placeholder="Ism yoki login bo'yicha qidirish..." aria-label="Foydalanuvchini qidirish" value="${safeText(adminSearch)}" oninput="filterAdminUsers(this)" style="flex:2;min-width:200px;" />
         <select onchange="adminRoleFilter=this.value;renderAdmin(document.getElementById('mainContent'))" style="flex:1;min-width:150px;">
           <option value="all" ${adminRoleFilter === 'all' ? 'selected' : ''}>Barcha rollar</option>
           <option value="student" ${adminRoleFilter === 'student' ? 'selected' : ''}>O'quvchilar</option>

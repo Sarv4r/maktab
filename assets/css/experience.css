@@ -379,113 +379,113 @@ button.member-avatar {cursor:pointer}
 /* IlmNuri admin workspace — visual layer only.
    The admin-only create-user control scopes these styles to renderAdmin. */
 @media screen {
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) {
+#appScreen #mainContent[data-page="admin"] {
   --admin-gap:clamp(12px,1.5vw,20px);
   --admin-line:var(--border);
   --admin-subtle:var(--workspace-selected);
 }
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child {
+#appScreen #mainContent[data-page="admin"] > div:first-child {
   padding:clamp(16px,2.2vw,26px);background:var(--surface);border:1px solid var(--admin-line);border-radius:16px;gap:16px!important;
 }
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child > div {min-width:0}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child > div:last-child {gap:8px!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 {grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:var(--admin-gap)}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card {border-top:1px solid var(--admin-line);min-height:120px}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .stat-val {font-size:clamp(22px,2vw,30px);font-variant-numeric:tabular-nums}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:has(> button[onclick^="adminTab="]) {
+#appScreen #mainContent[data-page="admin"] > div:first-child > div {min-width:0}
+#appScreen #mainContent[data-page="admin"] > div:first-child > div:last-child {gap:8px!important}
+#appScreen #mainContent[data-page="admin"] > .grid-3 {grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:var(--admin-gap)}
+#appScreen #mainContent[data-page="admin"] > .grid-3 > .card {border-top:1px solid var(--admin-line);min-height:120px}
+#appScreen #mainContent[data-page="admin"] .stat-val {font-size:clamp(22px,2vw,30px);font-variant-numeric:tabular-nums}
+#appScreen #mainContent[data-page="admin"] > div:has(> button[onclick^="adminTab="]) {
   display:flex;gap:6px!important;padding:6px;background:var(--surface);border:1px solid var(--admin-line);border-radius:12px;align-items:stretch;
 }
 #appScreen #mainContent > div:has(> button[onclick^="adminTab="]) > button {
   flex:1 1 145px;min-width:0;min-height:44px;font-size:13px;border-radius:8px;
 }
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(> input[oninput^="adminSearch="]) {
+#appScreen #mainContent[data-page="admin"] .card:has(> input[oninput="filterAdminUsers(this)"]) {
   padding:12px;align-items:center;gap:10px!important;
 }
-#appScreen #mainContent .card > input[oninput^="adminSearch="],
+#appScreen #mainContent .card > input[oninput="filterAdminUsers(this)"],
 #appScreen #mainContent .card > select[onchange^="adminRoleFilter="] {
   min-width:0!important;min-height:44px;border-radius:9px;background:var(--bg);
 }
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(table) {padding:0;overflow:hidden!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .mos-table-scroll {border-radius:15px;overflow-x:auto;overscroll-behavior-inline:contain}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) table {min-width:860px!important;font-size:13px!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) thead {background:var(--bg)}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) th {font-size:12px;font-weight:700;white-space:nowrap;padding:14px 12px!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td {padding:12px!important;vertical-align:middle}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:first-child,
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:last-child {display:table-cell!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:first-child > div {display:inline-block;vertical-align:middle;max-width:calc(100% - 40px);padding-left:6px}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:last-child button {margin:2px;min-height:34px;font-size:12px}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr:last-child {border-bottom:0!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr:hover {background:var(--admin-subtle)}
-:root[data-theme="dark"] #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr:has(.badge-red) {background:#382636!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td code {overflow-wrap:anywhere}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) {gap:12px!important;padding-block:15px!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) > div {min-width:0;overflow-wrap:anywhere}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .btn-accent {box-shadow:none}
+#appScreen #mainContent[data-page="admin"] .card:has(table) {padding:0;overflow:hidden!important}
+#appScreen #mainContent[data-page="admin"] .mos-table-scroll {border-radius:15px;overflow-x:auto;overscroll-behavior-inline:contain}
+#appScreen #mainContent[data-page="admin"] table {min-width:860px!important;font-size:13px!important}
+#appScreen #mainContent[data-page="admin"] thead {background:var(--bg)}
+#appScreen #mainContent[data-page="admin"] th {font-size:12px;font-weight:700;white-space:nowrap;padding:14px 12px!important}
+#appScreen #mainContent[data-page="admin"] td {padding:12px!important;vertical-align:middle}
+#appScreen #mainContent[data-page="admin"] td:first-child,
+#appScreen #mainContent[data-page="admin"] td:last-child {display:table-cell!important}
+#appScreen #mainContent[data-page="admin"] td:first-child > div {display:inline-block;vertical-align:middle;max-width:calc(100% - 40px);padding-left:6px}
+#appScreen #mainContent[data-page="admin"] td:last-child button {margin:2px;min-height:34px;font-size:12px}
+#appScreen #mainContent[data-page="admin"] tbody tr:last-child {border-bottom:0!important}
+#appScreen #mainContent[data-page="admin"] tbody tr:hover {background:var(--admin-subtle)}
+:root[data-theme="dark"] #appScreen #mainContent[data-page="admin"] tbody tr:has(.badge-red) {background:#382636!important}
+#appScreen #mainContent[data-page="admin"] td code {overflow-wrap:anywhere}
+#appScreen #mainContent[data-page="admin"] .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) {gap:12px!important;padding-block:15px!important}
+#appScreen #mainContent[data-page="admin"] .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) > div {min-width:0;overflow-wrap:anywhere}
+#appScreen #mainContent[data-page="admin"] .btn-accent {box-shadow:none}
 @media(max-width:820px) {
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child > div:last-child {width:100%}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child > div:last-child > button {flex:1 1 130px;min-height:44px}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 {grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:last-child button {min-height:44px}
+  #appScreen #mainContent[data-page="admin"] > div:first-child > div:last-child {width:100%}
+  #appScreen #mainContent[data-page="admin"] > div:first-child > div:last-child > button {flex:1 1 130px;min-height:44px}
+  #appScreen #mainContent[data-page="admin"] > .grid-3 {grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+  #appScreen #mainContent[data-page="admin"] td:last-child button {min-height:44px}
 }
 @media(max-width:520px) {
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 {grid-template-columns:minmax(0,1fr)}
+  #appScreen #mainContent[data-page="admin"] > .grid-3 {grid-template-columns:minmax(0,1fr)}
   #appScreen #mainContent > div:has(> button[onclick^="adminTab="]) > button {flex:1 1 45%;font-size:12px;padding-inline:7px}
-  #appScreen #mainContent .card > input[oninput^="adminSearch="],
+  #appScreen #mainContent .card > input[oninput="filterAdminUsers(this)"],
   #appScreen #mainContent .card > select[onchange^="adminRoleFilter="] {flex:1 1 100%!important;width:100%}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) > div {flex-wrap:wrap}
+  #appScreen #mainContent[data-page="admin"] .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) > div {flex-wrap:wrap}
 }
 }
 
 /* Admin command center — responsive presentation only, no application logic. */
 @media screen {
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child {
+#appScreen #mainContent[data-page="admin"] > div:first-child {
   border-top:3px solid var(--primary);
   padding:clamp(18px,2.4vw,30px);
 }
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child .page-title {font-size:clamp(22px,2.2vw,32px)}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child .page-title svg {width:24px;height:24px}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card {position:relative;display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:136px}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card .stat-label {font-size:12px;letter-spacing:.025em;font-weight:650}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card:nth-child(3) {background:var(--surface)}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card:nth-child(3) button {flex:1 1 110px;min-height:40px}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:has(> button[onclick^="adminTab="]) {margin-block:6px 16px!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:has(> button[onclick^="adminTab="]) > .btn-primary {background:var(--workspace-selected);color:var(--workspace-ink);border-color:var(--workspace-selected);font-weight:700}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:has(> button[onclick^="adminTab="]) > .btn-secondary {border-color:transparent}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(> input[oninput^="adminSearch="]) {background:var(--surface);padding:14px}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(table) {overflow:auto!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .mos-table-scroll {scrollbar-width:thin}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) table {font-variant-numeric:tabular-nums}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) th {text-transform:uppercase;letter-spacing:.035em;font-size:11px!important}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:first-child .member-name {font-weight:700;text-align:left}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:last-child .btn-accent {background:transparent;color:#b42337;border:1px solid #e9b0b8}
-:root[data-theme="dark"] #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) td:last-child .btn-accent {color:#ffb1bd;border-color:#75414d}
-#appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) {padding:14px 0!important}
+#appScreen #mainContent[data-page="admin"] > div:first-child .page-title {font-size:clamp(22px,2.2vw,32px)}
+#appScreen #mainContent[data-page="admin"] > div:first-child .page-title svg {width:24px;height:24px}
+#appScreen #mainContent[data-page="admin"] > .grid-3 > .card {position:relative;display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:136px}
+#appScreen #mainContent[data-page="admin"] > .grid-3 > .card .stat-label {font-size:12px;letter-spacing:.025em;font-weight:650}
+#appScreen #mainContent[data-page="admin"] > .grid-3 > .card:nth-child(3) {background:var(--surface)}
+#appScreen #mainContent[data-page="admin"] > .grid-3 > .card:nth-child(3) button {flex:1 1 110px;min-height:40px}
+#appScreen #mainContent[data-page="admin"] > div:has(> button[onclick^="adminTab="]) {margin-block:6px 16px!important}
+#appScreen #mainContent[data-page="admin"] > div:has(> button[onclick^="adminTab="]) > .btn-primary {background:var(--workspace-selected);color:var(--workspace-ink);border-color:var(--workspace-selected);font-weight:700}
+#appScreen #mainContent[data-page="admin"] > div:has(> button[onclick^="adminTab="]) > .btn-secondary {border-color:transparent}
+#appScreen #mainContent[data-page="admin"] .card:has(> input[oninput="filterAdminUsers(this)"]) {background:var(--surface);padding:14px}
+#appScreen #mainContent[data-page="admin"] .card:has(table) {overflow:auto!important}
+#appScreen #mainContent[data-page="admin"] .mos-table-scroll {scrollbar-width:thin}
+#appScreen #mainContent[data-page="admin"] table {font-variant-numeric:tabular-nums}
+#appScreen #mainContent[data-page="admin"] th {text-transform:uppercase;letter-spacing:.035em;font-size:11px!important}
+#appScreen #mainContent[data-page="admin"] td:first-child .member-name {font-weight:700;text-align:left}
+#appScreen #mainContent[data-page="admin"] td:last-child .btn-accent {background:transparent;color:#b42337;border:1px solid #e9b0b8}
+:root[data-theme="dark"] #appScreen #mainContent[data-page="admin"] td:last-child .btn-accent {color:#ffb1bd;border-color:#75414d}
+#appScreen #mainContent[data-page="admin"] .card > div:has(> button[onclick^="adminDelete"],> div > button[onclick^="adminDelete"]) {padding:14px 0!important}
 @media(max-width:1100px) {
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .card:has(table) {border:0;background:transparent;box-shadow:none;padding:0!important;overflow:visible!important}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) .mos-table-scroll {overflow:visible;border-radius:0}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) table {display:block;width:100%;min-width:0!important;text-align:left}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) thead {position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;background:var(--surface);border:1px solid var(--admin-line)!important;border-radius:15px;padding:14px;box-shadow:var(--workspace-shadow);align-content:start}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr:last-child {border:1px solid var(--admin-line)!important}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td {display:block!important;min-width:0;padding:10px 4px!important;overflow-wrap:anywhere}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:first-child {display:flex!important;align-items:center;grid-column:1/-1;border-bottom:1px solid var(--border-soft);padding:4px 4px 12px!important;gap:10px!important;font-size:15px}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:first-child .member-avatar {width:40px!important;height:40px!important}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:first-child > div {padding-left:0;min-width:0;max-width:100%}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(2)::before {content:"Rol / Sinf"}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(3)::before {content:"Login / Parol"}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(4)::before {content:"Balans / Jami"}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(5)::before {content:"Holat"}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:nth-child(n+2):nth-child(-n+5)::before {display:block;font-size:11px;font-weight:600;color:var(--workspace-muted);margin-bottom:4px}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:last-child {display:flex!important;grid-column:1/-1;flex-wrap:wrap;gap:6px!important;border-top:1px solid var(--border-soft);padding:12px 0 0!important}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody td:last-child button {flex:1 1 105px;min-height:44px;margin:0}
+  #appScreen #mainContent[data-page="admin"] .card:has(table) {border:0;background:transparent;box-shadow:none;padding:0!important;overflow:visible!important}
+  #appScreen #mainContent[data-page="admin"] .mos-table-scroll {overflow:visible;border-radius:0}
+  #appScreen #mainContent[data-page="admin"] table {display:block;width:100%;min-width:0!important;text-align:left}
+  #appScreen #mainContent[data-page="admin"] thead {position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  #appScreen #mainContent[data-page="admin"] tbody {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+  #appScreen #mainContent[data-page="admin"] tbody tr {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;background:var(--surface);border:1px solid var(--admin-line)!important;border-radius:15px;padding:14px;box-shadow:var(--workspace-shadow);align-content:start}
+  #appScreen #mainContent[data-page="admin"] tbody tr:last-child {border:1px solid var(--admin-line)!important}
+  #appScreen #mainContent[data-page="admin"] tbody td {display:block!important;min-width:0;padding:10px 4px!important;overflow-wrap:anywhere}
+  #appScreen #mainContent[data-page="admin"] tbody td:first-child {display:flex!important;align-items:center;grid-column:1/-1;border-bottom:1px solid var(--border-soft);padding:4px 4px 12px!important;gap:10px!important;font-size:15px}
+  #appScreen #mainContent[data-page="admin"] tbody td:first-child .member-avatar {width:40px!important;height:40px!important}
+  #appScreen #mainContent[data-page="admin"] tbody td:first-child > div {padding-left:0;min-width:0;max-width:100%}
+  #appScreen #mainContent[data-page="admin"] tbody td:nth-child(2)::before {content:"Rol / Sinf"}
+  #appScreen #mainContent[data-page="admin"] tbody td:nth-child(3)::before {content:"Login / Parol"}
+  #appScreen #mainContent[data-page="admin"] tbody td:nth-child(4)::before {content:"Balans / Jami"}
+  #appScreen #mainContent[data-page="admin"] tbody td:nth-child(5)::before {content:"Holat"}
+  #appScreen #mainContent[data-page="admin"] tbody td:nth-child(n+2):nth-child(-n+5)::before {display:block;font-size:11px;font-weight:600;color:var(--workspace-muted);margin-bottom:4px}
+  #appScreen #mainContent[data-page="admin"] tbody td:last-child {display:flex!important;grid-column:1/-1;flex-wrap:wrap;gap:6px!important;border-top:1px solid var(--border-soft);padding:12px 0 0!important}
+  #appScreen #mainContent[data-page="admin"] tbody td:last-child button {flex:1 1 105px;min-height:44px;margin:0}
 }
 @media(max-width:520px) {
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > div:first-child > div:last-child > button {flex:1 1 100%;width:100%!important}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) > .grid-3 > .card {min-height:104px}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody {grid-template-columns:minmax(0,1fr)}
-  #appScreen #mainContent:has(> div button[onclick="openAdminCreateUserModal()"]) tbody tr {padding:12px}
+  #appScreen #mainContent[data-page="admin"] > div:first-child > div:last-child > button {flex:1 1 100%;width:100%!important}
+  #appScreen #mainContent[data-page="admin"] > .grid-3 > .card {min-height:104px}
+  #appScreen #mainContent[data-page="admin"] tbody {grid-template-columns:minmax(0,1fr)}
+  #appScreen #mainContent[data-page="admin"] tbody tr {padding:12px}
 }
 }
 
@@ -679,3 +679,73 @@ button.member-avatar {cursor:pointer}
 .ilm-pinned strong {color:var(--primary);margin-inline-end:7px}
 .ilm-chat-text {font-size:.94rem;line-height:1.45;white-space:pre-wrap}
 .ilm-send:disabled {opacity:.46;cursor:default}
+
+/* Academic workspace */
+:root {
+  --ilm-ink:#164b48;--ilm-accent:#206861;--ilm-soft:#e8f3ef;
+  --ilm-rule:#ccdbd5;--ilm-brass:#937132;--ilm-wash:#eef3f0;
+}
+:root[data-theme="dark"] {
+  --ilm-ink:#a1e0cc;--ilm-accent:#326e67;--ilm-soft:#203c3b;
+  --ilm-rule:#385653;--ilm-brass:#dfbd7a;--ilm-wash:#15272b;
+}
+#authScreen {
+  background:radial-gradient(ellipse at 12% 0%,var(--ilm-soft),transparent 56%),var(--bg);
+  overflow:auto
+}
+#authScreen .auth-card {border:1px solid var(--ilm-rule);border-top:4px solid #c6a464;border-radius:16px;background:var(--surface);box-shadow:0 14px 44px #142e3512}
+#authScreen .brand-logo {color:var(--text);font:600 2rem Georgia,serif;letter-spacing:-.025em}
+#authScreen .brand-crest {width:42px;height:42px;border-radius:10px}
+#authScreen .tab-btn.active {color:var(--ilm-ink);background:var(--ilm-soft)}
+#authScreen .btn-primary,#modalCard .btn-primary {background:var(--ilm-accent);color:white}
+#appScreen .nav-item.active,#appScreen .bnav-btn.active {background:var(--ilm-soft);color:var(--ilm-ink)}
+#appScreen .nav-item.active {box-shadow:inset 3px 0 #c8a768}
+#appScreen .nav-item {min-height:44px}
+#appScreen .ilm-page-head,#appScreen #mainContent .mos-hero {
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  margin:0 0 clamp(14px,2vw,22px);padding:clamp(18px,3vw,29px);
+  background:linear-gradient(117deg,#192f36,#294b4c);color:white;
+  border:0;border-inline-start:5px solid #cfac69;border-radius:15px 15px 5px 5px;box-shadow:none
+}
+#appScreen #mainContent .mos-hero {display:block}
+#appScreen .ilm-page-head .page-title,#appScreen #mainContent .mos-hero h2 {
+  margin:0;color:#fff;font:600 clamp(1.4rem,3vw,2rem)/1.18 Georgia,serif;letter-spacing:-.025em;overflow-wrap:anywhere
+}
+#appScreen .ilm-page-head .page-title svg {color:#e9cc8f}
+#appScreen .ilm-page-head .page-sub,#appScreen #mainContent .mos-hero p {color:#d6e7e5;margin:6px 0 0!important;font-size:.9rem;line-height:1.5}
+#appScreen .ilm-page-head>div:first-child {min-width:0;flex:1 1 215px}
+#appScreen .ilm-page-head .btn-primary,#appScreen .ilm-page-head .btn-gold,#appScreen #mainContent .mos-hero-actions button {background:#f0dfb6;color:#233438;border:1px solid #d4b777;min-height:44px}
+#appScreen .ilm-page-head .btn-secondary {background:#244049;color:#fff;border-color:#78908f;min-height:44px}
+#mainContent:is([data-page="dashboard"],[data-page="insights"],[data-page="help"],[data-page="ai"],[data-page="tasks"],[data-page="announcements"],[data-page="student_certs"],[data-page="store"]) {
+  --workspace-action:var(--ilm-accent);--workspace-ink:var(--ilm-ink);--workspace-selected:var(--ilm-soft)
+}
+#mainContent .ilm-page-head~.grid-3:has(.stat-val),#mainContent .mos-hero~.grid-3:has(.stat-val) {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+#mainContent .card:has(>.stat-val) {border-block-start:3px solid var(--ilm-rule)}
+#mainContent .card>.stat-val {color:var(--ilm-ink);font-variant-numeric:tabular-nums}
+.ilm-progress-track {height:7px;overflow:hidden;margin-top:10px;border-radius:9px;background:var(--ilm-soft)}
+.ilm-work-row {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:12px 0;border-bottom:1px solid var(--border-soft);overflow-wrap:anywhere}
+.ilm-work-row:last-child {border-bottom:0}
+#appScreen .ilm-task,#appScreen .ilm-notice {margin-bottom:14px;min-width:0;overflow-wrap:anywhere}
+#appScreen .ilm-body-copy {margin:12px 0;color:var(--text);line-height:1.6;font-size:.95rem;white-space:pre-line}
+.ilm-task-submit {display:flex;gap:8px;flex-wrap:wrap}
+.ilm-task-submit input {flex:1 1 180px;min-width:0}
+.ilm-submission {padding:12px 14px;border-inline-start:3px solid var(--ilm-accent);border-radius:6px;color:var(--ilm-ink);background:var(--ilm-soft)}
+#appScreen .ilm-category {display:flex;align-items:center;gap:8px;margin:20px 0 10px;color:var(--text);font-size:1.04rem}
+#mainContent[data-page="store"] .card:has(.btn-gold) {border-top:3px solid #c5a15f}
+#mainContent[data-page="store"] button:disabled {background:var(--ilm-soft);color:var(--ilm-ink);border-color:var(--ilm-rule)}
+.ilm-ai-thread {display:flex;flex-direction:column;gap:10px;min-height:200px;max-height:48dvh;overflow:auto;margin:12px 0;padding:14px;border-radius:10px;border:1px solid var(--ilm-rule);background:var(--ilm-wash)}
+#mainContent[data-page="ai"] #aiPrompt {min-width:0}
+#appScreen .mos-help-card {border-inline-start:3px solid var(--ilm-rule);background:var(--surface)}
+#modalCard:has(.form-group) {border-top:3px solid #c6a464}
+#modalCard .form-group label {color:var(--text)}
+:is(#authScreen,#appScreen,#modalCard) :is(button,a,input,select,textarea,summary):focus-visible {outline:2px solid var(--ilm-brass);outline-offset:2px}
+@media(max-width:550px) {
+  #appScreen .ilm-page-head {align-items:stretch;gap:10px;padding:16px}
+  #appScreen .ilm-page-head>div:first-child {flex-basis:100%}
+  #appScreen .ilm-page-head>button,#appScreen .ilm-page-head>div:has(>button)>button {flex:1 1 118px;white-space:normal}
+  #appScreen .ilm-task-submit .btn-primary {width:100%!important;min-height:44px}
+  #mainContent .ilm-work-row button {min-height:40px}
+  #appScreen #mainContent .mos-help-grid {grid-template-columns:minmax(0,1fr)}
+}
+
+#appScreen .bnav-btn.active .bnav-bar {background:var(--ilm-brass)}

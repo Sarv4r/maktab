@@ -39,12 +39,12 @@
     <!-- LOGIN FORM -->
     <form id="loginForm" onsubmit="handleLogin(event)">
       <div class="form-group">
-        <label>Login</label>
-        <input type="text" id="loginUser" placeholder="Loginingizni kiriting" required />
+        <label for="loginUser">Login</label>
+        <input type="text" id="loginUser" autocomplete="username" placeholder="Loginingizni kiriting" required />
       </div>
       <div class="form-group">
-        <label>Parol</label>
-        <input type="password" id="loginPass" placeholder="Parolingizni kiriting" required />
+        <label for="loginPass">Parol</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="Parolingizni kiriting" required />
       </div>
       <button type="submit" id="loginSubmitBtn" class="btn-primary">Kabinetga Kirish</button>
     </form>
@@ -52,11 +52,11 @@
     <!-- REGISTER FORM -->
     <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
       <div class="form-group">
-        <label>Ism va Familiya</label>
+        <label for="regName">Ism va Familiya</label>
         <input type="text" id="regName" placeholder="Masalan: Anvar Karimov" required />
       </div>
       <div class="form-group">
-        <label>Maqomingiz</label>
+        <label for="regRole">Maqomingiz</label>
         <select id="regRole" onchange="toggleRegFields()">
           <option value="student">O'quvchi</option>
           <option value="teacher">Fan O'qituvchisi</option>
@@ -64,7 +64,7 @@
         </select>
       </div>
       <div id="regClassWrap" class="form-group">
-        <label>Sinfingiz</label>
+        <label for="regClass">Sinfingiz</label>
         <select id="regClass">
           <option value="5-sinf">5-sinf</option>
           <option value="6-sinf">6-sinf</option>
@@ -76,16 +76,16 @@
         </select>
       </div>
       <div id="regSubjectWrap" class="form-group hidden">
-        <label>Dars beradigan faningiz</label>
+        <label for="regSubject">Dars beradigan faningiz</label>
         <select id="regSubject"></select>
       </div>
       <div class="form-group">
-        <label>Login o'ylab toping</label>
+        <label for="regLogin">Login o'ylab toping</label>
         <input type="text" id="regLogin" placeholder="Masalan: anvar09" required />
       </div>
       <div class="form-group">
-        <label>Parol o'ylab toping</label>
-        <input type="password" id="regPass" placeholder="Kamida 4 ta belgi" required />
+        <label for="regPass">Parol o'ylab toping</label>
+        <input type="password" id="regPass" autocomplete="new-password" placeholder="Kamida 4 ta belgi" required />
       </div>
       <button type="submit" id="regSubmitBtn" class="btn-primary">IlmNuriga qo‘shilish</button>
     </form>

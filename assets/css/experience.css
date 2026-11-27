@@ -497,11 +497,12 @@ button.member-avatar {cursor:pointer}
 .profile-brand {gap:9px;color:#f1d7a6;font:600 1.1rem Georgia,serif;letter-spacing:.03em}
 .profile-brand img {border-radius:6px}
 .profile-idline {margin:20px 0;gap:16px}
-.profile-portrait {position:relative;flex:none}
+.profile-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.profile-portrait {flex:none;display:grid;place-items:center}
 .profile-name {min-width:0;overflow-wrap:anywhere}
 #appScreen .profile-name h2 {margin:4px 0;color:#fff;font:600 clamp(1.45rem,5vw,2.15rem)/1.12 Georgia,serif}
 .profile-name p,.profile-name small {margin:0;color:#d6e3e5;font-size:.85rem}
-.profile-camera {position:absolute;right:-6px;bottom:-5px;display:grid;place-items:center;width:32px;height:32px;background:#edd49d;color:#192c32;border-radius:9px;overflow:hidden}
+.profile-camera {position:relative;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;min-width:44px;padding:0 12px;margin:0;border:1px solid #849294;border-radius:8px;color:#fff;background:#203941;font-size:.84rem;line-height:1.2;cursor:pointer;overflow:hidden}
 .profile-camera input {position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .profile-camera svg,.profile-tile svg {width:18px;height:18px}
 .profile-actions {gap:8px;flex-wrap:wrap}

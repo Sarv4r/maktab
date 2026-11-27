@@ -1902,14 +1902,14 @@ function renderProfile(box) {
   box.innerHTML = `
     <article class="account-profile" data-owner="${safeText(currentUser.id)}">
       <header class="profile-summary">
-        <div class="profile-brand"><img src="./assets/icon-48.png" width="24" height="24" alt="">IlmNuri</div>
+        <div class="profile-heading">
+          <div class="profile-brand"><img src="./assets/icon-48.png" width="24" height="24" alt="">IlmNuri</div>
+          <label class="profile-camera" title="Profil rasmini almashtirish">${ICONS.camera}<span>Rasm</span>
+            <input type="file" aria-label="Profil rasmini tanlash" accept="image/*" onchange="uploadProfilePhoto(event)">
+          </label>
+        </div>
         <div class="profile-idline">
-          <div class="profile-portrait">
-            ${renderAvatarHTML(currentUser,72,27)}
-            <label class="profile-camera" title="Profil rasmini almashtirish">${ICONS.camera}
-              <input type="file" aria-label="Profil rasmini tanlash" accept="image/*" onchange="uploadProfilePhoto(event)">
-            </label>
-          </div>
+          <div class="profile-portrait">${renderAvatarHTML(currentUser,72,27)}</div>
           <div class="profile-name"><p>${[roles[currentUser.role],currentUser.grade || currentUser.subject].filter(Boolean).map(safeText).join(" · ")}</p>
             <h2>${safeText(currentUser.name)}</h2>
             ${currentUser.activeTitle ? `<small>${safeText(currentUser.activeTitle)}</small>` : ""}</div>

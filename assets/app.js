@@ -927,7 +927,10 @@ async function navigate(viewId, openChat = false) {
 
   if (currentView !== viewId) return;
   box.dataset.page = viewId;
-  if (viewId === "dashboard") renderDashboard(box);
+  if (viewId === "dashboard") {
+    renderDashboard(box);
+    window.scrollTo(0, 0);
+  }
   else if (viewId === "chats") renderChats(box);
   else if (viewId === "tasks") renderTasks(box);
   else if (viewId === "tests") renderTests(box);
@@ -941,148 +944,82 @@ async function navigate(viewId, openChat = false) {
 }
 
 /* ================= 1. BOSH SAHIFA ================= */
+const homeMonths = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+
+function homeDeadline(value, today) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return {order:Infinity,label:"Muddat belgilanmagan"};
+  const time = Date.parse(value+"T00:00:00Z");
+  if (!Number.isFinite(time) || new Date(time).toISOString().slice(0,10) !== value) return {order:Infinity,label:"Muddat belgilanmagan"};
+  const days = (time-today)/86400000;
+  const label = days < 0 ? `${-days} kun kechikkan` : days === 0 ? "Bugun" : days === 1 ? "Ertaga" :
+    `${Number(value.slice(8))}-${homeMonths[Number(value.slice(5,7))-1]} ${value.slice(0,4)}`;
+  return {order:time,label};
+}
+
+async function openDashboardTask(id) {
+  await navigate("tasks");
+  const task = document.getElementById("home-task-"+id);
+  if (!task) return;
+  task.scrollIntoView({block:"center"});
+  task.focus({preventScroll:true});
+}
+
+function homeTaskList(items, heading, empty, action) {
+  return `<section class="card home-agenda">
+    <div class="home-section-head"><h3>${heading} <span>${items.length}</span></h3><button type="button" class="member-name" onclick="navigate('tasks')">Barcha vazifalar</button></div>
+    ${items.length ? `<ul>${items.slice(0,3).map(({task,detail})=>`<li>
+      <div><strong>${safeText(task.title)}</strong><small>${safeText(task.subject)} · ${safeText(detail)}</small></div>
+      <button type="button" class="btn-secondary" data-task="${safeText(task.id)}" onclick="openDashboardTask(this.dataset.task)">${action}</button></li>`).join("")}</ul>` : `<p class="home-empty">${empty}</p>`}
+  </section>`;
+}
+
+function homeStats(items) {
+  return `<dl class="home-stats">${items.map(([label,value,note])=>`<div><dt>${safeText(label)}</dt><dd>${safeText(value)}${note ? `<small>${safeText(note)}</small>` : ""}</dd></div>`).join("")}</dl>`;
+}
+
 function renderDashboard(box) {
   const r = currentUser.role;
-
+  const date = new Date();
+  const today = Date.UTC(date.getFullYear(),date.getMonth(),date.getDate());
+  const weekdays = ["yakshanba", "dushanba", "seshanba", "chorshanba", "payshanba", "juma", "shanba"];
+  const displayDate = `${date.getDate()}-${homeMonths[date.getMonth()]}, ${weekdays[date.getDay()]}`;
+  const action = (view,label,icon) => `<button type="button" class="home-shortcut" onclick="navigate('${view}')">${ICONS[icon]} ${label}</button>`;
+  const header = (title,subtitle) => `<header class="ilm-page-head home-header"><div><h2 class="page-title">${safeText(title)}</h2><p class="page-sub">${safeText(subtitle)}</p></div><time>${safeText(displayDate)}</time></header>`;
   if (r === "student") {
-    const allStudents = DB.users.filter(u => u.role === "student").sort((a,b) => getTotalEarnedPoints(b) - getTotalEarnedPoints(a));
-    const rank = allStudents.findIndex(s => s.id === currentUser.id) + 1;
-    const pendingTasks = DB.tasks.filter(t => !t.submissions.some(s => s.studentId === currentUser.id));
-    const totalEarned = getTotalEarnedPoints(currentUser);
-    const progressToCert = Math.min(100, Math.round((currentUser.points / 1200) * 100));
-    const level = Math.floor(totalEarned / 150) + 1;
-    const today = new Date().toISOString().slice(0, 10);
-
+    const earned = getTotalEarnedPoints(currentUser);
+    const students = DB.users.filter(u=>u.role==="student").sort((a,b)=>getTotalEarnedPoints(b)-getTotalEarnedPoints(a)||a.name.localeCompare(b.name,"uz"));
+    const rank = students.findIndex(u=>u.id===currentUser.id)+1;
+    const tasks = DB.tasks.filter(t=>!t.submissions?.some(s=>s.studentId===currentUser.id)).map(task=>{
+      const deadline=homeDeadline(task.deadline,today);
+      return {task,order:deadline.order,detail:deadline.label};
+    }).sort((a,b)=>a.order-b.order);
+    const dayKey = date.toISOString().slice(0,10);
     const missions = [
-      { id: "m_login_" + today, title: "Kunlik tashrif bonusi", reward: 15, done: true },
-      { id: "m_test_" + today, title: "Bugun kamida 1 ta fan testini yechish", reward: 25, done: (currentUser.solvedTests || []).length > 0 },
-      { id: "m_chat_" + today, title: "Sinf yoki maktab kanalida faol bo'lish", reward: 15, done: (DB.messages["r_general"] || []).some(m => m.senderId === currentUser.id) }
+      {id:"m_login_"+dayKey,title:"Kunlik tashrif",reward:15,done:true},
+      {id:"m_test_"+dayKey,title:"Fan testini yechish",reward:25,done:(currentUser.solvedTests||[]).length>0},
+      {id:"m_chat_"+dayKey,title:"Maktab kanalida qatnashish",reward:15,done:(DB.messages["r_general"]||[]).some(m=>m.senderId===currentUser.id)}
     ];
-
-    box.innerHTML = `
-      <header class="ilm-page-head">
-        <div>
-          <h2 class="page-title">Salom, ${safeText(currentUser.name)}</h2>
-          <p class="page-sub" style="margin:0;">${currentUser.grade} • <strong>${level}-daraja</strong></p>
-        </div>
-        <div class="badge badge-gold" style="padding:7px 14px;font-size:12px;">
-          ${ICONS.fire} ${currentUser.streak || 1} kunlik seriya
-        </div>
-      </header>
-
-      <div class="grid-3">
-        <div class="card">
-          <div class="stat-label">${ICONS.cert} Joriy Balansim</div>
-          <div class="stat-val">${currentUser.points} ball</div>
-          <div style="font-size:12px;color:var(--primary);margin-top:4px;font-weight:600;">Jami yig'ilgan: ${totalEarned} ball</div>
-        </div>
-        <div class="card">
-          <div class="stat-label">${ICONS.rank} Umumiy Reytingdagi O'rnim</div>
-          <div class="stat-val">#${rank}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Jami ${allStudents.length} o'quvchi orasida</div>
-        </div>
-        <div class="card">
-          <div class="stat-label">${ICONS.store} 1200 Ballik Sertifikat</div>
-          <div class="stat-val">${progressToCert}%</div>
-          <div class="ilm-progress-track">
-            <div style="height:100%;width:${progressToCert}%;background:var(--ilm-accent);border-radius:10px;transition:width 0.4s var(--ease);"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <h3 style="color:var(--text);font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">${ICONS.ai} Kunlik Missiyalar</h3>
-          <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Topshiriqlarni bajaring va qo'shimcha ball oling</p>
-          ${missions.map(ms => {
-            const claimed = (currentUser.claimedMissions || []).includes(ms.id);
-            return `
-              <div class="ilm-work-row">
-                <div>
-                  <div style="font-weight:600;font-size:13.5px;">${ms.title}</div>
-                  <div style="font-size:11.5px;color:var(--gold);font-weight:600;">+${ms.reward} ball</div>
-                </div>
-                ${claimed
-                  ? `<span class="badge badge-green">Olingan</span>`
-                  : ms.done
-                    ? `<button class="btn-gold" style="padding:7px 12px;font-size:12px;" onclick="claimMission('${ms.id}', ${ms.reward})">Ballni Olish</button>`
-                    : `<span class="badge">Jarayonda</span>`
-                }
-              </div>
-            `;
-          }).join("")}
-        </div>
-
-        <div class="card">
-          <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">${ICONS.task} Bajarilmagan Vazifalar (${pendingTasks.length})</h3>
-          ${pendingTasks.length === 0 ? `<p style="font-size:13px;color:var(--muted);">Ajoyib! Barcha berilgan vazifalarni topshirgansiz.</p>` : pendingTasks.slice(0, 4).map(t => `
-            <div class="ilm-work-row">
-              <div>
-                <strong style="font-size:13.5px;">${t.title}</strong>
-                <div style="font-size:12px;color:var(--muted);">${t.subject} • ${memberLink(t.teacherId,t.teacherName)}</div>
-              </div>
-              <button class="btn-primary" style="width:auto;margin:0;padding:7px 13px;font-size:12px;" onclick="navigate('tasks')">Topshirish</button>
-            </div>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  } else if (r === "teacher" || r === "homeroom") {
-    const myTasks = DB.tasks.filter(t => t.teacherId === currentUser.id);
-    let ungraded = 0;
-    myTasks.forEach(t => t.submissions.forEach(s => { if (s.grade === null) ungraded++; }));
-    const myTests = (DB.customTests || []).filter(t => t.authorId === currentUser.id).length;
-    const pendingCerts = DB.certificates.filter(c => !c.delivered).length;
-
-    box.innerHTML = `
-      <header class="ilm-page-head"><div><h2 class="page-title">${safeText(currentUser.name)}</h2>
-      <p class="page-sub">${r === 'teacher' ? currentUser.subject + " o'qituvchisi" : currentUser.grade + " rahbari"} kabineti</p></div></header>
-
-      <div class="grid-3">
-        <div class="card">
-          <div class="stat-label">${ICONS.task} Tekshirilmagan Vazifalar</div>
-          <div class="stat-val">${ungraded} ta</div>
-        </div>
-        <div class="card">
-          <div class="stat-label">${ICONS.cert} Topshiriladigan Sertifikatlar</div>
-          <div class="stat-val">${pendingCerts} ta</div>
-        </div>
-        <div class="card">
-          <div class="stat-label">${ICONS.test} Mualliflik Testlarim</div>
-          <div class="stat-val">${myTests} ta</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;">Tezkor Boshqaruv</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:10px;">
-          <button class="btn-primary" style="margin:0;" onclick="navigate('tasks')">${ICONS.task} Vazifa Berish</button>
-          <button class="btn-gold" onclick="navigate('tests')">${ICONS.test} Test Tuzish</button>
-          <button class="btn-secondary" onclick="navigate('student_certs')">${ICONS.cert} Sertifikatlar</button>
-          <button class="btn-secondary" onclick="navigate('ranking')">${ICONS.rank} Top Reyting</button>
-        </div>
-      </div>
-    `;
+    const claimed = currentUser.claimedMissions || [];
+    box.innerHTML = header(`Salom, ${currentUser.name}`, [currentUser.grade,`${Math.floor(earned/150)+1}-daraja`,`${currentUser.streak||1} kunlik seriya`].filter(Boolean).join(" · "))
+      + homeTaskList(tasks,"Topshiriladigan vazifalar","Hozircha topshiriladigan vazifa yo‘q.","Ochish")
+      + `<nav class="home-shortcuts" aria-label="Tezkor o‘tish">${action("tests","Test yechish","test")}${action("announcements","E’lonlar","news")}${action("chats","Chatlar","chat")}</nav>`
+      + homeStats([["Balans",`${currentUser.points} ball`,`Jami ${earned} ball`],["Reyting",`${rank}-o‘rin`,`${students.length} o‘quvchi orasida`],["Sertifikat",`${Math.min(100,Math.round(currentUser.points/1200*100))}%`,"Maqsad · 1 200 ball"]])
+      + `<section class="card"><h3>Kunlik missiyalar</h3>${missions.map(m=>`<div class="ilm-work-row"><div>${m.title}<small class="home-reward">+${m.reward} ball</small></div>
+      ${claimed.includes(m.id)?'<span class="badge badge-green">Olingan</span>':m.done?`<button class="btn-gold" onclick="claimMission('${m.id}',${m.reward})">Ballni olish</button>`:'<span class="badge">Jarayonda</span>'}</div>`).join("")}</section>`;
+  } else if (r==="teacher" || r==="homeroom") {
+    const own=DB.tasks.filter(t=>t.teacherId===currentUser.id);
+    const reviews=own.map(task=>({task,count:(task.submissions||[]).filter(x=>x.grade===null).length}))
+      .filter(x=>x.count).sort((a,b)=>b.count-a.count).map(x=>({...x,detail:`${x.count} ta ish baholanmagan`}));
+    box.innerHTML = header(currentUser.name, r==="teacher" ? `${currentUser.subject || "Fan"} o‘qituvchisi` : `${currentUser.grade || "Sinf"} rahbari`)
+      + homeTaskList(reviews,"Tekshirish navbati","Tekshiriladigan ishlar yo‘q.","Tekshirish")
+      + `<nav class="home-shortcuts" aria-label="Ustoz amallari"><button class="home-shortcut" onclick="navigate('tasks').then(openCreateTaskModal)">${ICONS.task} Vazifa berish</button><button class="home-shortcut" onclick="navigate('tests').then(openCreateTestModal)">${ICONS.test} Test tuzish</button>${action("student_certs","Sertifikatlar","cert")}${action("ranking","Reyting","rank")}</nav>`
+      + homeStats([["Baholanmagan",`${reviews.reduce((n,x)=>n+x.count,0)} ta`],["Topshiriladigan sertifikat",`${DB.certificates.filter(c=>!c.delivered).length} ta`],["Mualliflik testlari",`${(DB.customTests||[]).filter(t=>t.authorId===currentUser.id).length} ta`]]);
   } else {
-    const studentsCount = DB.users.filter(u => u.role === "student").length;
-    const teachersCount = DB.users.filter(u => u.role === "teacher" || u.role === "homeroom").length;
-    box.innerHTML = `
-      <header class="ilm-page-head"><div><h2 class="page-title">IlmNuri Boshqaruv Markazi</h2>
-      <p class="page-sub">Maktab ma’muriyati kabineti</p></div></header>
-      <div class="grid-3">
-        <div class="card"><div class="stat-label">${ICONS.user} Jami Foydalanuvchilar</div><div class="stat-val">${DB.users.length} nafar</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">${studentsCount} o'quvchi • ${teachersCount} ustoz</div></div>
-        <div class="card"><div class="stat-label">${ICONS.chat} Faol Guruh va Kanallar</div><div class="stat-val">${DB.rooms.length} ta</div></div>
-        <div class="card"><div class="stat-label">${ICONS.cert} Berilgan Sertifikatlar</div><div class="stat-val">${DB.certificates.length} ta</div></div>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--text);font-size:16px;margin-bottom:12px;">Tezkor Admin Vositalari</h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn-primary" style="width:auto;margin:0;" onclick="navigate('admin')">${ICONS.admin} To'liq Admin Panelini Ochish</button>
-          <button class="btn-gold" onclick="openAdminCreateUserModal()">+ Yangi Foydalanuvchi Qo'shish</button>
-          <button class="btn-secondary" onclick="openAdminBroadcastModal()">Barcha Kanallarga E'lon</button>
-        </div>
-      </div>
-    `;
+    const learners = DB.users.filter(u=>u.role==="student").length;
+    const teachers = DB.users.filter(u=>["homeroom","teacher"].includes(u.role)).length;
+    box.innerHTML = header("Maktab boshqaruvi","Ma’muriyat kabineti")
+      + `<nav class="home-shortcuts" aria-label="Boshqaruv amallari">${action("admin","Admin paneli","admin")}<button class="home-shortcut" onclick="navigate('admin').then(openAdminCreateUserModal)">${ICONS.user} Yangi foydalanuvchi</button><button class="home-shortcut" onclick="navigate('admin').then(openAdminBroadcastModal)">${ICONS.news} Ommaviy e’lon</button></nav>`
+      + homeStats([["Foydalanuvchilar",`${DB.users.length} nafar`,`${learners} o‘quvchi · ${teachers} ustoz`],["Suhbatlar",`${DB.rooms.length} ta`],["Berilgan sertifikat",`${DB.certificates.length} ta`]]);
   }
 }
 
@@ -1518,7 +1455,7 @@ function renderTasks(box) {
     ${DB.tasks.length === 0 ? `<div class="card"><p style="color:var(--muted);font-size:13.5px;">Hozircha faol vazifalar mavjud emas.</p></div>` : DB.tasks.map(t => {
       const mySub = t.submissions.find(s => s.studentId === currentUser.id);
       return `
-        <article class="card ilm-task">
+        <article class="card ilm-task" id="home-task-${safeText(t.id)}" tabindex="-1" aria-label="${safeText(t.title)}">
           <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
             <div>
               <span class="badge badge-blue">${t.subject}</span>
@@ -2084,6 +2021,10 @@ function renderProfile(box) {
           <span>${appInstalled() ? "Ilova o‘rnatilgan" : "Ilovani o‘rnatish"}</span>
         </button>
         ${currentUser.avatarImg ? '<button class="account-action" onclick="removeProfilePhoto()">Profil rasmini o‘chirish</button>' : ""}
+        <button type="button" class="account-action" onclick="logout()">
+          <span class="account-icon" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5m5-13 5 5-5 5m5-5H9"/></svg></span>
+          <span>Tizimdan chiqish</span>
+        </button>
       </section>
       ${currentUser.role === "student" ? `<nav class="profile-sections" aria-label="Profil bo‘limlari">
         ${[["info","Ma’lumotlar"],["awards","Mukofotlar"],["certs","Sertifikatlar"]].map(([key,label]) => `<button type="button" data-profile-choice="${key}" aria-pressed="${key === "info"}" onclick="switchProfileSection('${key}')">${label}</button>`).join("")}

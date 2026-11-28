@@ -87,7 +87,7 @@ function help(box) {
     {
       title: "Muloqot va xabarlar", icon: ICONS.chat,
       topics: [
-        ["Shaxsiy suhbatni qanday boshlayman?", "Chatlarda «Shaxsiy chat»ni bosing va suhbatdoshni tanlang. Avvalgi suhbatni topish uchun ro‘yxat tepasidagi qidiruvga uning nomini yozing.", "chats", "Chatlarni ochish"],
+        ["Shaxsiy suhbatni qanday boshlayman?", "Chatlar ro‘yxatining pastki o‘ng burchagidagi «+» tugmasini bosing. «Shaxsiy chat»ni tanlab, suhbatdosh yonidagi «Yozish»ni bosing. Shu menyudan guruh yoki kanal ham yaratishingiz mumkin.", "chats", "Chatlarni ochish"],
         ["E’lonlar telefonga qanday keladi?", "Maktab e’lonlarida «Telefonda xabar olish»ni bosing. Brauzer ruxsat so‘rasa, bildirishnomalarni yoqing.", "announcements", "Maktab e’lonlarini ochish"],
         ["Saytdan kerakli ma’lumotni qanday topaman?", "Yuqoridagi lupa orqali sayt bo‘ylab qidiring. Kompyuterda Ctrl + K ham qidiruvni ochadi, Esc esa oynani yopadi.", "search", "Sayt bo‘ylab qidirish"]
       ]

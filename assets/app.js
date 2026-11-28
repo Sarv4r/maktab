@@ -1079,15 +1079,49 @@ function updateChatDraft(input) {
   }
 }
 
-function filterChatList(input) {
-  const sidebar = input.closest(".chat-sidebar");
+function chatRoomType(room) {
+  if (room.type === "direct" || room.type === "channel") return room.type;
+  return "group";
+}
+
+function filterChatList(control) {
+  const sidebar = control.closest(".chat-sidebar");
+  const input = sidebar.querySelector("#chatRoomSearch");
   const query = input.value.trim().toLocaleLowerCase("uz");
+  const activeFilter = control.dataset.filter || sidebar.dataset.filter;
+  sidebar.dataset.filter = activeFilter;
+  sidebar.querySelectorAll("button[data-filter]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.filter === activeFilter));
+  });
   let matches = 0;
   sidebar.querySelectorAll(".ilm-room").forEach(button => {
-    button.hidden = !button.dataset.search.includes(query);
+    const inCategory = activeFilter === "all" || button.dataset.kind === activeFilter;
+    button.hidden = !inCategory || !button.dataset.search.includes(query);
     if (!button.hidden) matches++;
   });
-  sidebar.querySelector(".ilm-no-matches").hidden = !query || matches > 0;
+  const empty = sidebar.querySelector(".ilm-no-matches");
+  empty.hidden = matches > 0;
+  empty.textContent = query ? "Qidiruvga mos suhbat topilmadi." :
+    activeFilter === "all" ? "Hozircha suhbat yo‘q." : "Bu bo‘limda hozircha suhbat yo‘q.";
+  if (control.dataset.filter) sidebar.querySelector(".chat-list").scrollTop = 0;
+}
+
+function revealCreatedChat(type) {
+  const sidebar = document.querySelector(".ilm-chat .chat-sidebar");
+  if (!sidebar) return;
+  sidebar.querySelector("#chatRoomSearch").value = "";
+  if (sidebar.dataset.filter !== "all") sidebar.dataset.filter = type;
+}
+
+function openChatCreateMenu() {
+  openModal(`<section class="ilm-new-chat" role="dialog" aria-modal="true" aria-labelledby="newChatHeading">
+    <h3 id="newChatHeading">Yangi suhbat</h3>
+    <button type="button" onclick="openDirectChatModal()">${ICONS.user}<span>Shaxsiy chat</span></button>
+    <button type="button" onclick="openCreateRoomModal('group')">${ICONS.chat}<span>Guruh yaratish</span></button>
+    <button type="button" onclick="openCreateRoomModal('channel')">${ICONS.news}<span>Kanal yaratish</span></button>
+    <button type="button" class="btn-secondary" onclick="closeModal();document.querySelector('.ilm-chat-fab')?.focus()">Bekor qilish</button>
+  </section>`);
+  document.querySelector(".ilm-new-chat button").focus();
 }
 
 function renderChats(box) {
@@ -1101,6 +1135,13 @@ function renderChats(box) {
   const previousList = sameRoom && box.querySelector("#chatMsgList");
   const readingHistory = previousList?.clientHeight > 0 && previousList.scrollHeight - previousList.clientHeight - previousList.scrollTop > 60;
   const scrollTop = readingHistory ? previousList.scrollTop : null;
+  const filters = [["all","Barchasi"],["direct","Shaxsiy"],["group","Guruhlar"],["channel","Kanallar"]];
+  const counts = {all:rooms.length, direct:0, group:0, channel:0};
+  for (const room of rooms) counts[chatRoomType(room)]++;
+  const oldSidebar = box.querySelector(".chat-sidebar");
+  const activeFilter = oldSidebar?.dataset.filter || "all";
+  const focusedFilter = oldSidebar?.contains(document.activeElement) ? document.activeElement.dataset.filter : null;
+  const filterScroll = oldSidebar?.querySelector(".ilm-chat-filters")?.scrollLeft || 0;
   const oldSearch = box.querySelector("#chatRoomSearch");
   const query = oldSearch?.value || "";
   const searching = oldSearch && oldSearch === document.activeElement;
@@ -1112,22 +1153,25 @@ function renderChats(box) {
   const contact = activeRoom && peer(activeRoom);
   box.innerHTML = `
     <section class="chat-layout ilm-chat ${chatThreadOpen && activeRoom ? "thread-open" : ""}">
-      <aside class="chat-sidebar">
-        <header class="ilm-chat-title"><h2>Chatlar</h2><span>${rooms.length} suhbat</span></header>
-        <div class="ilm-chat-create"><button type="button" onclick="openDirectChatModal()">Shaxsiy chat</button><button type="button" onclick="openCreateRoomModal()">Guruh / kanal</button></div>
-        <input id="chatRoomSearch" class="ilm-chat-search" type="search" aria-label="Suhbat nomi bo‘yicha qidirish" placeholder="Suhbatni qidirish…" oninput="filterChatList(this)">
+      <aside class="chat-sidebar" data-filter="${activeFilter}">
+        <header class="ilm-chat-title"><h2>Chatlar</h2></header>
+        <label class="ilm-room-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+          <input id="chatRoomSearch" class="ilm-chat-search" type="search" aria-label="Chatlarni qidirish" placeholder="Chatlarni qidirish" oninput="filterChatList(this)"></label>
+        <div class="ilm-chat-filters" role="group" aria-label="Chat turi">${filters.map(([key,label]) => 
+          `<button type="button" data-filter="${key}" aria-pressed="${key===activeFilter}" onclick="filterChatList(this)">${label}${counts[key] ? ` <span>${counts[key]}</span>` : ""}</button>`).join("")}</div>
         <div class="chat-list">
           ${rooms.map(r => {
             const person = peer(r), name = person?.name || r.name;
             const last = (DB.messages[r.id] || []).at(-1);
             const roomDraft = readChatDraft(r.id).trim();
-            return `<button type="button" data-search="${safeText(String(name || "").toLocaleLowerCase("uz"))}" class="ilm-room ${r.id===activeRoomId ? "selected" : ""}" data-id="${safeText(r.id)}" onclick="selectRoom(this.dataset.id)">
+            return `<button type="button" data-kind="${chatRoomType(r)}" data-search="${safeText(String(name || "").toLocaleLowerCase("uz"))}" class="ilm-room ${r.id===activeRoomId ? "selected" : ""}" data-id="${safeText(r.id)}" onclick="selectRoom(this.dataset.id)">
               ${person ? renderAvatarHTML(person,42,16,false) : `<span class="ilm-room-icon">${safeText(name?.trim().charAt(0) || "#")}</span>`}
               <span class="ilm-room-copy"><strong>${safeText(name)}</strong><small><span data-draft-preview ${roomDraft ? "" : "hidden"}><b class="ilm-draft-label">Qoralama</b> · <span>${safeText(roomDraft)}</span></span><span data-last-preview ${roomDraft ? "hidden" : ""}>${safeText(last?.text || kind(r))}</span></small></span>
               <time>${safeText(last?.time)}</time></button>`;
-          }).join("") || "<p>Suhbatlar hozircha yo‘q.</p>"}
-          <p class="ilm-no-matches" hidden>Mos suhbat topilmadi.</p>
+          }).join("")}
+          <p class="ilm-no-matches" role="status" hidden></p>
         </div>
+        <button type="button" class="ilm-chat-fab" aria-label="Yangi suhbat ochish" title="Yangi suhbat ochish" aria-haspopup="dialog" onclick="openChatCreateMenu()"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button>
       </aside>
       <div class="chat-main">
         ${activeRoom ? `
@@ -1205,7 +1249,10 @@ function renderChats(box) {
   }
   const search = box.querySelector("#chatRoomSearch");
   search.value = query;
-  if (query) filterChatList(search);
+  filterChatList(search);
+  const filterBar = box.querySelector(".ilm-chat-filters");
+  filterBar.scrollLeft = filterScroll;
+  if (focusedFilter) filterBar.querySelector(`[data-filter="${focusedFilter}"]`)?.focus({preventScroll:true});
   if (searching && search.getClientRects().length) search.focus({preventScroll:true});
   box.querySelector(".chat-list").scrollTop = sideScroll;
   const list = document.getElementById("chatMsgList");
@@ -1309,14 +1356,14 @@ function deleteMsg(msgId) {
   renderChats(document.getElementById("mainContent"));
 }
 
-function openCreateRoomModal() {
+function openCreateRoomModal(type = "group") {
   openModal(`
     <h3 style="margin-bottom:14px;color:var(--text);">Yangi Guruh yoki Kanal</h3>
     <div class="form-group"><label>Nomi</label><input id="newRoomName" placeholder="Masalan: 9-sinf Fizika klubi" /></div>
     <div class="form-group"><label>Turi</label>
       <select id="newRoomType">
         <option value="group">Guruh</option>
-        <option value="channel">Kanal</option>
+        <option value="channel" ${type === "channel" ? "selected" : ""}>Kanal</option>
       </select>
     </div>
     <div class="form-group"><label>Tavsif</label><input id="newRoomDesc" placeholder="Guruh haqida qisqacha" /></div>
@@ -1340,6 +1387,7 @@ function createRoom() {
     pinned: ""
   });
   DB.messages[id] = [];
+  revealCreatedChat(document.getElementById("newRoomType").value);
   activeRoomId = id;
   chatThreadOpen = true;
   replyTarget = null;
@@ -1383,6 +1431,7 @@ function startDirectChat(targetId) {
     });
     DB.messages[pairId] = [];
   }
+  revealCreatedChat("direct");
   activeRoomId = pairId;
   chatThreadOpen = true;
   replyTarget = null;

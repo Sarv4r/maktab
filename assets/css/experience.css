@@ -894,10 +894,31 @@ button.member-avatar {cursor:pointer}
   #appScreen .ilm-chat {grid-template-columns:minmax(min(386px,48%),38%) minmax(0,1fr)}
 }
 @media (max-width:820px) {
-  #appScreen .main-wrap:has(>#mainContent[data-page="chats"]) {display:flex;flex-direction:column;box-sizing:border-box;height:100dvh}
-  #appScreen .main-wrap:has(>#mainContent[data-page="chats"])>.topbar {flex-shrink:0}
-  #appScreen #mainContent[data-page="chats"] {flex:1;min-height:0;padding:0}
-  #appScreen .ilm-chat {height:100%;min-height:0;border-radius:0;border:0;box-shadow:none}
+  html:has(#appScreen:not(.hidden) #mainContent[data-page="chats"]),
+  body:has(#appScreen:not(.hidden) #mainContent[data-page="chats"]) {
+    overflow:hidden;
+    overscroll-behavior-y:none;
+  }
+  #appScreen:has(#mainContent[data-page="chats"]) {
+    position:fixed;
+    inset:0;
+    display:grid;
+    grid-template-rows:minmax(0,1fr) auto;
+    height:100dvh;
+    min-height:0;
+    overflow:hidden;
+  }
+  #appScreen .main-wrap:has(>#mainContent[data-page="chats"]) {
+    grid-row:1;
+    min-height:0;
+    padding-bottom:0;
+  }
+  #appScreen .main-wrap:has(>#mainContent[data-page="chats"]) > :is(.topbar,#phonePrompt) {flex-shrink:0}
+  #appScreen:has(#mainContent[data-page="chats"]) > .bottom-nav {grid-row:2;position:static;display:flex}
+  #appScreen #mainContent[data-page="chats"] {display:flex;flex:1;min-height:0;padding:0;overflow:hidden;animation:none}
+  #appScreen .ilm-chat {flex:1;height:auto;min-height:0;border-radius:0;border:0;box-shadow:none}
+  #appScreen .ilm-chat :is(.chat-list,.chat-messages) {overscroll-behavior-y:contain}
+  #appScreen .ilm-chat .chat-sidebar > :is(.ilm-chat-title,.ilm-room-search,.ilm-chat-filters) {flex-shrink:0}
   .ilm-room.selected:not(:hover) {background:transparent}
 }
 

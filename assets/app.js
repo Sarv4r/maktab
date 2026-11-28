@@ -346,6 +346,7 @@ let DB = normalizeDB(JSON.parse(localStorage.getItem("maktabos_db_v4")) || JSON.
 
 let currentUser = null;
 let currentView = "dashboard";
+let navigationVersion = 0;
 let chatThreadOpen = false;
 let activeRoomId = "r_general";
 let replyTarget = null;
@@ -478,17 +479,27 @@ function mergeDatabases(remoteRaw, localRaw) {
   });
 }
 
-async function pullFromCloud(silent = true) {
+async function pullForPage() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    return await pullFromCloud(true, controller.signal);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function pullFromCloud(silent = true, signal) {
   if (!CLOUD_DB_URL) return false;
   try {
-    const res = await fetch(CLOUD_DB_URL + "?t=" + Date.now());
+    const res = await fetch(CLOUD_DB_URL + "?t=" + Date.now(), {signal});
     if (!res.ok) return false;
     const remote = await res.json();
     if (remote && typeof remote === "object") {
       DB = mergeDatabases(remote, DB);
       localStorage.setItem("maktabos_db_v4", JSON.stringify(DB));
     } else {
-      await pushToCloud(true);
+      await pushToCloud(true, signal);
     }
     return true;
   } catch (err) {
@@ -497,7 +508,7 @@ async function pullFromCloud(silent = true) {
   }
 }
 
-async function pushToCloud(skipPull = false) {
+async function pushToCloud(skipPull = false, signal) {
   localStorage.setItem("maktabos_db_v4", JSON.stringify(DB));
   if (!CLOUD_DB_URL) return false;
   try {
@@ -512,6 +523,7 @@ async function pushToCloud(skipPull = false) {
       }
     }
     const resPut = await fetch(CLOUD_DB_URL, {
+      signal,
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(DB)
@@ -557,24 +569,26 @@ setInterval(async () => {
   }
 }, 4000);
 
-(async function restoreSessionOnLoad() {
+async function restoreSessionOnLoad() {
+  const loader = document.getElementById("bootLoader");
   const verifyId = new URLSearchParams(location.search).get('verify');
-  if (verifyId) { showCertificateVerification(verifyId); return; }
+  if (verifyId) { loader.hidden = true; return showCertificateVerification(verifyId); }
   const savedUid = localStorage.getItem(SESSION_KEY);
   if (savedUid) {
     const cachedUser = DB.users.find(u => u.id === savedUid);
     if (cachedUser && !cachedUser.banned) {
       currentUser = cachedUser;
-      enterApp();
+      await enterApp();
     }
   }
-  const synced = await pullFromCloud(true);
-  if (synced && savedUid) {
+  if (!savedUid || currentUser) loader.hidden = true;
+  const synced = await pullForPage();
+  if (synced && savedUid && localStorage.getItem(SESSION_KEY) === savedUid) {
     const freshUser = DB.users.find(u => u.id === savedUid);
     if (freshUser && !freshUser.banned) {
       currentUser = freshUser;
       if (document.getElementById("appScreen").classList.contains("hidden")) {
-        enterApp();
+        await enterApp();
       } else {
         updateTopbar();
         if (currentView === "ranking") renderRanking(document.getElementById("mainContent"));
@@ -584,7 +598,7 @@ setInterval(async () => {
       if (currentUser) logout();
     }
   }
-})();
+}
 
 function getAllTests() {
   return [...(DB.customTests || []), ...STATIC_TESTS];
@@ -803,6 +817,7 @@ async function handleLogin(e) {
 }
 
 function logout() {
+  resetViewLoader();
   window.disconnectPhoneAlerts?.();
   closeModal();
   currentUser = null;
@@ -819,7 +834,7 @@ function enterApp() {
   updateTopbar();
   renderSidebarMenu();
   renderBottomNav();
-  navigate("dashboard");
+  return navigate("dashboard");
 }
 
 function toggleMobileSidebar() {
@@ -910,7 +925,20 @@ function renderBottomNav() {
   `).join("");
 }
 
+function resetViewLoader() {
+  document.getElementById("viewLoader").hidden = true;
+  return ++navigationVersion;
+}
+
+function showViewLoader(label) {
+  const host = document.getElementById("viewLoader");
+  if (!host.firstElementChild) host.append(document.querySelector("#bootLoader .ilm-loader").cloneNode(true));
+  host.querySelector(".ilm-loader-message").textContent = label;
+  host.hidden = false;
+}
+
 async function navigate(viewId, openChat = false) {
+  const version = resetViewLoader();
   if (viewId !== "chats" || currentView !== "chats") chatThreadOpen = openChat;
   currentView = viewId;
   document.getElementById("sidebar").classList.remove("open");
@@ -920,8 +948,18 @@ async function navigate(viewId, openChat = false) {
   updateTopbar();
   const box = document.getElementById("mainContent");
 
-  if (viewId === "ranking" || viewId === "admin" || viewId === "chats") {
-    await pullFromCloud(true);
+  const loadingText = {ranking:"Reyting yuklanmoqda…", admin:"Boshqaruv paneli yuklanmoqda…", chats:"Chatlar yuklanmoqda…"}[viewId];
+  if (loadingText) {
+    const delay = setTimeout(() => {
+      if (navigationVersion === version) showViewLoader(loadingText);
+    }, 150);
+    try {
+      await pullForPage();
+    } finally {
+      clearTimeout(delay);
+      if (navigationVersion === version) document.getElementById("viewLoader").hidden = true;
+    }
+    if (version !== navigationVersion || !currentUser) return;
     updateTopbar();
   }
 
@@ -2881,10 +2919,6 @@ function closeModalOnBg(e) { if (e.target.id === "modalBackdrop") closeModal(); 
 /* IlmNuri premium theme switch */
 (function(){
  const root=document.documentElement;
- let stored=null;
- try{stored=localStorage.getItem("maktabos_theme_v1");}catch(e){}
- const preferred=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
- root.dataset.theme=stored||preferred;
  function paint(btn){
   const dark=root.dataset.theme==="dark";
   btn.innerHTML='<span class="theme-toggle-icon" aria-hidden="true">'+(dark?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11z"/></svg>')+'</span><span class="theme-toggle-copy"><strong>'+(dark?'Yorug‘ rejim':'Tungi rejim')+'</strong><small>'+(dark?'Kunduzgi ko‘rinishga o‘tish':'Tungi ko‘rinishga o‘tish')+'</small></span><span class="theme-toggle-track" aria-hidden="true"><i></i></span>';

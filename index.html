@@ -9,6 +9,13 @@
   <meta property="og:description" content="Maktab hayotini boshqarish, o‘rganish va natijalarni kuzatish uchun yagona platforma.">
   <meta property="og:type" content="website">
   <meta name="color-scheme" content="light dark">
+  <script>
+    (() => {
+      let theme;
+      try { theme = localStorage.getItem("maktabos_theme_v1"); } catch {}
+      document.documentElement.dataset.theme = theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    })();
+  </script>
   
 
 <!-- IlmNuri Premium Frontend Refresh | visual-only layer -->
@@ -23,6 +30,15 @@
 </head>
 <body>
 
+<div id="bootLoader" class="ilm-boot-loader">
+  <div class="ilm-loader" role="status" aria-live="polite" aria-atomic="true">
+    <span class="ilm-loader-mark" aria-hidden="true"><img src="./assets/icon-192.png" width="54" height="54" alt=""></span>
+    <strong>IlmNuri</strong>
+    <span class="ilm-loader-message">Ilova yuklanmoqda…</span>
+  </div>
+  <button type="button" class="btn-secondary" hidden onclick="location.reload()">Qayta yuklash</button>
+</div>
+<noscript><style>#bootLoader,#authScreen{display:none!important}</style><p>IlmNuri’ni ochish uchun brauzerda JavaScript’ni yoqing.</p></noscript>
 <div id="toastStack"></div>
 
 <!-- ================= AUTH SCREEN ================= -->
@@ -123,6 +139,7 @@
       <button type="button" class="btn-secondary" onclick="enablePhoneAlerts(false)">Xabarlarni yoqish</button>
       <button type="button" class="member-name" onclick="postponePhonePrompt()">Keyinroq</button>
     </aside>
+    <div id="viewLoader" class="ilm-view-loader" hidden></div>
     <main id="mainContent" class="content-area"></main>
   </div>
 
@@ -138,5 +155,20 @@
 <script src="./assets/app.js"></script>
 <script src="./assets/experience.js"></script>
 <script src="./assets/phone.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const loader = document.getElementById("bootLoader");
+    try {
+      await restoreSessionOnLoad();
+      loader.hidden = true;
+    } catch (error) {
+      console.error("IlmNuri startup", error);
+      loader.hidden = false;
+      loader.classList.add("ilm-load-failed");
+      loader.querySelector(".ilm-loader-message").textContent = "Ilovani ochib bo‘lmadi.";
+      loader.querySelector("button").hidden = false;
+    }
+  }, {once:true});
+</script>
 </body>
 </html>

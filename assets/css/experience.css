@@ -925,3 +925,19 @@ button.member-avatar {cursor:pointer}
 @container (max-width:335px) {
   .ilm-chat-filters button {flex-direction:column;gap:1px}
 }
+
+/* Startup and foreground navigation */
+.ilm-boot-loader {position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;background:var(--bg);color:var(--text)}
+.ilm-boot-loader:not([hidden]) ~ :is(#authScreen,#appScreen) {visibility:hidden}
+.ilm-view-loader {display:grid;place-items:center;flex:1;min-height:min(56dvh,28rem);padding:24px;text-align:center}
+.ilm-view-loader:not([hidden]) + #mainContent {display:none!important}
+.ilm-boot-loader[hidden],.ilm-view-loader[hidden],.ilm-boot-loader button[hidden] {display:none!important}
+.ilm-loader {display:grid;justify-items:center;align-content:center;text-align:center;color:var(--text)}
+.ilm-loader-mark {position:relative;display:grid;place-items:center;width:82px;height:82px}
+.ilm-loader-mark img {width:54px;height:54px;border-radius:14px}
+.ilm-loader-mark::after {content:"";position:absolute;inset:0;border:2px solid var(--border-soft);border-top-color:var(--ilm-brass,#937132);border-right-color:var(--ilm-brass,#937132);border-radius:50%;animation:ilm-loader-turn 1.15s linear infinite}
+.ilm-loader strong {margin-top:14px;font:700 1.5rem Georgia,serif;letter-spacing:-.02em}
+.ilm-loader-message {margin-top:5px;font-size:.94rem;color:var(--muted)}
+.ilm-load-failed .ilm-loader-mark::after {animation:none;border-color:var(--border-soft)}
+@keyframes ilm-loader-turn {to {transform:rotate(1turn)}}
+@media(prefers-reduced-motion:reduce) {.ilm-loader-mark::after {animation:none}}

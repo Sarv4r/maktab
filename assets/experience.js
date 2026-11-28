@@ -57,11 +57,104 @@ function openSearch(){
 function notices(){const d=db(),u=user(),out=[];if(!u)return out;(d.announcements||[]).filter(a=>!(a.views||[]).includes(u.id)).forEach(a=>out.push({icon:"📢",title:a.title,detail:"Yangi maktab e’loni · "+(a.date||""),view:"announcements"}));if(u.role==="student")(d.tasks||[]).filter(t=>!(t.submissions||[]).some(s=>s.studentId===u.id)).forEach(t=>out.push({icon:"📚",title:t.title,detail:"Topshirilmagan vazifa · "+(t.deadline||""),view:"tasks"}));else(d.tasks||[]).forEach(t=>(t.submissions||[]).filter(s=>s.grade==null).forEach(s=>out.push({icon:"📝",title:t.title,detail:"Tekshiruv kutilmoqda: "+(s.studentName||"O‘quvchi"),view:"tasks"})));return out.slice(0,15);}
 function openNotices(){noticeItems=notices();window.openModal('<h3 style="font-size:18px;margin-bottom:4px">Bildirishnomalar</h3><p class="page-sub" style="margin:0 0 12px">'+noticeItems.length+' ta muhim xabar</p>'+(noticeItems.length?noticeItems.map((n,i)=>'<button class="mos-notice-item" style="width:100%;text-align:left;background:transparent;color:var(--text)" onclick="mosNoticeOpen('+i+')"><span class="mos-notice-icon">'+n.icon+'</span><span><strong>'+esc(n.title)+'</strong><p>'+esc(n.detail)+'</p></span></button>').join(""):'<div class="mos-search-empty">Hozircha yangi bildirishnomalar yo‘q.</div>'));}
 function exportCSV(){const d=db(),u=user(),students=u.role==="student"?[u]:(d.users||[]).filter(x=>x.role==="student"),rows=[["Ism","Sinf","Ball","Testlar","Topshirilgan vazifalar"]];students.forEach(x=>rows.push([x.name,x.grade||"",x.points||0,(x.solvedTests||[]).length,(d.tasks||[]).filter(t=>(t.submissions||[]).some(s=>s.studentId===x.id)).length]));const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(";")).join("\r\n"),url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})),a=document.createElement("a");a.href=url;a.download="IlmNuri_hisobot_"+today()+".csv";a.click();URL.revokeObjectURL(url);if(window.notify)notify("Hisobot CSV formatida yuklandi.","success");}
-function help(box){box.innerHTML='<div class="mos-hero"><h2>IlmNuri yordam markazi</h2><p>Platformadan samarali va xavfsiz foydalanish bo‘yicha qo‘llanma.</p></div><div class="mos-help-grid">'+[['👤','Profil va xavfsizlik','Shaxsiy ma’lumotlaringizni tekshiring. Parolingizni hech kimga bermang.'],['📚','Vazifalar','Vazifa shartini o‘qing, javobni yuboring va ustoz bahosini kuzating.'],['🧠','Fan testlari','Fan tanlang, testni yakunlang va natijangizni tahlil qiling.'],['💬','Chatlar','Sinf va maktab kanallarida odobli va xavfsiz muloqot qiling.'],['📊','Natijalar','O‘z rivojlanishingiz yoki maktab statistikalarini ko‘ring.']].map(x=>'<article class="mos-help-card"><span style="font-size:25px">'+x[0]+'</span><h3>'+x[1]+'</h3><p>'+x[2]+'</p></article>').join("")+'</div><div class="card" style="margin-top:14px"><strong>Tezkor tugmalar</strong><p style="font-size:12px;color:var(--muted);margin-top:6px">Ctrl + K — qidiruv · Esc — oynani yopish · 🌙 — tungi rejim</p></div>';}
+function help(box) {
+  const role = user().role;
+  const student = role === "student";
+  const groups = [
+    {
+      title: "Darslar va natijalar", icon: ICONS.task,
+      topics: [
+        student
+          ? ["Vazifani qanday topshiraman?", "Vazifalar ro‘yxatidan topshiriqni tanlang. Shartni o‘qing, javobingizni yozing va «Topshirish»ni bosing. Ustoz qo‘ygan baho shu vazifada ko‘rinadi.", "tasks", "Vazifalarni ochish"]
+          : ["Vazifa berish va baholash", "«Vazifa berish» orqali topshiriq yarating. O‘quvchilar yuborgan javoblar vazifa ostida chiqadi. Ballni kiritib, «Baholash»ni bosing.", "tasks", "Vazifalarni ochish"],
+        student
+          ? ["Testni qanday yechaman?", "Sinf va fanni tanlang. Test yonidagi «Boshlash»ni bosing. Javoblarni belgilab, «Yakunlash»ni bosing. Har bir to‘g‘ri javob uchun 5–10 ball beriladi.", "tests", "Fan testlarini ochish"]
+          : ["Yangi testni qanday tuzaman?", "«Test tuzish»ni bosing. Sinf va test nomini kiriting. Har bir savol uchun bitta to‘g‘ri javob, ikkita noto‘g‘ri variant va ballni kiriting. 10 ta savol tayyor bo‘lgach, «Saqlash»ni bosing.", "tests", "Fan testlarini ochish"],
+        ["Reytingdagi ball qanday hisoblanadi?", "«Haftalik»da shu haftada yig‘ilgan ball, «Umumiy»da jami yig‘ilgan ball ko‘rinadi. Mukofotga sarflangan ball umumiy reytingda hisoblanadi.", "ranking", "Reytingni ochish"],
+        student
+          ? ["Sertifikatimni qayerdan yuklayman?", "Profilning «Sertifikatlar» bo‘limida o‘zingizga berilgan sertifikatni tanlang. PDF tugmasi orqali uni ochishingiz va saqlashingiz mumkin.", "certs", "Sertifikatlarimni ochish"]
+          : ["O‘quvchilar sertifikatlari qayerda?", "O‘quvchini ro‘yxatdan toping. «PDF ko‘rish» hujjatni ochadi. Sertifikatni o‘quvchiga bergach, «Topshirildi»ni bosing.", "student_certs", "Sertifikatlarni ochish"]
+      ]
+    },
+    {
+      title: "Profil va ilova", icon: ICONS.user,
+      topics: [
+        ["Profilimni qanday tahrirlayman?", "Profilingizda «Tahrirlash»ni bosing. Tug‘ilgan kun va boshqa ma’lumotlarni kiritib, saqlang. Qaysi ma’lumotlar boshqalarga ko‘rinishini sozlamalarda tanlaysiz.", "profile", "Profilni ochish"],
+        ["Tizimdan qanday chiqaman?", "Profil sozlamalarining pastidagi «Tizimdan chiqish»ni bosing. Kirish sahifasi ochiladi.", "settings", "Profil sozlamalarini ochish"],
+        ["Ilovani qanday o‘rnataman?", "Profil sozlamalarida «Ilovani o‘rnatish»ni bosing. Brauzer ko‘rsatmalariga amal qiling. iPhone’da Safari menyusidan «Bosh ekranga qo‘shish»ni tanlang.", "settings", "Profil sozlamalarini ochish"]
+      ]
+    },
+    {
+      title: "Muloqot va xabarlar", icon: ICONS.chat,
+      topics: [
+        ["Shaxsiy suhbatni qanday boshlayman?", "Chatlarda «Shaxsiy chat»ni bosing va suhbatdoshni tanlang. Avvalgi suhbatni topish uchun ro‘yxat tepasidagi qidiruvga uning nomini yozing.", "chats", "Chatlarni ochish"],
+        ["E’lonlar telefonga qanday keladi?", "Maktab e’lonlarida «Telefonda xabar olish»ni bosing. Brauzer ruxsat so‘rasa, bildirishnomalarni yoqing.", "announcements", "Maktab e’lonlarini ochish"],
+        ["Saytdan kerakli ma’lumotni qanday topaman?", "Yuqoridagi lupa orqali sayt bo‘ylab qidiring. Kompyuterda Ctrl + K ham qidiruvni ochadi, Esc esa oynani yopadi.", "search", "Sayt bo‘ylab qidirish"]
+      ]
+    }
+  ];
+  if (role === "admin") {
+    groups[1].topics.push(["Yangi foydalanuvchini qanday qo‘shaman?", "Boshqaruv panelida «Yangi foydalanuvchi»ni tanlang. Kerakli rol va hisob ma’lumotlarini kiriting.", "admin", "Boshqaruv panelini ochish"]);
+  }
+
+  box.innerHTML = `<section class="ilm-help" aria-labelledby="helpTitle">
+    <header class="ilm-page-head"><div><h2 class="page-title" id="helpTitle" tabindex="-1">Yordam markazi</h2>
+      <p class="page-sub">Savolni tanlang yoki kalit so‘z bilan qidiring.</p></div></header>
+    <label class="help-search"><span>Yordamdan qidirish</span>
+      <input type="search" placeholder="Masalan, sertifikat yoki tizimdan chiqish" autocomplete="off"></label>
+    <p class="help-status" role="status"></p>
+    <div class="help-groups">${groups.map(group => `<section class="help-group"><h3>${group.icon}${group.title}</h3>
+      ${group.topics.map(([question, answer, target, action]) => `<details><summary>${question}</summary>
+        <div class="help-answer"><p>${answer}</p><button type="button" class="btn-secondary" data-help-target="${target}">${action}</button></div>
+      </details>`).join("")}</section>`).join("")}</div>
+    <button type="button" class="btn-secondary help-reset" hidden>Qidiruvni tozalash</button>
+  </section>`;
+
+  const page = box.querySelector(".ilm-help");
+  const input = page.querySelector("input");
+  const status = page.querySelector(".help-status");
+  const reset = page.querySelector(".help-reset");
+  const normalize = text => text.toLowerCase().replace(/['‘’ʻʼ`]/g, "");
+  function filterTopics() {
+    const words = normalize(input.value.trim()).split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const section of page.querySelectorAll(".help-group")) {
+      let matches = 0;
+      const category = section.querySelector("h3").textContent;
+      for (const topic of section.querySelectorAll("details")) {
+        const text = normalize(category + " " + topic.textContent);
+        topic.hidden = !words.every(word => text.includes(word));
+        if (!topic.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      count += matches;
+    }
+    status.textContent = !words.length ? "" : count ? `${count} ta savol topildi.` : "Mos savol topilmadi. Boshqa so‘z bilan qidiring.";
+    reset.hidden = count > 0;
+  }
+  input.addEventListener("input", filterTopics);
+  reset.addEventListener("click", () => { input.value = ""; filterTopics(); input.focus(); });
+  page.addEventListener("click", async event => {
+    const button = event.target.closest("[data-help-target]");
+    if (!button) return;
+    const target = button.dataset.helpTarget;
+    if (target === "search") return openSearch();
+    const profileSection = target === "settings" || target === "certs";
+    await window.navigate(profileSection ? "profile" : target);
+    if (profileSection && currentView === "profile") {
+      const choice = target === "settings" ? box.querySelector('[aria-controls="profileSettings"]') : box.querySelector('[data-profile-choice="certs"]');
+      if (choice) { choice.click(); choice.focus(); choice.scrollIntoView({block:"center"}); }
+    } else if (currentView === target) {
+      window.scrollTo(0, 0);
+    }
+  });
+  page.querySelector("h2").focus({preventScroll:true});
+  window.scrollTo(0, 0);
+}
 function mountTools(){if(!user())return;const top=$(".topbar"),right=top&&top.lastElementChild;if(!right||$("#mosToolbar"))return;const wrap=document.createElement("div");wrap.id="mosToolbar";wrap.className="mos-toolbar";wrap.innerHTML='<button class="mos-tool-btn" title="Qidiruv (Ctrl+K)" onclick="mosOpenSearch()">⌕ <span class="mos-tool-label">Qidiruv</span><span class="mos-shortcut">Ctrl K</span></button><button class="mos-tool-btn" title="Bildirishnomalar" onclick="mosOpenNotices()">♧ <span id="mosNoticeDot" class="mos-dot" style="display:none"></span></button>';right.insertBefore(wrap,right.firstChild);const tools=wrap.querySelectorAll("button");if(tools[0])tools[0].setAttribute("aria-label","Sayt bo‘ylab qidirish (Ctrl+K)");if(tools[1])tools[1].setAttribute("aria-label","Bildirishnomalarni ochish");refreshDot();}
 function refreshDot(){const dot=$("#mosNoticeDot"),btn=dot&&dot.closest("button"),count=notices().length;if(dot)dot.style.display=count?"inline-block":"none";if(btn)btn.setAttribute("aria-label",count?"Bildirishnomalar, "+count+" ta":"Bildirishnomalar");}
-function mountNav(){const nav=$("#navMenu");if(!nav||!user())return;[['insights','▤','Natijalar tahlili'],['help','?','Yordam markazi']].forEach(x=>{if(nav.querySelector('[data-mos-view="'+x[0]+'"]'))return;const b=document.createElement("button");b.className="nav-item"+(typeof currentView!=="undefined"&&currentView===x[0]?" active":"");b.dataset.mosView=x[0];b.innerHTML='<div class="nav-item-left"><span style="width:18px;text-align:center;font-weight:800">'+x[1]+'</span><span>'+x[2]+'</span></div>';b.onclick=()=>window.navigate(x[0]);nav.appendChild(b);});}
-const originalNavigate=window.navigate;if(typeof originalNavigate==="function")window.navigate=async function(view){if(["insights","help"].includes(view)){if(!user())return;currentView=view;$("#sidebar")?.classList.remove("open");$("#sidebarOverlay")?.classList.remove("show");const nav=$("#navMenu");nav?.querySelectorAll(".nav-item").forEach(b=>{const target=b.dataset.mosView||(b.getAttribute("onclick")||"").match(/navigate\([\'"]([^\'"]+)/)?.[1];b.classList.toggle("active",target===view);});if(window.renderBottomNav)window.renderBottomNav();if(window.updateTopbar)window.updateTopbar();const box=$("#mainContent");box.dataset.page=view;if(view==="insights")insights(box);else help(box);return;}const result=await originalNavigate.apply(this,arguments);mountNav();mountTools();refreshDot();return result;};
+function mountNav(){const nav=$("#navMenu");if(!nav||!user())return;[['insights','▤','Natijalar tahlili'],['help','<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 .3c0 1.7-2.5 2.1-2.5 4M12 16.7h.01"/></svg>','Yordam markazi']].forEach(x=>{if(nav.querySelector('[data-mos-view="'+x[0]+'"]'))return;const b=document.createElement("button");b.className="nav-item"+(typeof currentView!=="undefined"&&currentView===x[0]?" active":"");b.dataset.mosView=x[0];b.innerHTML='<div class="nav-item-left"><span style="width:18px;text-align:center;font-weight:800">'+x[1]+'</span><span>'+x[2]+'</span></div>';b.onclick=()=>window.navigate(x[0]);nav.appendChild(b);});}
+const originalNavigate=window.navigate;if(typeof originalNavigate==="function")window.navigate=async function(view){if(["insights","help"].includes(view)){if(!user())return;currentView=view;$("#sidebar")?.classList.remove("open");$("#sidebarOverlay")?.classList.remove("show");const nav=$("#navMenu");nav?.querySelectorAll(".nav-item").forEach(b=>{const target=b.dataset.mosView||(b.getAttribute("onclick")||"").match(/navigate\([\'"]([^\'"]+)/)?.[1];b.classList.toggle("active",target===view);if(target===view)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});if(window.renderBottomNav)window.renderBottomNav();if(window.updateTopbar)window.updateTopbar();const box=$("#mainContent");box.dataset.page=view;if(view==="insights")insights(box);else help(box);return;}const result=await originalNavigate.apply(this,arguments);mountNav();mountTools();refreshDot();return result;};
 const originalEnter=window.enterApp;if(typeof originalEnter==="function")window.enterApp=function(){const result=originalEnter.apply(this,arguments);setTimeout(()=>{mountNav();mountTools();},0);return result;};
 document.addEventListener("keydown",e=>{const t=e.target,typing=t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable);if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openSearch();}if(e.key==="/"&&!typing&&user()){e.preventDefault();openSearch();}if(e.key==="Escape"&&$("#modalBackdrop")&&!$("#modalBackdrop").classList.contains("hidden"))window.closeModal();});
 window.mosOpenSearch=openSearch;window.mosOpenNotices=openNotices;window.mosSearchOpen=async i=>{const x=searchResults[i];if(x){window.closeModal();if(x.memberId)openMember(x.memberId);else {await window.navigate(x.view);if(x.roomId)selectRoom(x.roomId);}}};window.mosNoticeOpen=i=>{const x=noticeItems[i];if(x){window.closeModal();window.navigate(x.view);}};window.mosExportCSV=exportCSV;

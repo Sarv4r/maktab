@@ -843,3 +843,21 @@ button.member-avatar {cursor:pointer}
 }
 
 .home-stats small {display:block;margin-top:4px;font-weight:400}
+
+.ilm-help {max-width:76rem;margin-inline:auto;color:var(--text)}
+.help-search {display:grid;gap:.4rem;margin-block:1.25rem .75rem;font-weight:650;font-size:.95rem}
+.help-search input {width:100%;max-width:38rem;min-height:46px;font:inherit;font-size:1rem;font-weight:400}
+.help-status {margin:0;color:var(--muted);font-size:.95rem}
+.help-status:not(:empty) {margin-bottom:.75rem}
+.help-groups {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));align-items:start;gap:1rem}
+.help-group {overflow:hidden;min-width:0;border:1px solid var(--border-soft);border-radius:14px;background:var(--surface)}
+.help-group h3 {display:flex;align-items:center;gap:.65rem;margin:0;padding:1rem;color:var(--ilm-ink);background:var(--ilm-soft);font-size:1.05rem}
+.help-group h3 svg {flex:none;width:20px;height:20px}
+.help-group details + details {border-top:1px solid var(--border-soft)}
+.help-group summary {padding:.85rem 1rem;min-height:44px;line-height:1.5;font-weight:600;cursor:pointer;overflow-wrap:anywhere}
+.help-group summary::marker {color:var(--ilm-ink)}
+#appScreen .help-group summary:focus-visible {outline-offset:-3px}
+.help-answer {padding:0 1rem 1rem}
+.help-answer p {margin:0 0 .75rem;color:var(--text);line-height:1.6;font-size:1rem}
+.help-answer button,.help-reset {min-height:44px}
+.ilm-help [hidden] {display:none!important}
